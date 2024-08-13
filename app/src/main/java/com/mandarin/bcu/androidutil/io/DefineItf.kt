@@ -9,6 +9,8 @@ import common.CommonStatic
 import common.CommonStatic.Itf
 import common.pack.Identifier
 import common.util.stage.Music
+import common.util.unit.AbForm
+import common.util.unit.Level
 import java.io.File
 
 class DefineItf : Itf {
@@ -22,7 +24,7 @@ class DefineItf : Itf {
         }
     }
 
-    override fun save(save: Boolean, exit: Boolean) {}
+    override fun save(save: Boolean, genBackup: Boolean, exit: Boolean) {}
 
     override fun getMusicLength(f: Music?): Long {
         f ?: return -1
@@ -54,6 +56,14 @@ class DefineItf : Itf {
         mus ?: return
 
         SoundHandler.setBGM(mus)
+    }
+
+    override fun getUILang(m: Int, s: String?): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun lvText(f: AbForm?, lv: Level?): Array<String> {
+        TODO("Not yet implemented")
     }
 
     fun init(c: Context) {

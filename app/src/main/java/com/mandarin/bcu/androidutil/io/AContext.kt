@@ -112,6 +112,10 @@ class AContext : Context {
         return File(StaticStore.getExternalPath(a))
     }
 
+    override fun newFile(path: String?): File {
+        TODO("Not yet implemented")
+    }
+
     override fun getAuthor(): String {
         return ""
     }
@@ -144,8 +148,8 @@ class AContext : Context {
         return File(StaticStore.getExternalUser(a)+string)
     }
 
-    override fun confirmDelete(): Boolean {
-        return true
+    override fun confirm(str: String?): Boolean {
+        TODO("Not yet implemented")
     }
 
     override fun confirmDelete(f: File?): Boolean {
@@ -211,17 +215,8 @@ class AContext : Context {
         }
     }
 
-    override fun loadProg(str: String?) {
-        val con = c ?: return
-        val a = con.get() ?: return
-
-        try {
-            val text = a.findViewById<TextView>(R.id.status)
-
-            text.text = str
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    override fun loadProg(d: Double, str: String?) {
+        TODO("Not yet implemented")
     }
 
     override fun restore(b: Backup?, prog: Consumer<Double>?): Boolean {

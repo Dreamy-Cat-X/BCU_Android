@@ -268,13 +268,13 @@ open class CheckUpdateScreen : AppCompatActivity() {
 
                         langFiles.add("Difficulty.txt")
 
-                        CommonStatic.getConfig().localLangMap["Difficulty.txt"] = langShared.getString("Difficulty.txt", "")
+                        CommonStatic.getDataMaps().localLangMap["Difficulty.txt"] = langShared.getString("Difficulty.txt", "")
 
                         for(lang in langFolder) {
                             for(l in StaticStore.langfile) {
                                 langFiles.add("$lang$l")
 
-                                CommonStatic.getConfig().localLangMap["$lang$l"] = langShared.getString("$lang$l", "")
+                                CommonStatic.getDataMaps().localLangMap["$lang$l"] = langShared.getString("$lang$l", "")
                             }
                         }
 
@@ -282,7 +282,7 @@ open class CheckUpdateScreen : AppCompatActivity() {
                         val musicCount = updateJson?.music ?: 0
 
                         for(i in 0 until musicCount) {
-                            CommonStatic.getConfig().localMusicMap[i] = musicShared.getString(Data.trio(i), "")
+                            CommonStatic.getDataMaps().localMusicMap[i] = musicShared.getString(Data.trio(i), "")
                         }
 
                         val assetList = try {

@@ -13,6 +13,7 @@ import com.mandarin.bcu.UnitInfo
 import com.mandarin.bcu.androidutil.filter.FilterEntity
 import common.io.json.JsonEncoder
 import common.pack.Identifier
+import common.util.unit.AbUnit
 import common.util.unit.Unit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -50,7 +51,7 @@ class UnitListPager : Fragment() {
             nores.visibility = View.GONE
             list.visibility = View.VISIBLE
 
-            val names = ArrayList<Identifier<Unit>>()
+            val names = ArrayList<Identifier<AbUnit>>()
 
             for(i in numbers) {
                 val u = Identifier.get(i) ?: return view
@@ -99,7 +100,7 @@ class UnitListPager : Fragment() {
                 list.visibility = View.VISIBLE
             }
 
-            val names = ArrayList<Identifier<Unit>>()
+            val names = ArrayList<Identifier<AbUnit>>()
 
             for(i in numbers) {
                 val u = Identifier.get(i) ?: return

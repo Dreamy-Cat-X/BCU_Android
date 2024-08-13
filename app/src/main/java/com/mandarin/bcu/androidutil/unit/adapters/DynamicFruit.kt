@@ -11,9 +11,10 @@ import androidx.viewpager.widget.PagerAdapter
 import com.mandarin.bcu.R
 import com.mandarin.bcu.androidutil.StaticStore
 import common.pack.Identifier
+import common.util.unit.AbUnit
 import common.util.unit.Unit
 
-class DynamicFruit(private val activity: Activity, private val data: Identifier<Unit>, private val forTrueForm: Boolean) : PagerAdapter() {
+class DynamicFruit(private val activity: Activity, private val data: Identifier<AbUnit>, private val forTrueForm: Boolean) : PagerAdapter() {
     private val imgid = intArrayOf(R.id.fruit1, R.id.fruit2, R.id.fruit3, R.id.fruit4, R.id.fruit5, R.id.xp)
     private val txid = intArrayOf(R.id.fruittext1, R.id.fruittext2, R.id.fruittext3, R.id.fruittext4, R.id.fruittext5, R.id.xptext)
     private val cfdeid = intArrayOf(R.id.cfinf1, R.id.cfinf2, R.id.cfinf3)
@@ -43,7 +44,8 @@ class DynamicFruit(private val activity: Activity, private val data: Identifier<
         val inflater = LayoutInflater.from(activity)
         val layout = inflater.inflate(R.layout.fruit_table, group, false) as ViewGroup
 
-        val u = data.get() ?: return layout
+        val au = data.get() ?: return layout
+        val u = au as Unit
 
         for (i in fruits.indices) {
             fruits[i] = layout.findViewById(imgid[i])

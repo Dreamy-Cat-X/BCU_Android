@@ -244,7 +244,7 @@ object StaticStore {
     /**
      * Variables for LineUp
      */
-    var ludata = ArrayList<Identifier<Unit>>()
+    var ludata = ArrayList<Identifier<AbUnit>>()
     var LULoading = false
     var LUread = false
     var LUtabPosition = 0

@@ -44,6 +44,7 @@ import common.battle.data.MaskUnit
 import common.io.json.JsonEncoder
 import common.pack.Identifier
 import common.util.lang.MultiLangCont
+import common.util.unit.AbUnit
 import common.util.unit.Form
 import common.util.unit.Level
 import common.util.unit.Unit
@@ -51,7 +52,7 @@ import common.util.unit.Unit
 class UnitInfoPager : Fragment() {
     companion object {
         @JvmStatic
-        fun newInstance(form: Int, data: Identifier<Unit>, names: Array<String>): UnitInfoPager {
+        fun newInstance(form: Int, data: Identifier<AbUnit>, names: Array<String>): UnitInfoPager {
             val pager = UnitInfoPager()
 
             val bundle = Bundle()
@@ -159,13 +160,14 @@ class UnitInfoPager : Fragment() {
 
         val t = BasisSet.current().t()
 
-        val u = Identifier.get(StaticStore.transformIdentifier<Unit>(arg.getString("Data")))
+        val au = Identifier.get(StaticStore.transformIdentifier<AbUnit>(arg.getString("Data")))
 
-        if(u == null) {
+        if(au == null) {
             Log.e("UnitinfPager", "Identifier is null\nArgument : ${arg.getString("Data")}")
 
             return view
         }
+        val u = au as Unit
 
         val f = u.forms[form]
 
@@ -382,7 +384,8 @@ class UnitInfoPager : Fragment() {
 
         val arg = arguments ?: return
 
-        val u = Identifier.get(StaticStore.transformIdentifier<Unit>(arg.getString("Data"))) ?: return
+        val au = Identifier.get(StaticStore.transformIdentifier<AbUnit>(arg.getString("Data"))) ?: return
+        val u = au as Unit
 
         val f = u.forms[form]
 
@@ -576,7 +579,7 @@ class UnitInfoPager : Fragment() {
 
                 unithp.text = s.getHP(f, t, talents, this@UnitInfoPager.level)
 
-                if (f.du.rawAtkData().size > 1) {
+                if (f.du.getAtks(0).size > 1) {//TODO - Atks
                     if (unitatkb.text == activity.getString(R.string.unit_info_atk))
                         unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level)
                     else
@@ -609,7 +612,7 @@ class UnitInfoPager : Fragment() {
 
                 unithp.text = s.getHP(f, t, talents, this@UnitInfoPager.level)
 
-                if (f.du.rawAtkData().size > 1) {
+                if (f.du.getAtks(0).size > 1) {//TODO - Atks
                     if (unitatkb.text == activity.getString(R.string.unit_info_atk))
                         unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level)
                     else

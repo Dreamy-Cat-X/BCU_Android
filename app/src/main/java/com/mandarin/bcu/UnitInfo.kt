@@ -47,6 +47,7 @@ import common.CommonStatic
 import common.io.json.JsonEncoder
 import common.pack.Identifier
 import common.util.lang.MultiLangCont
+import common.util.unit.AbUnit
 import common.util.unit.Unit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -104,7 +105,7 @@ class UnitInfo : AppCompatActivity() {
         val result = intent
         val extra = result.extras ?: return
 
-        val data = StaticStore.transformIdentifier<Unit>(extra.getString("Data")) ?: return
+        val data = StaticStore.transformIdentifier<AbUnit>(extra.getString("Data")) ?: return
 
         lifecycleScope.launch {
             //Prepare
@@ -136,7 +137,8 @@ class UnitInfo : AppCompatActivity() {
                 Definer.define(this@UnitInfo, { _ -> }, { t -> runOnUiThread { st.text = t }})
             }
 
-            val u = data.get() ?: return@launch
+            val au = data.get() ?: return@launch
+            val u = au as Unit //There will be no random units here so who cares lamo
 
             //Load UI
             val tabNames = u.forms.mapIndexed { i, _ ->
@@ -198,7 +200,6 @@ class UnitInfo : AppCompatActivity() {
 
             treasureTab.setOnTouchListener { _, _ ->
                 mainLayout.isClickable = false
-
                 true
             }
 
@@ -265,8 +266,7 @@ class UnitInfo : AppCompatActivity() {
                     intent.putExtra("Data", JsonEncoder.encode(data).toString())
                     intent.putExtra("Form", StaticStore.formposition)
 
-                    CommonStatic.getConfig().performanceModeAnimation = shared.getBoolean("performanceAnimation", false)
-
+                    CommonStatic.getConfig().fps60 = shared.getBoolean("fps60", false)
                     startActivity(intent)
                 }
             })
@@ -488,21 +488,19 @@ class UnitInfo : AppCompatActivity() {
         }
     }
 
-    private inner class TableTab(private val form: Int, private val names: Array<String>, private val data: Identifier<Unit>) : FragmentStateAdapter(supportFragmentManager, lifecycle) {
+    private inner class TableTab(private val form: Int, private val names: Array<String>, private val data: Identifier<AbUnit>) : FragmentStateAdapter(supportFragmentManager, lifecycle) {
         override fun getItemCount(): Int {
             return form
         }
-
         override fun createFragment(position: Int): Fragment {
             return UnitInfoPager.newInstance(position, data, names)
         }
     }
 
-    private inner class ExplanationTab(private val number: Int, private val title: Array<String>, private val data: Identifier<Unit>) : FragmentStateAdapter(supportFragmentManager, lifecycle) {
+    private inner class ExplanationTab(private val number: Int, private val title: Array<String>, private val data: Identifier<AbUnit>) : FragmentStateAdapter(supportFragmentManager, lifecycle) {
         override fun getItemCount(): Int {
             return number
         }
-
         override fun createFragment(position: Int): Fragment {
             return DynamicExplanation.newInstance(position, data, title)
         }

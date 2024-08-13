@@ -83,7 +83,7 @@ class EffListPager<T> : Fragment() where T : AnimI<*, *> {
                 ArrayList<NyCastle>(CommonStatic.getBCAssets().atks.toMutableList())
             }
             AnimationCView.AnimationType.DEMON_SOUL -> {
-                UserProfile.getBCData().demonSouls.list
+                CommonStatic.getBCAssets().demonSouls
             }
             else -> {
                 throw IllegalStateException("Invalid type $type in EffListPager")

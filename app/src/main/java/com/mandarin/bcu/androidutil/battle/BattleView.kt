@@ -40,6 +40,7 @@ import common.util.lang.MultiLangCont
 import common.util.stage.MapColc
 import common.util.stage.Stage
 import common.util.stage.info.DefStageInfo
+import common.util.unit.Form
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.pow
@@ -104,8 +105,6 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
         if(CommonStatic.getConfig().stageName)
             painter.stageImage = stgImage
 
-        CommonStatic.getConfig().performanceModeAnimation = CommonStatic.getConfig().performanceModeBattle
-
         painter.dpi = StaticStore.dptopx(32f, context)
         painter.stmImageOffset = StaticStore.dptopx(52f, context)
         painter.stmImageYOffset = StaticStore.dptopx(if(default) 6f else 9f, context)
@@ -129,7 +128,8 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
 
         for (fs in painter.bf.sb.b.lu.fs) {
             for (f in fs) {
-                f ?: continue
+                if (f !is Form)
+                    continue
 
                 try {
                     f.anim.check()
@@ -194,7 +194,7 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
             } catch(e: Exception) {
                 for (fs in painter.bf.sb.b.lu.fs) {
                     for (f in fs) {
-                        if (f != null) {
+                        if (f is Form) {
                             if (f.anim.uni.img.height == f.anim.uni.img.width) {
                                 val cut = ImgCut.newIns("./org/data/uni.imgcut")
                                 f.anim.uni.setCut(cut)
@@ -291,7 +291,7 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
                 }
             }
 
-            val targetTime = if (CommonStatic.getConfig().performanceModeBattle) {
+            val targetTime = if (CommonStatic.getConfig().fps60) {
                 1000 / 60.0
             } else {
                 1000 / 30.0
@@ -365,10 +365,8 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
 
         for(entity in painter.bf.sb.le) {
             if(entity.dire == 1) {
-
-                if ((entity as EEnemy).mark > 0) {
+                if ((entity as EEnemy).mark > 0)
                     bosses.add(entity)
-                }
             }
         }
 
@@ -399,7 +397,7 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
 
         intent.putExtra("Data", JsonEncoder.encode(st.id).toString())
         intent.putExtra("star",painter.bf.sb.est.star)
-        intent.putExtra("item",if(ex) 0 else painter.bf.sb.conf[0])
+        intent.putExtra("item",if(ex) 0 else painter.bf.sb.conf)
         intent.putExtra("size", painter.bf.sb.siz)
         intent.putExtra("pos", painter.bf.sb.pos)
 
@@ -428,7 +426,8 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
 
         for (fs in painter.bf.sb.b.lu.fs) {
             for (f in fs) {
-                f?.anim?.unload()
+                if (f is Form)
+                    f.anim?.unload()
             }
         }
 
@@ -493,7 +492,7 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
     private fun showBattleResult(win: Boolean) {
         val st = painter.bf.sb.st
 
-        if(win && CommonStatic.getConfig().exContinuation && st.info != null && (st.info.hasExConnection() || st.info.exStages != null)) {
+        if(win && CommonStatic.getConfig().exContinuation && st.info != null && (st.info.exConnection() || st.info.exStages != null)) {
             if(CommonStatic.getConfig().realEx) {
                 val stage = pickOneEXStage()
 
@@ -658,7 +657,7 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
     private fun getEXStages(st: Stage) : List<Stage> {
         val res = ArrayList<Stage>()
 
-        if(st.info.hasExConnection()) {
+        if(st.info.exConnection()) {
             val inf = st.info as DefStageInfo
             val min = inf.exStageIDMin
             val max = inf.exStageIDMax
@@ -704,7 +703,7 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
 
         val st = painter.bf.sb.st
 
-        if(st.info.hasExConnection()) {
+        if(st.info.exConnection()) {
             val inf = st.info as DefStageInfo
             val min = inf.exStageIDMin
             val max = inf.exStageIDMax

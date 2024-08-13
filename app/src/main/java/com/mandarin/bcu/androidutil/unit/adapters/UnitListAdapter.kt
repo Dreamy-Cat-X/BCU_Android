@@ -13,9 +13,10 @@ import com.mandarin.bcu.androidutil.StaticStore
 import com.mandarin.bcu.androidutil.supports.AutoMarquee
 import common.pack.Identifier
 import common.util.lang.MultiLangCont
+import common.util.unit.AbUnit
 import common.util.unit.Unit
 
-class UnitListAdapter(context: Context, private val name: ArrayList<Identifier<Unit>>) : ArrayAdapter<Identifier<Unit>>(context, R.layout.listlayout, name.toTypedArray()) {
+class UnitListAdapter(context: Context, private val name: ArrayList<Identifier<AbUnit>>) : ArrayAdapter<Identifier<AbUnit>>(context, R.layout.listlayout, name.toTypedArray()) {
     inner class ViewHolder(row: View) {
         val id = row.findViewById<AutoMarquee>(R.id.unitID)!!
         val title = row.findViewById<TextView>(R.id.unitname)!!

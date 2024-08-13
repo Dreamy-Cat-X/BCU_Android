@@ -20,6 +20,7 @@ import common.battle.LineUp
 import common.system.files.VFile
 import common.util.stage.Limit
 import common.util.stage.Stage
+import common.util.unit.AbForm
 import common.util.unit.Form
 import java.util.Collections
 import kotlin.math.max
@@ -136,7 +137,7 @@ class LineUpView : View {
      * Replacing area's form data
      */
     @JvmField
-    var repform: Form? = null
+    var repform: AbForm? = null
 
     private lateinit var replaceFormIcon: Bitmap
     private var isReplaceFormUnusable = false
@@ -418,7 +419,7 @@ class LineUpView : View {
 
     private fun rotateUnit(from: IntArray, to: IntArray, toRight: Boolean) {
         //Make 2D array into 1D array
-        val unitArray = Array<Form?>(10) {
+        val unitArray = Array<AbForm?>(10) {
             val x = if (it >= 5)
                 1
             else
@@ -441,7 +442,7 @@ class LineUpView : View {
             return
         }
 
-        val extractedUnitArray = Array<Form?>(realTo - realFrom + 1) {
+        val extractedUnitArray = Array<AbForm?>(realTo - realFrom + 1) {
             val realIndex = it + realFrom
 
             val x = if (realIndex >= 5)
@@ -516,7 +517,7 @@ class LineUpView : View {
     fun syncLineUp() {
         lu.fs.forEachIndexed { row, forms ->
             forms.forEachIndexed { col, form ->
-                if (form != null && (form.du == null || form.du.proc == null)) {
+                if (form is Form && (form.du == null || form.du.proc == null)) {
                     lu.fs[row][col] = null
                 }
             }
@@ -526,19 +527,19 @@ class LineUpView : View {
 
         lu.fs.forEachIndexed { x, forms ->
             forms.forEachIndexed { y, form ->
-                val icon = form?.anim?.uni?.img?.bimg()
+                val icon = form?.deployIcon?.img?.bimg()
 
                 units[x][y] = if (icon is Bitmap)
                     StaticStore.getResizebp(StaticStore.makeIcon(context, icon, 48f), bw, bw)
                 else
                     empty
 
-                isUnusable[x][y] = limit != null && lu.fs[x][y] != null && limit?.unusable(lu.fs[x][y].du, price) == true
+                isUnusable[x][y] = limit != null && lu.fs[x][y] is Form && limit?.unusable((lu.fs[x][y] as Form).du, price, x.toByte()) == true
             }
         }
 
         if (repform != null) {
-            val icon = repform?.anim?.uni?.img?.bimg()
+            val icon = repform?.deployIcon?.img?.bimg()
 
             if (icon == null) {
                 replaceFormIcon = StaticStore.getResizebp(StaticStore.makeIcon(context, empty, 48f), bw, bw)
@@ -555,7 +556,7 @@ class LineUpView : View {
             }
 
             replaceFormIcon = StaticStore.getResizebp(StaticStore.makeIcon(context, icon, 48f), bw, bw)
-            isReplaceFormUnusable = limit != null && limit?.unusable(repform?.du, price) == true
+            isReplaceFormUnusable = limit != null && repform is Form && limit?.unusable((repform as Form).du, price, -108) == true
         } else {
             replaceFormIcon = StaticStore.getResizebp(StaticStore.makeIcon(context, empty, 48f), bw, bw)
             isReplaceFormUnusable = false
@@ -617,8 +618,8 @@ class LineUpView : View {
             return null
 
         if (x == REPLACE)
-            return if (repform != null && repform!!.anim.uni.img != null) {
-                var b = repform!!.anim.uni.img.bimg() as Bitmap
+            return if (repform != null && repform!!.deployIcon.img != null) {
+                var b = repform!!.deployIcon.img.bimg() as Bitmap
 
                 if (b.height != b.width)
                     b = StaticStore.makeIcon(context, b, 48f)
@@ -663,9 +664,9 @@ class LineUpView : View {
             for (j in BasisSet.current().sele.lu.fs[i].indices) {
                 val f = BasisSet.current().sele.lu.fs[i][j]
 
-                if (f != null) {
-                    if (repform != null) {
-                        if (f.unit === repform!!.unit) {
+                if (f is Form) {
+                    if (repform is Form) {
+                        if (f.unit === (repform as Form).unit) {
                             repform = null
 
                             StaticStore.position = intArrayOf(-1, -1)

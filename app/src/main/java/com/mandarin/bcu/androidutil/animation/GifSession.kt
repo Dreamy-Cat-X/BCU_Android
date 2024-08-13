@@ -18,6 +18,7 @@ import common.system.P
 import common.util.Data
 import common.util.anim.EAnimD
 import common.util.unit.AbEnemy
+import common.util.unit.AbUnit
 import common.util.unit.Enemy
 import common.util.unit.Unit
 import kotlinx.coroutines.CoroutineScope
@@ -45,7 +46,7 @@ class GifSession(val recorder: ImageViewer.GifRecorder, private val type: Animat
 
         recorder.checkValidClasses(data, type)
 
-        val targetFPS = if (CommonStatic.getConfig().performanceModeAnimation) {
+        val targetFPS = if (CommonStatic.getConfig().fps60) {
             60f
         } else {
             30f
@@ -148,7 +149,7 @@ class GifSession(val recorder: ImageViewer.GifRecorder, private val type: Animat
     private fun initializeAnimation(animationType: Int, form: Int) {
         when(type) {
             AnimationCView.AnimationType.UNIT -> {
-                val d = StaticStore.transformIdentifier<Unit>(data as Identifier<*>)
+                val d = StaticStore.transformIdentifier<AbUnit>(data as Identifier<*>)
 
                 if(d != null) {
                     val u = d.get()

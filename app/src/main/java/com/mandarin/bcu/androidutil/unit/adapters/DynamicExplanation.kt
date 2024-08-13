@@ -11,12 +11,13 @@ import com.mandarin.bcu.androidutil.StaticStore
 import common.io.json.JsonEncoder
 import common.pack.Identifier
 import common.util.lang.MultiLangCont
+import common.util.unit.AbUnit
 import common.util.unit.Unit
 
 class DynamicExplanation : Fragment() {
     companion object {
         @JvmStatic
-        fun newInstance(`val`: Int, data: Identifier<Unit>, titles: Array<String>): DynamicExplanation {
+        fun newInstance(`val`: Int, data: Identifier<AbUnit>, titles: Array<String>): DynamicExplanation {
             val explanation = DynamicExplanation()
             val bundle = Bundle()
 
@@ -35,11 +36,12 @@ class DynamicExplanation : Fragment() {
 
         val arg = arguments ?: return view
 
-        val data = StaticStore.transformIdentifier<Unit>(arg.getString("Data")) ?: return view
+        val data = StaticStore.transformIdentifier<AbUnit>(arg.getString("Data")) ?: return view
 
         val fid = arg.getInt("Number", 0)
 
-        val u = data.get() ?: return view
+        val au = data.get() ?: return view
+        val u = au as Unit
 
         var explanation = if(u.id.pack == Identifier.DEF) {
             MultiLangCont.getStatic().FEXP.getCont(u.forms[fid])

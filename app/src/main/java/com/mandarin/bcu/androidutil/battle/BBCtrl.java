@@ -9,7 +9,7 @@ import common.CommonStatic;
 import common.battle.SBCtrl;
 import common.system.P;
 import common.system.fake.FakeImage;
-import common.util.unit.Form;
+import common.util.unit.AbForm;
 
 public class BBCtrl extends BattleBox.BBPainter {
     private final SBCtrl ctrl;
@@ -42,9 +42,9 @@ public class BBCtrl extends BattleBox.BBPainter {
 
                 for(int i = 0; i < 2; i++) {
                     for(int j = 0; j < 5; j++) {
-                        Form f = ctrl.sb.b.lu.fs[i][j];
+                        AbForm f = ctrl.sb.b.lu.fs[i][j];
 
-                        FakeImage img = f == null ? aux.slot[0].getImg() : f.anim.getUni().getImg();
+                        FakeImage img = f == null ? aux.slot[0].getImg() : f.getDeployIcon().getImg();
 
                         int iw = (int) (hr * img.getWidth());
                         int ih = (int) (hr * img.getHeight());
@@ -58,9 +58,9 @@ public class BBCtrl extends BattleBox.BBPainter {
                 }
             } else {
                 for (int i = 0; i < 5; i++) {
-                    Form f = ctrl.sb.b.lu.fs[ctrl.sb.frontLineup][i];
+                    AbForm f = ctrl.sb.b.lu.fs[ctrl.sb.frontLineup][i];
 
-                    FakeImage img = f == null ? aux.slot[0].getImg() : f.anim.getUni().getImg();
+                    FakeImage img = f == null ? aux.slot[0].getImg() : f.getDeployIcon().getImg();
 
                     int iw = (int) (hr * img.getWidth());
                     int ih = (int) (hr * img.getHeight());
@@ -89,7 +89,7 @@ public class BBCtrl extends BattleBox.BBPainter {
             if (!new PP(p).out(new P(w - iw - cutout + BOTTOM_GAP * hr, h - ih), new P(w - cutout + BOTTOM_GAP * hr, h), 0))
                 ctrl.action.add(-2);
 
-            if ((ctrl.sb.conf[0] & 2) > 0) {
+            if ((ctrl.sb.conf & 2) > 0) {
                 FakeImage bimg = CommonStatic.getBCAssets().battle[2][1].getImg();
                 int cw = (int)(bimg.getWidth()*ratio);
                 int ch = (int)(bimg.getHeight()*ratio);
@@ -109,9 +109,9 @@ public class BBCtrl extends BattleBox.BBPainter {
 
                 for(int i = 0; i < 2; i++) {
                     for(int j = 0; j < 5; j++) {
-                        Form f = ctrl.sb.b.lu.fs[i][j];
+                        AbForm f = ctrl.sb.b.lu.fs[i][j];
 
-                        FakeImage img = f == null ? aux.slot[0].getImg() : f.anim.getUni().getImg();
+                        FakeImage img = f == null ? aux.slot[0].getImg() : f.getDeployIcon().getImg();
 
                         int iw = (int) (hr * img.getWidth());
                         int ih = (int) (hr * img.getHeight());
@@ -127,9 +127,9 @@ public class BBCtrl extends BattleBox.BBPainter {
                 }
             } else {
                 for (int i = 0; i < 5; i++) {
-                    Form f = ctrl.sb.b.lu.fs[ctrl.sb.frontLineup][i];
+                    AbForm f = ctrl.sb.b.lu.fs[ctrl.sb.frontLineup][i];
 
-                    FakeImage img = f == null ? aux.slot[0].getImg() : f.anim.getUni().getImg();
+                    FakeImage img = f == null ? aux.slot[0].getImg() : f.getDeployIcon().getImg();
 
                     int iw = (int) (hr * img.getWidth());
                     int ih = (int) (hr * img.getHeight());

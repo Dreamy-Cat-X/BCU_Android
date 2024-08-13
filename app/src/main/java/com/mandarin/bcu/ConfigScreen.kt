@@ -383,18 +383,18 @@ open class ConfigScreen : AppCompatActivity() {
             override fun onStopTrackingTouch(p0: SeekBar?) {}
         })
 
-        val performanceAnimation = findViewById<SwitchCompat>(R.id.configperfanim)
-        val performanceBattle = findViewById<SwitchCompat>(R.id.configperfbattle)
+        val fps60 = findViewById<SwitchCompat>(R.id.configperfanim)
+        val performanceBattle = findViewById<SwitchCompat>(R.id.configperfbattle) //TODO - Remove this button
         val warnText = findViewById<TextView>(R.id.configcaution)
 
-        performanceAnimation.setOnCheckedChangeListener { _, checked ->
-            CommonStatic.getConfig().performanceModeAnimation = checked
+        fps60.setOnCheckedChangeListener { _, checked ->
+            CommonStatic.getConfig().fps60 = checked
 
             val editor = shared.edit()
             editor.putBoolean("performanceAnimation", checked)
             editor.apply()
 
-            warnText.visibility = if (CommonStatic.getConfig().performanceModeAnimation || CommonStatic.getConfig().performanceModeBattle) {
+            warnText.visibility = if (CommonStatic.getConfig().fps60) {
                 VISIBLE
             } else {
                 GONE
@@ -402,27 +402,27 @@ open class ConfigScreen : AppCompatActivity() {
         }
 
         performanceBattle.setOnCheckedChangeListener { _, checked ->
-            CommonStatic.getConfig().performanceModeBattle = checked
+            CommonStatic.getConfig().fps60 = checked
 
             val editor = shared.edit()
             editor.putBoolean("performanceBattle", checked)
             editor.apply()
 
-            warnText.visibility = if (CommonStatic.getConfig().performanceModeAnimation || CommonStatic.getConfig().performanceModeBattle) {
+            warnText.visibility = if (CommonStatic.getConfig().fps60) {
                 VISIBLE
             } else {
                 GONE
             }
         }
 
-        warnText.visibility = if (CommonStatic.getConfig().performanceModeAnimation || CommonStatic.getConfig().performanceModeBattle) {
+        warnText.visibility = if (CommonStatic.getConfig().fps60) {
             VISIBLE
         } else {
             GONE
         }
 
-        performanceAnimation.isChecked = CommonStatic.getConfig().performanceModeAnimation
-        performanceBattle.isChecked = CommonStatic.getConfig().performanceModeBattle
+        fps60.isChecked = CommonStatic.getConfig().fps60
+        performanceBattle.isChecked = CommonStatic.getConfig().fps60
 
         val mus = findViewById<SwitchCompat>(R.id.configmus)
         val musvol = findViewById<SeekBar>(R.id.configmusvol)

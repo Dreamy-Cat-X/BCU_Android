@@ -34,7 +34,7 @@ import common.util.Res;
 import common.util.anim.AnimU;
 import common.util.pack.EffAnim;
 import common.util.stage.CastleImg;
-import common.util.unit.Form;
+import common.util.unit.AbForm;
 
 public interface BattleBox {
 
@@ -152,10 +152,10 @@ public interface BattleBox {
 
             regulate();
 
-            if(bf.sb.s_stop == 0 && ((CVGraphics)g).neg) {
+            if(bf.sb.timeFlow == 1 && ((CVGraphics)g).neg) {
                 //Set p0 to 1 to change negative effect
                 g.setComposite(CVGraphics.POSITIVE, 1, 0);
-            } else if(bf.sb.s_stop > 0) {
+            } else if(bf.sb.timeFlow != 1) {
                 g.setComposite(CVGraphics.GRAY, 0, 0);
             }
 
@@ -288,7 +288,7 @@ public interface BattleBox {
             int w = box.getWidth();
             int h = box.getHeight();
             int cw = 0;
-            int time = bf.sb.s_stop == 0 ? (bf.sb.time / 5) % 2 : 1;
+            int time = bf.sb.timeFlow != 1 ? (bf.sb.time / 5) % 2 : 1;
             int mtype = bf.sb.money < bf.sb.upgradeCost ? 0 : time == 0 ? 1 : 2;
 
             if (bf.sb.work_lv >= 8)
@@ -404,9 +404,9 @@ public interface BattleBox {
 
             for (int i = 0; i < 2; i++) {
                 for(int j = 0; j < 5; j++) {
-                    Form f = bf.sb.b.lu.fs[i][j];
+                    AbForm f = bf.sb.b.lu.fs[i][j];
 
-                    FakeImage img = f == null ? aux.slot[0].getImg() : f.anim.getUni().getImg();
+                    FakeImage img = f == null ? aux.slot[0].getImg() : f.getDeployIcon().getImg();
 
                     iw = (int) (hr * img.getWidth());
                     ih = (int) (hr * img.getHeight());
@@ -415,7 +415,7 @@ public interface BattleBox {
                     imh = ih;
 
                     if(bf.sb.selectedUnit[0] != -1 && bf.sb.selectedUnit[0] == i && bf.sb.selectedUnit[1] == j) {
-                        switch (bf.sb.buttonDelay) {
+                        switch ((int)bf.sb.buttonDelay) {
                             case 3:
                                 imw = (int) (imw * 0.95f);
                                 imh = (int) (imh * 0.95f) ;
@@ -439,27 +439,27 @@ public interface BattleBox {
                     if (pri == -1)
                         g.colRect(x, y, iw, ih, 255, 0, 0, 100);
 
-                    int cool = bf.sb.elu.cool[i][j];
+                    double cool = bf.sb.elu.cool[i][j];
 
                     boolean b = pri > bf.sb.money || cool > 0;
 
-                    if (b && !bf.sb.summonerSummoned[i][j])
+                    if (b && !bf.sb.elu.validSpirit(i, j))
                         g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 0, 0, 0, 100);
 
                     if (bf.sb.locks[i][j])
                         g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 0, 255, 0, 100);
 
-                    if (bf.sb.summonerSummoned[i][j]) {
-                        if (bf.sb.spiritSummoned[i][j] || (bf.sb.summoner[i][j] != null && bf.sb.summoner[i][j].anim.dead >= 0)) {
+                    if (bf.sb.elu.validSpirit(i, j)) {
+                        if (!bf.sb.elu.readySpirit(i, j) || (bf.sb.elu.smnd[i][j] != null && bf.sb.elu.smnd[i][j].anim.dead >= 0)) {
                             g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 64, 0, 0, 160);
                         } else {
-                            if (bf.sb.spiritEmphasizeCount[i][j] % 2 == 0) {
+                            if (bf.sb.elu.sGlow[i][j] % 2 == 0) {
                                 g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 30, 92, 123, 100);
                             } else {
                                 g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 50, 153, 205, 100);
                             }
 
-                            if (bf.sb.spiritCooldown[i][j] == 0) {
+                            if (bf.sb.elu.scd[i][j] == 0) {
                                 FakeImage summonText = aux.spiritSummon[Res.decideLocale().ordinal()].getImg();
 
                                 int stw = (int) (summonText.getWidth() * hr);
@@ -467,7 +467,7 @@ public interface BattleBox {
 
                                 g.drawImage(summonText, (int) (x + (iw - stw) / 2.0), (int) (y + (ih - sth) / 2.0), stw, sth);
 
-                                int alpha = (int) (64 * (-0.5 * Math.cos(Math.PI / 15 * (bf.sb.spiritEmphasizeStartTime[i][j] - bf.sb.time)) + 0.5));
+                                int alpha = (int) (64 * (-0.5 * Math.cos(Math.PI / 15 * (bf.sb.elu.sGlow[i][j] - bf.sb.time)) + 0.5));
 
                                 g.setComposite(FakeGraphics.MASK, alpha, 0);
 
@@ -482,14 +482,14 @@ public interface BattleBox {
                         int dw = (int) (hr * 10);
                         int dh = (int) (hr * 12);
 
-                        float cd = 1f * cool / bf.sb.elu.maxC[i][j];
+                        double cd = 1f * cool / bf.sb.elu.maxC[i][j];
 
                         int xw = (int) (cd * (iw - dw * 2));
 
                         g.colRect(x + iw - dw - xw, y + ih - dh * 2, xw, dh, 0, 0, 0, 255);
 
                         g.colRect(x + dw, y + ih - dh * 2, iw - dw * 2 - xw, dh, 100, 212, 255, 255);
-                    } else if (pri != -1 && !bf.sb.summonerSummoned[i][j]) {
+                    } else if (pri != -1 && !bf.sb.elu.readySpirit(i, j)) {
                         setSym(g, hr, x + iw * 1.05f, y + ih * 1.05f, 3);
 
                         Res.getCost(pri / 100, !b, sym);
@@ -505,9 +505,9 @@ public interface BattleBox {
             int imh;
 
             for (int i = 0; i < 5; i++) {
-                Form f = bf.sb.b.lu.fs[index][i];
+                AbForm f = bf.sb.b.lu.fs[index][i];
 
-                FakeImage img = f == null ? aux.slot[0].getImg() : f.anim.getUni().getImg();
+                FakeImage img = f == null ? aux.slot[0].getImg() : f.getDeployIcon().getImg();
 
                 iw = (int) (hr * img.getWidth());
                 ih = (int) (hr * img.getHeight());
@@ -516,7 +516,7 @@ public interface BattleBox {
                 imh = ih;
 
                 if(bf.sb.selectedUnit[0] != -1 && bf.sb.selectedUnit[0] == index && bf.sb.selectedUnit[1] == i) {
-                    switch (bf.sb.buttonDelay) {
+                    switch ((int)bf.sb.buttonDelay) {
                         case 3:
                             imw = (int) (imw * 0.95f);
                             imh = (int) (imh * 0.95f) ;
@@ -540,27 +540,27 @@ public interface BattleBox {
                 if (pri == -1)
                     g.colRect(x, y, iw, ih, 255, 0, 0, 100);
 
-                int cool = bf.sb.elu.cool[index][i % 5];
+                double cool = bf.sb.elu.cool[index][i % 5];
 
                 boolean b = isBehind || pri > bf.sb.money || cool > 0;
 
-                if (b && !bf.sb.summonerSummoned[index][i % 5])
+                if (b && !bf.sb.elu.validSpirit(index, i % 5))
                     g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 0, 0, 0, 100);
 
                 if (bf.sb.locks[index][i % 5])
                     g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 0, 255, 0, 100);
 
-                if (bf.sb.summonerSummoned[index][i % 5]) {
-                    if (bf.sb.spiritSummoned[index][i % 5] || (bf.sb.summoner[index][i % 5] != null && bf.sb.summoner[index][i % 5].anim.dead >= 0)) {
+                if (bf.sb.elu.validSpirit(index, i % 5)) {
+                    if (!bf.sb.elu.readySpirit(index,i % 5) || (bf.sb.elu.smnd[index][i % 5] != null && bf.sb.elu.smnd[index][i % 5].anim.dead >= 0)) {
                         g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 64, 0, 0, 160);
                     } else {
-                        if (bf.sb.spiritEmphasizeCount[index][i % 5] % 2 == 0) {
+                        if ((bf.sb.elu.sGlow[index][i % 5] - bf.sb.time) % 2 == 0) {
                             g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 30, 92, 123, 100);
                         } else {
                             g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 50, 153, 205, 100);
                         }
 
-                        if (!isBehind && bf.sb.spiritCooldown[index][i % 5] == 0) {
+                        if (!isBehind && bf.sb.elu.scd[index][i % 5] == 0) {
                             FakeImage summonText = aux.spiritSummon[Res.decideLocale().ordinal()].getImg();
 
                             int stw = (int) (summonText.getWidth() * hr);
@@ -568,7 +568,7 @@ public interface BattleBox {
 
                             g.drawImage(summonText, (int) (x + (iw - stw) / 2.0), (int) (y + (ih - sth) / 2.0), stw, sth);
 
-                            int alpha = (int) (64 * (-0.5 * Math.cos(Math.PI / 15 * (bf.sb.spiritEmphasizeStartTime[index][i % 5] - bf.sb.time)) + 0.5));
+                            int alpha = (int) (64 * (-0.5 * Math.cos(Math.PI / 15 * (bf.sb.elu.sGlow[index][i % 5] - bf.sb.time)) + 0.5));
 
                             g.setComposite(FakeGraphics.MASK, alpha, 0);
 
@@ -584,14 +584,14 @@ public interface BattleBox {
                         int dw = (int) (hr * 10);
                         int dh = (int) (hr * 12);
 
-                        float cd = 1f * cool / bf.sb.elu.maxC[index][i % 5];
+                        double cd = 1f * cool / bf.sb.elu.maxC[index][i % 5];
 
                         int xw = (int) (cd * (iw - dw * 2));
 
                         g.colRect(x + iw - dw - xw, y + ih - dh * 2, xw, dh, 0, 0, 0, 255);
 
                         g.colRect(x + dw, y + ih - dh * 2, iw - dw * 2 - xw, dh, 100, 212, 255, 255);
-                    } else if (pri != -1 && !bf.sb.summonerSummoned[index][i % 5]) {
+                    } else if (pri != -1 && !bf.sb.elu.readySpirit(index, i % 5)) {
                         setSym(g, hr, x + iw, y + ih, 3);
 
                         Res.getCost(pri / 100, !b, sym);
@@ -677,7 +677,7 @@ public interface BattleBox {
 
                 gra.drawImage(bimg, posx - bw + shake, posy - bh, bw, bh);
             } else {
-                if(bf.sb.s_stop > 0 && (bf.sb.ebase.getAbi() & Data.AB_TIMEI) != 0)
+                if(bf.sb.timeFlow != 1 && (bf.sb.ebase.getAbi() & Data.AB_TIMEI) != 0)
                     gra.setComposite(CVGraphics.POSITIVE, 0, 0);
 
                 posx = (int) getX(bf.sb.ebase.pos);
@@ -752,7 +752,7 @@ public interface BattleBox {
                 if(bf.sb.le.get(i).dead)
                     continue;
 
-                if ((bf.sb.s_stop == 0 || (bf.sb.le.get(i).getAbi() & Data.AB_TIMEI) == 0)) {
+                if ((bf.sb.timeFlow != 1 || (bf.sb.le.get(i).getAbi() & Data.AB_TIMEI) == 0)) {
                     int dep = bf.sb.le.get(i).layer * DEP;
 
                     while (!efList.isEmpty()) {
@@ -798,7 +798,7 @@ public interface BattleBox {
             }
 
             if(bf.sb.ebase instanceof Entity) {
-                if(bf.sb.s_stop == 0 || (bf.sb.ebase.getAbi() & Data.AB_TIMEI) > 0) {
+                if(bf.sb.timeFlow != 1 || (bf.sb.ebase.getAbi() & Data.AB_TIMEI) > 0) {
                     if(((Entity) bf.sb.ebase).anim.smoke != null && !((Entity) bf.sb.ebase).anim.smoke.done()) {
                         gra.setTransform(at);
 
@@ -809,7 +809,7 @@ public interface BattleBox {
                     }
                 }
             } else if(bf.sb.ebase instanceof ECastle) {
-                if(bf.sb.s_stop == 0 && ((ECastle) bf.sb.ebase).smoke != null && !((ECastle) bf.sb.ebase).smoke.done()) {
+                if(bf.sb.timeFlow == 0 && ((ECastle) bf.sb.ebase).smoke != null && !((ECastle) bf.sb.ebase).smoke.done()) {
                     gra.setTransform(at);
 
                     float sx = getX(((ECastle) bf.sb.ebase).smokeX);
@@ -820,7 +820,7 @@ public interface BattleBox {
             }
 
             if(bf.sb.ubase instanceof ECastle) {
-                if(bf.sb.s_stop == 0 && ((ECastle) bf.sb.ubase).smoke != null && !((ECastle) bf.sb.ubase).smoke.done()) {
+                if(bf.sb.timeFlow == 0 && ((ECastle) bf.sb.ubase).smoke != null && !((ECastle) bf.sb.ubase).smoke.done()) {
                     gra.setTransform(at);
 
                     float sx = getX(((ECastle) bf.sb.ubase).smokeX);
@@ -891,7 +891,7 @@ public interface BattleBox {
                 gra.setTransform(at);
             }
 
-            if (bf.sb.s_stop > 0) {
+            if (bf.sb.timeFlow != 1) {
                 if((bf.sb.ebase.getAbi() * Data.AB_TIMEI) != 0) {
                     if(((CVGraphics)gra).neg) {
                         gra.setComposite(CVGraphics.POSITIVE, 0, 0);
@@ -992,7 +992,7 @@ public interface BattleBox {
 
             int cw = (int) (bimg.getWidth() * ratio * 1.025);
 
-            if ((bf.sb.conf[0] & 2) > 0 && bf.sb.sniper != null) {
+            if ((bf.sb.conf & 2) > 0 && bf.sb.sniper != null) {
                 bimg = aux.battle[2][bf.sb.sniper.enabled ? 2 : 4].getImg();
                 g.drawImage(bimg, w - cw - cutout, ih, dpi, dpi);
                 n++;
@@ -1000,7 +1000,7 @@ public interface BattleBox {
 
             bimg = aux.battle[2][1].getImg();
 
-            if ((bf.sb.conf[0] & 1) > 0) {
+            if ((bf.sb.conf & 1) > 0) {
                 g.drawImage(bimg, w - cw * (n + 1) - cutout, ih, dpi, dpi);
                 n++;
             }

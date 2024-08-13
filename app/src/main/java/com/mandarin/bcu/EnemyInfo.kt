@@ -127,7 +127,7 @@ class EnemyInfo : AppCompatActivity() {
                         intent.putExtra("Img", ImageViewer.ViewerType.ENEMY.name)
                         intent.putExtra("Data", JsonEncoder.encode(data).toString())
 
-                        CommonStatic.getConfig().performanceModeAnimation = shared.getBoolean("performanceAnimation", false)
+                        CommonStatic.getConfig().fps60 = shared.getBoolean("fps60", false)
 
                         startActivity(intent)
                     }

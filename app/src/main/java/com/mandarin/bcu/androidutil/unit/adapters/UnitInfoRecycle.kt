@@ -39,11 +39,12 @@ import common.battle.BasisSet
 import common.battle.Treasure
 import common.battle.data.MaskUnit
 import common.pack.Identifier
+import common.util.unit.AbUnit
 import common.util.unit.Form
 import common.util.unit.Level
 import common.util.unit.Unit
 
-class UnitInfoRecycle(private val context: Activity, private val names: ArrayList<String>, private val forms: Array<Form>, private val data: Identifier<Unit>) : RecyclerView.Adapter<UnitInfoRecycle.ViewHolder>() {
+class UnitInfoRecycle(private val context: Activity, private val names: ArrayList<String>, private val forms: Array<Form>, private val data: Identifier<AbUnit>) : RecyclerView.Adapter<UnitInfoRecycle.ViewHolder>() {
     private var fs = 0
     private val s: GetStrings = GetStrings(this.context)
     private val fragment = arrayOf(arrayOf("Immune to "), arrayOf(""))
@@ -499,7 +500,7 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
 
                 viewHolder.unithp.text = s.getHP(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level)
 
-                if (f.du.rawAtkData().size > 1) {
+                if (f.du.getAtks(0).size > 1) {//TODO - Multi-Atk
                     if (viewHolder.unitatkb.text == context.getString(R.string.unit_info_atk))
                         viewHolder.unitatk.text = s.getAtk(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level)
                     else
@@ -533,7 +534,7 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
                 this@UnitInfoRecycle.level.setPlusLevel(levelp)
 
                 viewHolder.unithp.text = s.getHP(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level)
-                if (f.du.rawAtkData().size > 1) {
+                if (f.du.getAtks(0).size > 1) {//TODO - Multi-Atk
                     if (viewHolder.unitatkb.text == context.getString(R.string.unit_info_atk))
                         viewHolder.unitatk.text = s.getAtk(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level)
                     else

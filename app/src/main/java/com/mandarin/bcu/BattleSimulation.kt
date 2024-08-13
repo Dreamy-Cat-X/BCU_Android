@@ -63,6 +63,7 @@ import common.pack.Identifier
 import common.system.P
 import common.util.lang.MultiLangCont
 import common.util.stage.Stage
+import common.util.unit.Form
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -201,9 +202,9 @@ class BattleSimulation : AppCompatActivity() {
                 }
 
                 if(CommonStatic.getConfig().realLevel)
-                    lu.performRealisticLeveling()
+                    lu.simulateBCLeveling()
 
-                val ctrl = SBCtrl(AndroidKeys(), stg, star, lu, intArrayOf(item), r.nextLong())
+                val ctrl = SBCtrl(AndroidKeys(), stg, star, lu, item, r.nextLong(), 0)//TODO set save
 
                 val axis = shared.getBoolean("Axis", true)
 
@@ -258,7 +259,7 @@ class BattleSimulation : AppCompatActivity() {
                 }
 
                 skipFrame.setOnClickListener {
-                    repeat(if (CommonStatic.getConfig().performanceModeBattle) 2 else 1) {
+                    repeat(if (CommonStatic.getConfig().fps60) 2 else 1) {
                         battleView.painter.bf.update()
                     }
 
@@ -953,62 +954,62 @@ class BattleSimulation : AppCompatActivity() {
                 for(form in forms) {
                     form ?: continue
 
-                    val level = lu.lu.map[form.unit.id] ?: continue
-
+                    val level = lu.lu.map[form.unit().id] ?: continue
                     var temp = level.lv
 
-                    level.setLevel(min(level.lv, st.lim.lvr.all[0]))
+                    level.setLevel(min(level.lv, st.lim.lvr.def.lv))
 
                     if(!changed && temp != level.lv)
                         changed = true
 
                     temp = level.plusLv
 
-                    level.setPlusLevel(min(level.plusLv, st.lim.lvr.all[1]))
+                    level.setPlusLevel(min(level.plusLv, st.lim.lvr.def.plusLv))
 
                     if(!changed && temp != level.plusLv)
                         changed = true
 
-                    for(i in 2 until st.lim.lvr.all.size) {
-                        if (i - 2 >= level.talents.size)
+                    for(i in 0 until st.lim.lvr.def.talents.size) {
+                        if (i >= level.talents.size)
                             break
 
-                        temp = level.talents[i - 2]
+                        temp = level.talents[i]
 
-                        level.talents[i - 2] = min(level.talents[i - 2], st.lim.lvr.all[i])
+                        level.talents[i] = min(level.talents[i], st.lim.lvr.def.talents[i])
 
-                        if(!changed && temp != level.talents[i - 2])
+                        if(!changed && temp != level.talents[i])
                             changed = true
                     }
 
-                    st.lim.lvr.rares.forEachIndexed { index, levels ->
-                        if (form.unit.rarity == index) {
-                            temp = level.lv
+                    st.lim.lvr.rs.forEachIndexed { index, levels ->
+                        if (form is Form)
+                            if (form.unit.rarity == index) {
+                                temp = level.lv
 
-                            level.setLevel(min(level.lv, levels[0]))
+                                level.setLevel(min(level.lv, levels.lv))
 
-                            if(!changed && temp != level.lv)
-                                changed = true
-
-                            temp = level.plusLv
-
-                            level.setPlusLevel(min(level.plusLv, levels[1]))
-
-                            if(!changed && temp != level.plusLv)
-                                changed = true
-
-                            for(i in 2 until levels.size) {
-                                if (i - 2 >= level.talents.size)
-                                    break
-
-                                temp = level.talents[i - 2]
-
-                                level.talents[i - 2] = min(level.talents[i - 2], levels[i])
-
-                                if(!changed && temp != level.talents[i - 2])
+                                if(!changed && temp != level.lv)
                                     changed = true
+
+                                temp = level.plusLv
+
+                                level.setPlusLevel(min(level.plusLv, levels.plusLv))
+
+                                if(!changed && temp != level.plusLv)
+                                    changed = true
+
+                                for(i in 0 until levels.talents.size) {
+                                    if (i >= level.talents.size)
+                                        break
+
+                                    temp = level.talents[i]
+
+                                    level.talents[i] = min(level.talents[i], levels.talents[i])
+
+                                    if(!changed && temp != level.talents[i])
+                                        changed = true
+                                }
                             }
-                        }
                     }
                 }
             }
