@@ -1,6 +1,5 @@
 package com.yumetsuki.bcu.androidutil.filter
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.yumetsuki.bcu.androidutil.Interpret
 import com.yumetsuki.bcu.androidutil.StatFilterElement
 import com.yumetsuki.bcu.androidutil.StaticStore
@@ -132,7 +131,7 @@ object FilterEntity {
 
                     name = Data.trio(i) + " - " + name.lowercase()
 
-                    added = if(CommonStatic.getConfig().lang.equals(Lang.Locale.KR) || lang == Interpret.KO) {
+                    added = if(CommonStatic.getConfig().langs[0].equals(Lang.Locale.KR) || lang == Interpret.KO) {
                         KoreanFilter.filter(name, StaticStore.entityname)
                     } else {
                         name.contains(StaticStore.entityname.lowercase())
@@ -264,7 +263,7 @@ object FilterEntity {
 
         val lang = Locale.getDefault().language
 
-        FirebaseCrashlytics.getInstance().log("B0 : ${b0.size} | B1 : ${b1.size} | B2 : ${b2.size} | B3 : ${b3.size} | B4 : ${b4.size} | ENEMY : ${p.enemies.size()}")
+        println("B0 : ${b0.size} | B1 : ${b1.size} | B2 : ${b2.size} | B3 : ${b3.size} | B4 : ${b4.size} | ENEMY : ${p.enemies.size()}")
 
         for (i in p.enemies.list.indices)
             if (b0[i] && b1[i] && b2[i] && b3[i] && b4[i]) {
@@ -275,7 +274,7 @@ object FilterEntity {
 
                     name = Data.trio(i) + " - " + name.lowercase()
 
-                    val added = if(CommonStatic.getConfig().lang.equals(Lang.Locale.KR) || lang == Interpret.KO) {
+                    val added = if(CommonStatic.getConfig().langs[0].equals(Lang.Locale.KR) || lang == Interpret.KO) {
                         KoreanFilter.filter(name, StaticStore.entityname)
                     } else {
                         name.contains(StaticStore.entityname.lowercase())
@@ -448,7 +447,7 @@ object FilterEntity {
 
                         name = Data.trio(u.id.id) + " - " + name.lowercase()
 
-                        added = if(CommonStatic.getConfig().lang.equals(Lang.Locale.KR) || lang == Interpret.KO) {
+                        added = if(CommonStatic.getConfig().langs[0].equals(Lang.Locale.KR) || lang == Interpret.KO) {
                             KoreanFilter.filter(name, StaticStore.entityname)
                         } else {
                             name.contains(StaticStore.entityname.lowercase())

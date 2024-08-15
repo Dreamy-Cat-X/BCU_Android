@@ -3,7 +3,6 @@ package com.yumetsuki.bcu.androidutil.filter
 import android.content.Context
 import android.util.SparseArray
 import androidx.core.util.isNotEmpty
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import common.pack.Identifier
@@ -17,7 +16,7 @@ object FilterStage {
     fun setFilter(name: String, stmname: String, enemies: ArrayList<Identifier<AbEnemy>>, enemorand: Boolean, music: String, bg: String, star: Int, bh: Int, bhop: Int, contin: Int, boss: Int, c: Context) : Map<String, SparseArray<ArrayList<Int>>> {
         val result = HashMap<String, SparseArray<ArrayList<Int>>>()
 
-        FirebaseCrashlytics.getInstance().log("Filtered enemy : $enemies")
+        println("Filtered enemy : $enemies")
 
         for(n in 0 until StaticStore.mapcode.size) {
             val i = StaticStore.mapcode[n]

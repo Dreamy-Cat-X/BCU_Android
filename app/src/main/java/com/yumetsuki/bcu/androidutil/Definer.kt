@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.battle.sound.SoundHandler
 import com.yumetsuki.bcu.androidutil.fakeandroid.BMBuilder
@@ -46,7 +45,7 @@ object Definer {
                 try {
                     AssetLoader.load(prog)
 
-                    FirebaseCrashlytics.getInstance().log("Read asset loader properly\n${VFile.getBCFileTree().list()}")
+                    println("Read asset loader properly\n${VFile.getBCFileTree().list()}")
 
                     UserProfile.getBCData().load({ t -> text.accept(StaticStore.getLoadingText(context, t)) }, prog)
                 } catch (e: Exception) {
@@ -58,7 +57,9 @@ object Definer {
 
             if(!StaticStore.packRead) {
                 text.accept(context.getString(R.string.main_pack))
-                UserProfile.loadPacks(prog)
+                (CommonStatic.ctx as AContext).prog = prog
+                (CommonStatic.ctx as AContext).sprg = text
+                UserProfile.loadPacks(true)
                 PackConflict.filterConflict()
 
                 StaticStore.packRead = true
@@ -252,9 +253,7 @@ object Definer {
 
     private fun handlePacks(c: Context) {
         val shared = c.getSharedPreferences(StaticStore.PACK, Context.MODE_PRIVATE)
-
         val editor = shared.edit()
-
         val checked = ArrayList<String>()
 
         for(p in UserProfile.getAllPacks()) {
@@ -264,24 +263,17 @@ object Definer {
             if(p is PackData.UserPack) {
                 if(!shared.contains(p.sid)) {
                     //New Pack detected
-
-                    editor.putString(p.sid, "${p.desc.time} - ${p.desc.version}")
-
+                    editor.putString(p.sid, "${p.desc.names} - ${p.desc.version}")
                     editor.apply()
-
                     extractMusic(p, shared)
                 } else {
                     val info = shared.getString(p.sid, "")
-
-                    val newInfo = "${p.desc.time} - ${p.desc.version}"
+                    val newInfo = "${p.desc.names} - ${p.desc.version}"
 
                     if(info != newInfo) {
                         //Update detected
-
-                        editor.putString(p.sid, "${p.desc.time} - ${p.desc.version}")
-
+                        editor.putString(p.sid, "${p.desc.names} - ${p.desc.version}")
                         editor.apply()
-
                         extractMusic(p, shared)
                     }
                 }
@@ -574,8 +566,7 @@ object Definer {
         CommonStatic.getConfig().realLevel = shared.getBoolean("reallv", false)
         CommonStatic.getConfig().deadOpa = 0
         CommonStatic.getConfig().fullOpa = 100
-        CommonStatic.getConfig().performanceModeAnimation = shared.getBoolean("performanceAnimation", false)
-        CommonStatic.getConfig().performanceModeBattle = shared.getBoolean("performanceBattle", false)
+        CommonStatic.getConfig().fps60 = shared.getBoolean("fps60", false)
     }
 
     private fun extractMusic(p: PackData.UserPack, shared: SharedPreferences) {

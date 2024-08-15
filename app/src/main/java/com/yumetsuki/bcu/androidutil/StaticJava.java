@@ -1,7 +1,5 @@
 package com.yumetsuki.bcu.androidutil;
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
-
 import common.pack.Identifier;
 import common.pack.UserProfile;
 import common.util.anim.AnimU;
@@ -64,9 +62,9 @@ public class StaticJava {
                 }
             }
         } catch (Exception e) {
-            FirebaseCrashlytics.getInstance().log("Try to generate EAnimD, but failed : \n\ndata = " + data + "\nform = " + form + "\ndataId = " + dataId);
+            System.out.println("Try to generate EAnimD, but failed : \n\ndata = " + data + "\nform = " + form + "\ndataId = " + dataId);
         }
 
-        return UserProfile.getBCData().units.get(0).forms[0].getEAnim(AnimU.UType.WALK);
+        return UserProfile.getBCData().units.get(0).forms[0].getEAnim(AnimU.TYPEDEF[AnimU.WALK]);
     }
 }

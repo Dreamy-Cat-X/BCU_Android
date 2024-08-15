@@ -3,31 +3,23 @@ package com.yumetsuki.bcu
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.RadioButton
-import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.gridlayout.widget.GridLayout
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.androidutil.LocaleManager
 import com.yumetsuki.bcu.androidutil.StaticStore
@@ -35,16 +27,11 @@ import com.yumetsuki.bcu.androidutil.battle.sound.SoundHandler
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
 import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
-import com.yumetsuki.bcu.androidutil.io.drive.DriveUtil
+import com.yumetsuki.bcu.androidutil.io.Logger
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.IOException
-import java.lang.Exception
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
@@ -52,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private var notshowcheck = false
     private var send = false
     private var show = false
+    private lateinit var logger : Logger
 
     companion object {
         @JvmField
@@ -96,7 +84,8 @@ class MainActivity : AppCompatActivity() {
         deleter(File(Environment.getDataDirectory().absolutePath+"/data/com.yumetsuki.bcu/temp/"))
         deleter(File(StaticStore.getExternalTemp(this)))
 
-        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter(StaticStore.getExternalLog(this), shared.getBoolean("upload", false) || shared.getBoolean("ask_upload", true)))
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter(StaticStore.getExternalLog(this)))
+        Logger.init();
 
         setContentView(R.layout.activity_main)
 
@@ -104,19 +93,19 @@ class MainActivity : AppCompatActivity() {
         SoundHandler.mu_vol = if(shared.getBoolean("music", true)) {
             0.01f + shared.getInt("mus_vol", 99) / 100f
         } else {
-            0f
+            0.5f
         }
         SoundHandler.sePlay = shared.getBoolean("SE", true)
         SoundHandler.se_vol = if(shared.getBoolean("SE", true)) {
             (0.01f + shared.getInt("se_vol", 99) / 100f) * 0.85f
         } else {
-            0f
+            0.5f
         }
         SoundHandler.uiPlay = shared.getBoolean("UI", true)
         SoundHandler.ui_vol = if(SoundHandler.uiPlay)
             (0.01f + shared.getInt("ui_vol", 99)) * 0.85f
         else
-            0f
+            0.5f
         StaticStore.upload = shared.getBoolean("upload", false) || shared.getBoolean("ask_upload", true)
         CommonStatic.getConfig().twoRow = shared.getBoolean("rowlayout", true)
         CommonStatic.getConfig().levelLimit = shared.getInt("levelLimit", 0)
@@ -141,119 +130,6 @@ class MainActivity : AppCompatActivity() {
         if (bundle != null)
             conf = bundle.getBoolean("Config")
 
-        val upath = Environment.getDataDirectory().absolutePath + "/data/com.yumetsuki.bcu/upload/"
-        val upload = File(upath)
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-        if (upload.exists() && upload.listFiles()?.isNotEmpty() == true && connectivityManager.activeNetwork != null) {
-            if (shared.getBoolean("ask_upload", true) && !StaticStore.dialogisShowed && !conf) {
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
-
-                val builder = AlertDialog.Builder(this)
-                val inflater = LayoutInflater.from(this)
-                val v = inflater.inflate(R.layout.error_dialog, null)
-
-                builder.setView(v)
-
-                val yes = v.findViewById<Button>(R.id.errorupload)
-                val no = v.findViewById<Button>(R.id.errorno)
-                val group = v.findViewById<RadioGroup>(R.id.radio)
-                val donotshow = v.findViewById<RadioButton>(R.id.radionotshow)
-                val always = v.findViewById<RadioButton>(R.id.radiosend)
-
-                always.setOnClickListener {
-                    if (sendcheck && send) {
-                        group.clearCheck()
-
-                        val editor = shared.edit()
-
-                        editor.putBoolean("upload", false)
-                        editor.putBoolean("ask_upload", true)
-                        editor.apply()
-
-                        sendcheck = false
-                        notshowcheck = false
-                        send = false
-                        show = false
-                    } else if (sendcheck || send) {
-                        send = true
-                    }
-                }
-                donotshow.setOnClickListener {
-                    if (notshowcheck && show) {
-                        group.clearCheck()
-
-                        val editor = shared.edit()
-
-                        editor.putBoolean("upload", false)
-                        editor.putBoolean("ask_upload", true)
-                        editor.apply()
-
-                        sendcheck = false
-                        notshowcheck = false
-                        send = false
-                        show = false
-                    } else if (notshowcheck || show) {
-                        show = true
-                    }
-                }
-                group.setOnCheckedChangeListener { _, checkedId ->
-                    if (checkedId == donotshow.id) {
-                        val editor = shared.edit()
-
-                        editor.putBoolean("upload", false)
-                        editor.putBoolean("ask_upload", false)
-                        editor.apply()
-
-                        notshowcheck = true
-                        sendcheck = false
-                        send = false
-                        show = false
-                    } else {
-                        val editor = shared.edit()
-
-                        editor.putBoolean("upload", true)
-                        editor.putBoolean("ask_upload", false)
-                        editor.apply()
-
-                        notshowcheck = false
-                        sendcheck = true
-                        send = false
-                        show = false
-                    }
-                }
-                val dialog = builder.create()
-
-                dialog.setCancelable(true)
-
-                if (!isDestroyed && !isFinishing) {
-                    dialog.show()
-                }
-
-                no.setOnClickListener {
-                    deleter(upload)
-                    dialog.dismiss()
-                }
-
-                yes.setOnClickListener {
-                    StaticStore.showShortMessage(this@MainActivity, R.string.main_err_start)
-                    dialog.dismiss()
-
-                    uploadLog()
-                }
-
-                dialog.setOnDismissListener {
-                    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR
-
-                    StaticStore.dialogisShowed = true
-                }
-            } else if (shared.getBoolean("upload", false)) {
-                StaticStore.showShortMessage(this, R.string.main_err_upload)
-
-                uploadLog()
-            }
-        }
-
         isRunning = true
 
         val grid = findViewById<GridLayout>(R.id.maingrid)
@@ -271,7 +147,7 @@ class MainActivity : AppCompatActivity() {
                 R.string.main_music, R.string.main_effect, R.string.main_packs, R.string.main_asset)
 
         val row = 7
-        val col = 2 // unit/enem | stage,medal | basis | bg,castles | music,effect | pack | asset
+        val col = 2 // unit/enemy | stage,medal | basis | bg,castles | music,effect | pack | asset
 
         val gap = StaticStore.dptopx(4f, this)
 
@@ -448,6 +324,7 @@ class MainActivity : AppCompatActivity() {
 
         StaticStore.dialogisShowed = false
         StaticStore.toast = null
+        Logger.logger.logClose()
 
         super.onDestroy()
     }
@@ -464,75 +341,23 @@ class MainActivity : AppCompatActivity() {
     private fun deleter(f: File) {
         if (f.isDirectory) {
             val lit = f.listFiles() ?: return
-
             for (g in lit)
                 deleter(g)
         } else
             f.delete()
     }
 
-    private fun uploadLog() {
-        lifecycleScope.launch {
-            val path = Environment.getDataDirectory().absolutePath + "/data/com.yumetsuki.bcu/upload/" //TODO - Remove this shitty logging method and store logs in-device
-
-            val upload = File(path)
-
-            val files = upload.listFiles()
-
-            val total = upload.listFiles()?.size ?: 0
-
-            var succeed = 0
-            var failed = 0
-
-            for (i in 0 until total) {
-                val f = files?.get(i) ?: return@launch
-
-                val str = getString(R.string.err_send_log).replace("-", (i + 1).toString()).replace("_", total.toString())
-                StaticStore.showShortMessage(this@MainActivity, str)
-
-                try {
-                    if (safeCheck(f)) {
-                        withContext(Dispatchers.IO) {
-                            val inputStream = resources.openRawResource(R.raw.service_key)
-                            val good = try {
-                                DriveUtil.upload(f, inputStream)
-                            } catch (_: Exception) {
-                                false
-                            }
-
-                            if (good) {
-                                f.delete()
-                                succeed++
-                            } else {
-                                Log.e("uploadFailed", "Uploading " + f.name + " to server failed")
-                                failed++
-                            }
-                        }
-                    } else {
-                        f.delete()
-                        failed++
-                    }
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                    failed++
-                }
-            }
-
-            val str = getString(R.string.err_send_result).replace("-", succeed.toString()).replace("_", failed.toString())
-            StaticStore.showShortMessage(this@MainActivity, str)
+    private fun safeCheck(f: File, suffix: String = "", maxSize: Int = -1): Boolean {
+        if (suffix.isNotBlank()) {
+            val name = f.name
+            if (!name.endsWith(suffix))
+                return false
         }
-    }
-
-    private fun safeCheck(f: File): Boolean {
-        val name = f.name
-
-        if (!name.endsWith("txt"))
-            return false
+        if (maxSize == -1)
+            return true
 
         val size = f.length()
-
         val mb = size / 1024 / 1024
-
-        return mb <= 10
+        return mb <= maxSize
     }
 }

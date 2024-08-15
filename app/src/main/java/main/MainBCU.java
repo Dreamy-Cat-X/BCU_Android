@@ -5,8 +5,6 @@ import android.content.Context;
 import android.os.Environment;
 import android.widget.Toast;
 
-import com.yumetsuki.bcu.androidutil.StaticStore;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;

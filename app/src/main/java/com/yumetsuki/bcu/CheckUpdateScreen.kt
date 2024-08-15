@@ -97,7 +97,7 @@ open class CheckUpdateScreen : AppCompatActivity() {
 
         (CommonStatic.ctx as AContext).updateActivity(this)
 
-        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter(StaticStore.getExternalLog(this), shared.getBoolean("upload", false) || shared.getBoolean("ask_upload", true)))
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter(StaticStore.getExternalLog(this)))
 
         setContentView(R.layout.activity_check_update_screen)
 

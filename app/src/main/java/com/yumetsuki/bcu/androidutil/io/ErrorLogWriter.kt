@@ -6,14 +6,17 @@ import android.os.Environment
 import android.util.Log
 import com.yumetsuki.bcu.androidutil.StaticStore
 import main.MainBCU
-import java.io.*
-import java.lang.StringBuilder
-import java.net.HttpURLConnection
-import java.net.URL
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
+import java.io.PrintWriter
+import java.io.StringWriter
+import java.io.Writer
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
-class ErrorLogWriter(private val path: String?, private val upload: Boolean) : Thread.UncaughtExceptionHandler {
+class ErrorLogWriter(private val path: String?) : Thread.UncaughtExceptionHandler {
     private val errors: Thread.UncaughtExceptionHandler? = Thread.getDefaultUncaughtExceptionHandler()
 
     override fun uncaughtException(t: Thread, e: Throwable) {
@@ -42,18 +45,18 @@ class ErrorLogWriter(private val path: String?, private val upload: Boolean) : T
             e.printStackTrace(printWriter)
             val current = stringbuff.toString()
             printWriter.close()
-            if (upload) {
-                val dname = name + "_" + Build.MODEL + ".txt"
-                val df = File(MainBCU.getPublicDirectory() + "/logs/", dname)
-                val dfileWriter = FileWriter(df)
-                dfileWriter.append("VERSION : ").append(StaticStore.VER).append("\r\n")
-                dfileWriter.append("MODEL : ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL.toString()).append("\r\n")
-                dfileWriter.append("IS EMULATOR : ").append((Build.MODEL.contains("Emulator") || Build.MODEL.contains("Android SDK")).toString()).append("\r\n")
-                dfileWriter.append("ANDROID_VER : ").append("API ").append(Build.VERSION.SDK_INT.toString()).append(" (").append(Build.VERSION.RELEASE).append(")").append("\r\n").append("\r\n")
-                dfileWriter.append(current)
-                dfileWriter.flush()
-                dfileWriter.close()
-            }
+
+            val dname = name + "_" + Build.MODEL + ".txt"
+            val df = File(MainBCU.getPublicDirectory() + "/logs/", dname)
+            val dfileWriter = FileWriter(df)
+            dfileWriter.append("VERSION : ").append(StaticStore.VER).append("\r\n")
+            dfileWriter.append("MODEL : ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL.toString()).append("\r\n")
+            dfileWriter.append("IS EMULATOR : ").append((Build.MODEL.contains("Emulator") || Build.MODEL.contains("Android SDK")).toString()).append("\r\n")
+            dfileWriter.append("ANDROID_VER : ").append("API ").append(Build.VERSION.SDK_INT.toString()).append(" (").append(Build.VERSION.RELEASE).append(")").append("\r\n").append("\r\n")
+            dfileWriter.append(current)
+            dfileWriter.flush()
+            dfileWriter.close()
+
             name += ".txt"
             val file = File(path, name)
             if (!file.exists()) f.createNewFile()
@@ -141,7 +144,7 @@ class ErrorLogWriter(private val path: String?, private val upload: Boolean) : T
                 }
                 if (upload) {
                     val dname = dateFormat.format(date) + "_" + Build.MODEL + ".txt"
-                    val df = File(Environment.getDataDirectory().toString() + "/data/com.yumetsuki.bcu/upload/", dname)
+                    val df = File(MainBCU.getPublicDirectory() + "/logs", dname)
                     if (!df.exists()) df.createNewFile()
                     val dfileWriter = FileWriter(df)
                     dfileWriter.append("VERSION : ").append(StaticStore.VER).append("\r\n")
@@ -184,7 +187,7 @@ class ErrorLogWriter(private val path: String?, private val upload: Boolean) : T
                 }
                 if (upload) {
                     val dname = dateFormat.format(date) + "_" + Build.MODEL + ".txt"
-                    val df = File(Environment.getDataDirectory().toString() + "/data/com.yumetsuki.bcu/upload/", dname)
+                    val df = File(MainBCU.getPublicDirectory() + "/logs", dname)//Environment.getDataDirectory().toString() + "/data/com.yumetsuki.bcu/upload/"
                     if (!df.exists()) df.createNewFile()
                     val dfileWriter = FileWriter(df)
                     dfileWriter.append("VERSION : ").append(StaticStore.VER).append("\r\n")
@@ -221,52 +224,5 @@ class ErrorLogWriter(private val path: String?, private val upload: Boolean) : T
             }
             return nam
         }
-
-        @Throws(IOException::class)
-        fun upload(file: File): Boolean {
-            if (!file.exists()) return false
-            val crlf = "\r\n"
-            val hyphens = "--"
-            val bound = "*****"
-            val fileInputStream = FileInputStream(file)
-            val u = URL("https://battle-cats-ultimate.000webhostapp.com/api/java/alogio.php")
-            val con = u.openConnection() as HttpURLConnection
-            con.doInput = true
-            con.doOutput = true
-            con.useCaches = false
-            con.requestMethod = "POST"
-            con.setRequestProperty("Connection", "Keep-Alive")
-            con.setRequestProperty("ENCTYPE", "multipart/form-data")
-            con.setRequestProperty("Content-Type", "multipart/form-data;boundary=*****")
-            con.setRequestProperty("uploaded_file", file.name)
-            val dos = DataOutputStream(con.outputStream)
-            val buffer: ByteArray
-            var available: Int
-            var read: Int
-            var size: Int
-            val max = 1024 * 1024
-            dos.writeBytes(hyphens + bound + crlf)
-            dos.writeBytes("Content-Disposition: form-data; name=\"" + "catFile" + "\";filename=\"" + file.name + "\"" + crlf)
-            dos.writeBytes(crlf)
-            available = fileInputStream.available()
-            size = available.coerceAtMost(max)
-            buffer = ByteArray(size)
-            read = fileInputStream.read(buffer, 0, size)
-            while (read > 0) {
-                dos.write(buffer, 0, size)
-                available = fileInputStream.available()
-                size = available.coerceAtMost(size)
-                read = fileInputStream.read(buffer, 0, size)
-            }
-            dos.writeBytes(crlf)
-            dos.writeBytes(hyphens + bound + crlf)
-            val response = con.responseCode
-            dos.flush()
-            dos.close()
-            fileInputStream.close()
-            con.disconnect()
-            return response == 200
-        }
     }
-
 }

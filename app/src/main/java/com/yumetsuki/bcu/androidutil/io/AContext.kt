@@ -1,6 +1,7 @@
 package com.yumetsuki.bcu.androidutil.io
 
 import android.app.Activity
+import android.os.Environment
 import android.util.Log
 import android.widget.TextView
 import com.yumetsuki.bcu.R
@@ -23,9 +24,8 @@ import java.util.function.Consumer
 class AContext : Context {
     companion object {
         fun check() {
-            if(CommonStatic.ctx == null) {
+            if(CommonStatic.ctx == null)
                 CommonStatic.ctx = AContext()
-            }
         }
     }
 
@@ -113,7 +113,9 @@ class AContext : Context {
     }
 
     override fun newFile(path: String?): File {
-        TODO("Not yet implemented")
+        if (path == null)//This will never be true but Kotlin won't shut up about it
+            return File("")
+        return File(bcuFolder.name + path)
     }
 
     override fun getAuthor(): String {
@@ -149,7 +151,7 @@ class AContext : Context {
     }
 
     override fun confirm(str: String?): Boolean {
-        TODO("Not yet implemented")
+        return false //Only used for autosave
     }
 
     override fun confirmDelete(f: File?): Boolean {
@@ -215,8 +217,12 @@ class AContext : Context {
         }
     }
 
+    lateinit var prog : Consumer<Double>
+    lateinit var sprg : Consumer<String>
     override fun loadProg(d: Double, str: String?) {
-        TODO("Not yet implemented")
+        prog.accept(d)
+        if (str != null)
+            sprg.accept(str)
     }
 
     override fun restore(b: Backup?, prog: Consumer<Double>?): Boolean {
@@ -231,7 +237,7 @@ class AContext : Context {
         if(file.startsWith("animation_type") && file.endsWith(".json"))
             return a.resources.openRawResource(R.raw.animation_type)
 
-        return when(CommonStatic.getConfig().lang) {
+        return when(CommonStatic.getConfig().langs[0]) {
             CommonStatic.Lang.Locale.EN -> {
                 a.resources.openRawResource(R.raw.proc)
             }
