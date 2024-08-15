@@ -2,7 +2,7 @@ package main;
 
 import android.util.Log;
 
-import com.mandarin.bcu.androidutil.pack.PackConflict;
+import com.yumetsuki.bcu.androidutil.pack.PackConflict;
 
 import java.util.ArrayList;
 import java.util.List;

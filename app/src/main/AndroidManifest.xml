@@ -136,7 +136,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.mandarin.bcu.provider"
+            android:authorities="com.yumetsuki.bcu.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -155,10 +155,10 @@
             android:name=".CheckUpdateScreen$ServiceBroadCastReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.mandarin.bcu::Progress-Text" />
-                <action android:name="com.mandarin.bcu::Progress-Progression" />
-                <action android:name="com.mandarin.bcu::Success" />
-                <action android:name="com.mandarin.bcu::Failed" />
+                <action android:name="com.yumetsuki.bcu::Progress-Text" />
+                <action android:name="com.yumetsuki.bcu::Progress-Progression" />
+                <action android:name="com.yumetsuki.bcu::Success" />
+                <action android:name="com.yumetsuki.bcu::Failed" />
             </intent-filter>
         </receiver>
     </application>

@@ -555,7 +555,7 @@
     <string name="sch_abi_impoi">毒擊傷害無效</string>
     <string name="main_pack_img">"提取影像檔案… : "</string>
     <string name="main_announce">公告</string>
-    <string name="main_announce_0130">因應安卓11(安卓R)的資料建構改變,或許需要重新下載一些附加檔案,多餘的舊附加檔案會自動刪除(不包含使用者資料).\n\n 可將舊的使用者資料[/storage/emulated/0/BCU/](例如影像,隊伍編成)移入新位置[/storage/emulated/0/Android/data/com.mandarin.BCU/files/].\n\n 感謝使用 BCU Android.</string>
+    <string name="main_announce_0130">因應安卓11(安卓R)的資料建構改變,或許需要重新下載一些附加檔案,多餘的舊附加檔案會自動刪除(不包含使用者資料).\n\n 可將舊的使用者資料[/storage/emulated/0/BCU/](例如影像,隊伍編成)移入新位置[/storage/emulated/0/Android/data/com.yumetsuki.BCU/files/].\n\n 感謝使用 BCU Android.</string>
     <string name="main_confirm">確認</string>
     <string name="main_pack">讀取檔案…</string>
     <string name="main_pack_bg">"提取場景檔案… : "</string>

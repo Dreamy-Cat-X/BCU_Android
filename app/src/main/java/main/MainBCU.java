@@ -2,9 +2,10 @@ package main;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Environment;
 import android.widget.Toast;
 
-import com.mandarin.bcu.androidutil.StaticStore;
+import com.yumetsuki.bcu.androidutil.StaticStore;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -39,6 +40,10 @@ public class MainBCU {
 		for (char c : chs)
 			str = str.replace(c, '#');
 		return str;
+	}
+
+	public static String getPublicDirectory() {
+		return Environment.getDataDirectory().toString() + "/bcu";
 	}
 
 }
