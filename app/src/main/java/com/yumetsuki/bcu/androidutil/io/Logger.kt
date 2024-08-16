@@ -12,10 +12,28 @@ private val MIN_SIZE = Int.MAX_VALUE//Temp size
 
 class Logger(private val f : File) : PrintStream(f) {
     companion object {
+        var success = false
         lateinit var logger : Logger
         fun init() {
-            logger = Logger(File(MainBCU.getPublicDirectory() + "/logs/" + SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US).format(Date()) + ".txt"))
-            logger.logSetup()
+            try {
+                val path = MainBCU.getPublicDirectory() + "/logs";
+                val folder = File(path)
+                if (!folder.exists())
+                    folder.mkdirs()
+
+                val log = File(
+                    path,
+                    "/" + SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US).format(Date()) + ".txt"
+                )
+                if (!log.exists())
+                    log.createNewFile()
+
+                logger = Logger(log)
+                logger.logSetup()
+                success = true
+            } catch (e : Exception) {
+                e.printStackTrace()
+            }
         }
     }
 

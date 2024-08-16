@@ -48,6 +48,9 @@ class ErrorLogWriter(private val path: String?) : Thread.UncaughtExceptionHandle
 
             val dname = name + "_" + Build.MODEL + ".txt"
             val df = File(MainBCU.getPublicDirectory() + "/logs/", dname)
+            if (!df.exists())
+                df.createNewFile()
+
             val dfileWriter = FileWriter(df)
             dfileWriter.append("VERSION : ").append(StaticStore.VER).append("\r\n")
             dfileWriter.append("MODEL : ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL.toString()).append("\r\n")

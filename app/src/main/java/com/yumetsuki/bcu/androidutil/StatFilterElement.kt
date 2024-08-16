@@ -2,6 +2,7 @@ package com.yumetsuki.bcu.androidutil
 
 import android.util.Log
 import common.battle.BasisSet
+import common.util.Data
 import common.util.unit.Enemy
 import common.util.unit.Form
 import kotlin.math.roundToInt
@@ -32,6 +33,7 @@ class StatFilterElement(val type: Int, val option: Int, val lev: Int) {
         var started = false
         var show = false
         var talent = false
+        var curAtk = 0
 
         fun performFilter(entity: Form, orand: Boolean) : Boolean {
             var result = !orand
@@ -132,7 +134,7 @@ class StatFilterElement(val type: Int, val option: Int, val lev: Int) {
         when(type) {
             HP -> {
                 val hp = if(talent && entity.du.pCoin != null) {
-                    (((du.hp * entity.unit.lv.getMult(l)).roundToInt() * t.defMulti).toInt() * entity.du.pCoin.getHPMultiplication(entity.du.pCoin.max)).toInt()
+                    (((du.hp * entity.unit.lv.getMult(l)).roundToInt() * t.defMulti).toInt() * entity.du.pCoin.getStatMultiplication(Data.PC2_HP, entity.du.pCoin.max)).toInt()
                 } else {
                     ((du.hp * entity.unit.lv.getMult(l)).roundToInt() * t.defMulti).toInt()
                 }
@@ -141,15 +143,15 @@ class StatFilterElement(val type: Int, val option: Int, val lev: Int) {
             }
             ATK -> {
                 val atk = if(talent && entity.du.pCoin != null) {
-                    (((du.allAtk() * entity.unit.lv.getMult(l)).roundToInt() * t.atkMulti).toInt() * entity.du.pCoin.getAtkMultiplication(entity.du.pCoin.max)).toInt()
+                    (((du.allAtk(curAtk) * entity.unit.lv.getMult(l)).roundToInt() * t.atkMulti).toInt() * entity.du.pCoin.getStatMultiplication(Data.PC2_ATK, entity.du.pCoin.max)).toInt()
                 } else {
-                    ((du.allAtk() * entity.unit.lv.getMult(l)).roundToInt() * t.atkMulti).toInt()
+                    ((du.allAtk(curAtk) * entity.unit.lv.getMult(l)).roundToInt() * t.atkMulti).toInt()
                 }
 
                 return performData(result, orand, atk)
             }
             DPS -> {
-                val dps = (du.allAtk() * t.atkMulti * entity.unit.lv.getMult(l) / du.itv * 30).toInt()
+                val dps = (du.allAtk(curAtk) * t.atkMulti * entity.unit.lv.getMult(l) / du.getItv(curAtk) * 30).toInt()
 
                 return performData(result, orand, dps)
             }
@@ -166,31 +168,31 @@ class StatFilterElement(val type: Int, val option: Int, val lev: Int) {
                 return performData(result, orand, du.speed)
             }
             CD -> {
-                return performData(result, orand, t.getFinRes(du.respawn, false))
+                return performData(result, orand, t.getFinRes(du.respawn, 0))
             }
             BARRIER -> {
                 return performData(result, orand, du.proc.BARRIER.health)
             }
             ATKTIME -> {
-                return performData(result, orand, du.itv)
+                return performData(result, orand, du.getItv(curAtk))
             }
             PREATK -> {
                 var preatk = 0
 
-                for(data in du.rawAtkData()) {
-                    preatk += data[1]
+                for(data in du.getAtks(curAtk)) {
+                    preatk += data.pre
                 }
 
                 return performData(result, orand, preatk)
             }
             POSTATK -> {
-                return performData(result, orand, du.post)
+                return performData(result, orand, du.getPost(false, curAtk))
             }
             TBA -> {
                 return performData(result, orand, du.tba)
             }
             ATKCOUNT -> {
-                return performData(result, orand, du.atkCount)
+                return performData(result, orand, du.getAtkCount(curAtk))
             }
             else -> {
                 return false
@@ -204,10 +206,10 @@ class StatFilterElement(val type: Int, val option: Int, val lev: Int) {
                 return performData(result, orand, entity.de.hp * lev / 100)
             }
             ATK -> {
-                return performData(result, orand, entity.de.allAtk() * lev / 100)
+                return performData(result, orand, entity.de.allAtk(curAtk) * lev / 100)
             }
             DPS -> {
-                val dps = (entity.de.allAtk() * lev / 100 / (entity.de.itv.toDouble() / 30)).toInt()
+                val dps = (entity.de.allAtk(curAtk) * lev / 100 / (entity.de.getItv(curAtk) / 30))
 
                 return performData(result, orand, dps)
             }
@@ -227,25 +229,25 @@ class StatFilterElement(val type: Int, val option: Int, val lev: Int) {
                 return performData(result, orand, entity.de.proc.BARRIER.health)
             }
             ATKTIME -> {
-                return performData(result, orand, entity.de.itv)
+                return performData(result, orand, entity.de.getItv(curAtk))
             }
             PREATK -> {
                 var preatk = 0
 
-                for(data in entity.de.rawAtkData()) {
-                    preatk += data[1]
+                for(data in entity.de.getAtks(curAtk)) {
+                    preatk += data.pre
                 }
 
                 return performData(result, orand, preatk)
             }
             POSTATK -> {
-                return performData(result, orand, entity.de.post)
+                return performData(result, orand, entity.de.getPost(false, curAtk))
             }
             TBA -> {
                 return performData(result, orand, entity.de.tba)
             }
             ATKCOUNT -> {
-                return performData(result, orand, entity.de.atkCount)
+                return performData(result, orand, entity.de.getAtkCount(curAtk))
             }
             else -> {
                 return false

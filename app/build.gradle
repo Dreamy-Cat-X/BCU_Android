@@ -5,13 +5,14 @@ plugins {
 }
 
 android {
-    signingConfigs {
+    /*signingConfigs {
         release {
-            storePassword 'battlecatsultimate'
-            keyAlias 'key0'
-            keyPassword 'battlecatsultimate'
+            storePassword 'bcuandroidifitwasnotcoal'
+            keyAlias 'skeyllissue0'
+            keyPassword 'bcuandroidifitwasnotcoal'
+            storeFile file("keystore.jks")
         }
-    }
+    }*/
     compileSdkVersion 34
     defaultConfig {
         applicationId "com.yumetsuki.bcu"
@@ -23,7 +24,7 @@ android {
         vectorDrawables.useSupportLibrary = true
         android.buildFeatures.buildConfig = true
         buildConfigField "String", "YOU_CANT_FIND_PASSWORD", "\"" + getPassword() + "\""
-        signingConfig signingConfigs.release
+        signingConfig signingConfigs.debug
     }
     buildTypes {
         debug {

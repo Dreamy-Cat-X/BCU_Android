@@ -829,6 +829,7 @@
     <string name="down_need_asset">Actifs obligatoires pas trouvés</string>
     <string name="eff_heal">Guérir</string>
     <string name="anim_entry">Entrer</string>
+    <string name="anim_retreat">Retraite</string>
     <string name="battle_tworow">Disposition de Battaile : Deux Lignes</string>
     <string name="battle_onerow">Disposition de Battaile : Une Ligne</string>
     <string name="config_battle">Battaile</string>

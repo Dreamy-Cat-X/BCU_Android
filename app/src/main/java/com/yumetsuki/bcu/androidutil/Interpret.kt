@@ -10,6 +10,7 @@ import common.battle.data.MaskEnemy
 import common.battle.data.MaskEntity
 import common.battle.data.MaskUnit
 import common.pack.Identifier
+import common.pack.SortedPackSet
 import common.util.Data
 import common.util.lang.Formatter
 import common.util.lang.ProcLang
@@ -47,7 +48,7 @@ object Interpret : Data() {
     /**
      * Converts Data Proc index to BCU Android Proc Index
      */
-    private val P_INDEX = intArrayOf(P_WEAK, P_STOP, P_SLOW, P_KB, P_WARP, P_CURSE, P_IMUATK, P_STRONG, P_LETHAL,
+    private val P_INDEX = byteArrayOf(P_WEAK, P_STOP, P_SLOW, P_KB, P_WARP, P_CURSE, P_IMUATK, P_STRONG, P_LETHAL,
             P_ATKBASE, P_CRIT, P_METALKILL, P_BREAK, P_SHIELDBREAK, P_SATK, P_BOUNTY, P_MINIWAVE, P_WAVE, P_MINIVOLC, P_VOLC, P_SPIRIT, P_BSTHUNT,
             P_IMUWEAK, P_IMUSTOP, P_IMUSLOW, P_IMUKB, P_IMUWAVE, P_IMUVOLC, P_IMUWARP, P_IMUCURSE, P_IMUPOIATK,
             P_POIATK, P_BARRIER, P_DEMONSHIELD, P_DEATHSURGE, P_BURROW, P_REVIVE, P_SNIPER, P_SEAL, P_TIME, P_SUMMON,
@@ -73,7 +74,7 @@ object Interpret : Data() {
         TRAIT_ALIEN, TRAIT_ZOMBIE, TRAIT_DEMON, TRAIT_RELIC, TRAIT_WHITE, TRAIT_EVA, TRAIT_WITCH
     )
 
-    fun getTrait(traits: List<Trait>, star: Int, c: Context): String {
+    fun getTrait(traits: SortedPackSet<Trait>, star: Int, c: Context): String {
         val ans = StringBuilder()
 
         for(trait in traits) {
@@ -106,7 +107,7 @@ object Interpret : Data() {
 
         val l: MutableList<String> = ArrayList()
 
-        val c = Formatter.Context(isEnemy, useSecond, magnif)
+        val c = Formatter.Context(isEnemy, useSecond, magnif, du.traits)
 
         if(common) {
             val mr = du.repAtk
@@ -130,7 +131,7 @@ object Interpret : Data() {
             val mr = du.repAtk
 
             for (i in PROCIND.indices) {
-                if (isValidProc(i, mr) && mr.proc.sharable(P_INDEX[i])) {
+                if (isValidProc(i, mr) && mr.proc.sharable(P_INDEX[i].toInt())) {
                     val f = ProcLang.get().get(PROCIND[i]).format
 
                     val ans = if (immune.contains(P_INDEX[i]) && isResist(P_INDEX[i], mr)) {
@@ -143,11 +144,11 @@ object Interpret : Data() {
                 }
             }
 
-            for (k in 0 until du.atkCount) {
-                val ma = du.getAtkModel(k)
+            for (k in 0 until du.getAtkCount(0)) {
+                val ma = du.getAtkModel(0, k)
 
                 for (i in PROCIND.indices) {
-                    if (isValidProc(i, ma) && !ma.proc.sharable(P_INDEX[i])) {
+                    if (isValidProc(i, ma) && !ma.proc.sharable(P_INDEX[i].toInt())) {
                         val mf = ProcLang.get().get(PROCIND[i]).format
 
                         val ans = if (immune.contains(P_INDEX[i]) && isResist(P_INDEX[i], ma)) {
@@ -172,7 +173,7 @@ object Interpret : Data() {
                     inds.isEmpty() -> {
                         l.add(key)
                     }
-                    inds.size == du.atkCount -> {
+                    inds.size == du.getAtkCount(0) -> {
                         l.add(key)
                     }
                     else -> {
@@ -188,7 +189,7 @@ object Interpret : Data() {
     private fun getProcObject(ind: Int, atk: MaskAtk): Any {
         return when (ind) {
             in P_INDEX.indices -> {
-                atk.proc.getArr(P_INDEX[ind])
+                atk.proc.getArr(P_INDEX[ind].toInt())
             }
             else -> {
                 Log.e("Interpret", "Invalid index : $ind")
@@ -200,7 +201,7 @@ object Interpret : Data() {
     private fun isValidProc(ind: Int, atk: MaskAtk): Boolean {
         return when (ind) {
             in P_INDEX.indices -> {
-                atk.proc.getArr(P_INDEX[ind]).exists()
+                atk.proc.getArr(P_INDEX[ind].toInt()).exists()
             }
             else -> {
                 Log.e("Interpret", "Invalid index : $ind")
@@ -235,17 +236,17 @@ object Interpret : Data() {
         }
     }
 
-    private fun isResist(i: Int, atk: MaskAtk): Boolean {
+    private fun isResist(i: Byte, atk: MaskAtk): Boolean {
         return when (i) {
-            P_IMUWEAK -> atk.proc.IMUWEAK.mult != 100
-            P_IMUSTOP -> atk.proc.IMUSTOP.mult != 100
-            P_IMUSLOW -> atk.proc.IMUSLOW.mult != 100
-            P_IMUKB -> atk.proc.IMUKB.mult != 100
-            P_IMUWAVE -> atk.proc.IMUWAVE.mult != 100
-            P_IMUWARP -> atk.proc.IMUWARP.mult != 100
-            P_IMUCURSE -> atk.proc.IMUCURSE.mult != 100
-            P_IMUPOIATK -> atk.proc.IMUPOIATK.mult != 100
-            P_IMUVOLC -> atk.proc.IMUVOLC.mult != 100
+            P_IMUWEAK -> atk.proc.IMUWEAK.mult != 100.0
+            P_IMUSTOP -> atk.proc.IMUSTOP.mult != 100.0
+            P_IMUSLOW -> atk.proc.IMUSLOW.mult != 100.0
+            P_IMUKB -> atk.proc.IMUKB.mult != 100.0
+            P_IMUWAVE -> atk.proc.IMUWAVE.mult != 100.0
+            P_IMUWARP -> atk.proc.IMUWARP.mult != 100.0
+            P_IMUCURSE -> atk.proc.IMUCURSE.mult != 100.0
+            P_IMUPOIATK -> atk.proc.IMUPOIATK.mult != 100.0
+            P_IMUVOLC -> atk.proc.IMUVOLC.mult != 100.0
             else -> false
         }
     }
@@ -330,29 +331,29 @@ object Interpret : Data() {
     }
 
     fun isType(de: MaskUnit, type: Int): Boolean {
-        val raw = de.rawAtkData()
+        val raw = de.getAtks(0)
 
         return when (type) {
-            0 -> !de.isRange
-            1 -> de.isRange
+            0 -> !de.isRange(0)
+            1 -> de.isRange(0)
             2 -> de.isLD
             3 -> raw.size > 1
             4 -> de.isOmni
-            5 -> de.tba + raw[0][1] < de.itv / 2
+            5 -> de.tba + raw[0].pre < de.getItv(0) / 2
             else -> false
         }
     }
 
     fun isType(de: MaskEnemy, type: Int): Boolean {
-        val raw = de.rawAtkData()
+        val raw = de.getAtks(0)
 
         return when (type) {
-            0 -> !de.isRange
-            1 -> de.isRange
+            0 -> !de.isRange(0)
+            1 -> de.isRange(0)
             2 -> de.isLD
             3 -> raw.size > 1
             4 -> de.isOmni
-            5 -> de.tba + raw[0][1] < de.itv / 2
+            5 -> de.tba + raw[0].pre < de.getItv(0) / 2
             else -> false
         }
 

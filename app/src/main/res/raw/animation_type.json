@@ -8,12 +8,15 @@
         "BURROW_UP": "burrow up",
         "BURROW_MOVE": "burrow move",
         "IDLE": "idle",
-        "HB": "hit back",
+        "KB": "hit back",
         "BURROW_DOWN": "burrow down",
-        "ENTER": "enter",
-        "ATK": "attack",
+        "ENTRY": "enter",
+        "ATTACK": "attack",
         "WALK": "walk",
-        "SOUL": "soul"
+        "SOUL": "soul",
+        "RETREAT": "retreat",
+        "FOREGROUND": "foreground",
+        "BACKGROUND": "background"
     },
     "VolcEff": {
         "DURING": "on",
@@ -74,6 +77,24 @@
     "DmgCap": {
         "FAIL" : "fail",
         "SUCCESS" : "success"
+    },
+    "LethargyEff": {
+        "DOWN" : "weaken",
+        "UP" : "strengthen"
+    },
+    "RemShieldEff": {
+        "NEAR": "near",
+        "FAR": "far"
+    },
+    "AuraEff": {
+        "ENEDOWN": "Weaken Enemy",
+        "ENEUP": "Strengthen Enemy",
+        "UNIDOWN": "Weaken Ally",
+        "UNIUP": "Strengthen Ally"
+    },
+    "RangeShieldEff": {
+        "SINGLE": "Single Target",
+        "AREA": "Area Attack"
     },
     "GuardEff": {
         "NONE": "default",

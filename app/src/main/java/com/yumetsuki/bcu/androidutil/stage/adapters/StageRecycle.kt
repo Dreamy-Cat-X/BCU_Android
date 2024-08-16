@@ -337,7 +337,7 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
             activity.getString(R.string.stg_info_impo)
 
         if (st.info != null) {
-            if(st.info.hasExConnection() || st.info.exStages != null) {
+            if(st.info.exConnection() || st.info.exStages != null) {
                 val linearLayoutManager = LinearLayoutManager(activity)
 
                 linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
@@ -460,9 +460,9 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
 
         stlevt.setText(t.tech[Data.LV_XP].toString())
 
-        sttreat.setText(t.trea[Data.T_XP1].toString())
+        sttreat.setText(t.trea[Data.T_XP1.toInt()].toString())
 
-        sttreat2.setText(t.trea[Data.T_XP2].toString())
+        sttreat2.setText(t.trea[Data.T_XP2.toInt()].toString())
 
         stlevt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -553,7 +553,7 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
                     if(text.toString().toInt() in 0..300) {
                         val lev = text.toString().toInt()
 
-                        t.trea[Data.T_XP1] = lev
+                        t.trea[Data.T_XP1.toInt()] = lev
 
                         if (st.info != null && st.info is DefStageInfo) {
                             val info = st.info as DefStageInfo
@@ -605,7 +605,7 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
                     if(text.toString().toInt() in 0..300) {
                         val lev = text.toString().toInt()
 
-                        t.trea[Data.T_XP2] = lev
+                        t.trea[Data.T_XP2.toInt()] = lev
 
                         if (st.info != null && st.info is DefStageInfo) {
                             val info = st.info as DefStageInfo
@@ -623,12 +623,12 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
 
         reset.setOnClickListener {
             t.tech[Data.LV_XP] = 30
-            t.trea[Data.T_XP1] = 300
-            t.trea[Data.T_XP2] = 300
+            t.trea[Data.T_XP1.toInt()] = 300
+            t.trea[Data.T_XP2.toInt()] = 300
 
             stlevt.setText(t.tech[Data.LV_XP].toString())
-            sttreat.setText(t.trea[Data.T_XP1].toString())
-            sttreat2.setText(t.trea[Data.T_XP2].toString())
+            sttreat.setText(t.trea[Data.T_XP1.toInt()].toString())
+            sttreat2.setText(t.trea[Data.T_XP2.toInt()].toString())
 
             if (st.info != null && st.info is DefStageInfo) {
                 val info = st.info as DefStageInfo

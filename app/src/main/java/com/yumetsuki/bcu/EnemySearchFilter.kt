@@ -44,27 +44,27 @@ open class EnemySearchFilter : AppCompatActivity() {
             R.string.abi_imvatk, R.string.abi_isnk, R.string.abi_istt, R.string.abi_ipoi, R.string.abi_ithch, R.string.abi_iseal, R.string.abi_iboswv, R.string.abi_imcri, R.string.sch_abi_imusm, R.string.sch_abi_imar, R.string.sch_abi_imsp, R.string.sch_abi_imcn)
     private val trToolID = intArrayOf(R.string.sch_red, R.string.sch_fl, R.string.sch_bla, R.string.sch_me, R.string.sch_an, R.string.sch_al, R.string.sch_zo, R.string.sch_de, R.string.sch_re, R.string.sch_wh, R.string.esch_eva, R.string.esch_witch, R.string.sch_bar, R.string.sch_bst, R.string.sch_ssg, R.string.sch_ba)
 
-    private val abils = arrayOf(intArrayOf(1, Data.P_WEAK), intArrayOf(1, Data.P_STOP),
-        intArrayOf(1, Data.P_SLOW), intArrayOf(1, Data.P_KB), intArrayOf(1, Data.P_WARP),
-        intArrayOf(1, Data.P_CURSE), intArrayOf(1, Data.P_IMUATK), intArrayOf(1, Data.P_STRONG),
-        intArrayOf(1, Data.P_LETHAL), intArrayOf(1, Data.P_ATKBASE), intArrayOf(1, Data.P_CRIT), intArrayOf(1, Data.P_METALKILL),
-        intArrayOf(0, Data.AB_CKILL), intArrayOf(1, Data.P_BREAK), intArrayOf(1, Data.P_SHIELDBREAK),
-        intArrayOf(1, Data.P_MINIWAVE), intArrayOf(1, Data.P_WAVE), intArrayOf(1, Data.P_MINIVOLC),
-        intArrayOf(1, Data.P_VOLC), intArrayOf(0, Data.AB_CSUR), intArrayOf(1, Data.P_IMUWEAK), intArrayOf(1, Data.P_IMUSTOP),
-        intArrayOf(1, Data.P_IMUSLOW), intArrayOf(1, Data.P_IMUKB), intArrayOf(1, Data.P_IMUWAVE),
-        intArrayOf(1, Data.P_IMUVOLC), intArrayOf(1, Data.P_IMUPOIATK),intArrayOf(1, Data.P_BURROW),
-        intArrayOf(1, Data.P_REVIVE), intArrayOf(1, Data.P_SATK), intArrayOf(1, Data.P_POIATK),
-        intArrayOf(1, Data.P_BARRIER), intArrayOf(1, Data.P_DEMONSHIELD),
-        intArrayOf(1, Data.P_DEATHSURGE), intArrayOf(0, Data.AB_GLASS), intArrayOf(0, Data.AB_GHOST),
-        intArrayOf(0, Data.P_SNIPER), intArrayOf(1, Data.P_SEAL), intArrayOf(1, Data.P_TIME),
-        intArrayOf(1, Data.P_SUMMON), intArrayOf(1, Data.P_MOVEWAVE), intArrayOf(1, Data.P_THEME),
-        intArrayOf(1, Data.P_POISON), intArrayOf(1, Data.P_BOSS), intArrayOf(1, Data.P_ARMOR),
-        intArrayOf(1, Data.P_SPEED), intArrayOf(1, Data.P_COUNTER), intArrayOf(1, Data.P_DMGCAP),
-        intArrayOf(1, Data.P_DMGCUT), intArrayOf(1, Data.P_IMUMOVING), intArrayOf(0, Data.AB_SNIPERI),
-        intArrayOf(0, Data.AB_TIMEI), intArrayOf(1, Data.P_IMUPOI), intArrayOf(0, Data.AB_THEMEI),
-        intArrayOf(1, Data.P_IMUSEAL), intArrayOf(0, Data.AB_IMUSW), intArrayOf(1, Data.P_CRITI),
-        intArrayOf(1, Data.P_IMUSUMMON), intArrayOf(1, Data.P_IMUARMOR),
-        intArrayOf(1, Data.P_IMUSPEED), intArrayOf(1, Data.P_IMUCANNON))
+    private val abils = arrayOf(intArrayOf(1, Data.P_WEAK.toInt()), intArrayOf(1, Data.P_STOP.toInt()),
+        intArrayOf(1, Data.P_SLOW.toInt()), intArrayOf(1, Data.P_KB.toInt()), intArrayOf(1, Data.P_WARP.toInt()),
+        intArrayOf(1, Data.P_CURSE.toInt()), intArrayOf(1, Data.P_IMUATK.toInt()), intArrayOf(1, Data.P_STRONG.toInt()),
+        intArrayOf(1, Data.P_LETHAL.toInt()), intArrayOf(1, Data.P_ATKBASE.toInt()), intArrayOf(1, Data.P_CRIT.toInt()),
+        intArrayOf(1, Data.P_METALKILL.toInt()), intArrayOf(0, Data.AB_CKILL.toInt()), intArrayOf(1, Data.P_BREAK.toInt()),
+        intArrayOf(1, Data.P_SHIELDBREAK.toInt()), intArrayOf(1, Data.P_MINIWAVE.toInt()), intArrayOf(1, Data.P_WAVE.toInt()),
+        intArrayOf(1, Data.P_MINIVOLC.toInt()), intArrayOf(1, Data.P_VOLC.toInt()), intArrayOf(1, Data.P_DEMONVOLC.toInt()),
+        intArrayOf(1, Data.P_IMUWEAK.toInt()), intArrayOf(1, Data.P_IMUSTOP.toInt()), intArrayOf(1, Data.P_IMUSLOW.toInt()),
+        intArrayOf(1, Data.P_IMUKB.toInt()), intArrayOf(1, Data.P_IMUWAVE.toInt()), intArrayOf(1, Data.P_IMUVOLC.toInt()),
+        intArrayOf(1, Data.P_IMUPOIATK.toInt()),intArrayOf(1, Data.P_BURROW.toInt()), intArrayOf(1, Data.P_REVIVE.toInt()),
+        intArrayOf(1, Data.P_SATK.toInt()), intArrayOf(1, Data.P_POIATK.toInt()), intArrayOf(1, Data.P_BARRIER.toInt()),
+        intArrayOf(1, Data.P_DEMONSHIELD.toInt()), intArrayOf(1, Data.P_DEATHSURGE.toInt()), intArrayOf(0, Data.AB_GLASS.toInt()),
+        intArrayOf(0, Data.AB_GHOST.toInt()), intArrayOf(0, Data.P_SNIPER.toInt()), intArrayOf(1, Data.P_SEAL.toInt()),
+        intArrayOf(1, Data.P_TIME.toInt()), intArrayOf(1, Data.P_SUMMON.toInt()), intArrayOf(1, Data.P_MOVEWAVE.toInt()),
+        intArrayOf(1, Data.P_THEME.toInt()), intArrayOf(1, Data.P_POISON.toInt()), intArrayOf(1, Data.P_BOSS.toInt()),
+        intArrayOf(1, Data.P_ARMOR.toInt()), intArrayOf(1, Data.P_SPEED.toInt()), intArrayOf(1, Data.P_COUNTER.toInt()),
+        intArrayOf(1, Data.P_DMGCAP.toInt()), intArrayOf(1, Data.P_DMGCUT.toInt()), intArrayOf(1, Data.P_IMUMOVING.toInt()),
+        intArrayOf(0, Data.AB_SNIPERI.toInt()), intArrayOf(0, Data.AB_TIMEI.toInt()), intArrayOf(1, Data.P_IMUPOI.toInt()),
+        intArrayOf(0, Data.AB_THEMEI.toInt()), intArrayOf(1, Data.P_IMUSEAL.toInt()), intArrayOf(0, Data.AB_IMUSW.toInt()),
+        intArrayOf(1, Data.P_CRITI.toInt()), intArrayOf(1, Data.P_IMUSUMMON.toInt()), intArrayOf(1, Data.P_IMUARMOR.toInt()),
+        intArrayOf(1, Data.P_IMUSPEED.toInt()), intArrayOf(1, Data.P_IMUCANNON.toInt()))
 
     private val atkdraw = intArrayOf(212, 112)
 

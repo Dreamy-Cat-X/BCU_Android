@@ -96,7 +96,7 @@ class ImageViewer : AppCompatActivity() {
     }
 
     companion object {
-        private val animationTypeText = intArrayOf(R.string.anim_move, R.string.anim_wait, R.string.anim_atk, R.string.anim_kb, R.string.anim_burrow, R.string.anim_under, R.string.anim_burrowup)
+        private val animationTypeText = intArrayOf(R.string.anim_move, R.string.anim_wait, R.string.anim_atk, R.string.anim_kb, R.string.anim_burrow, R.string.anim_under, R.string.anim_burrowup, R.string.anim_entry, R.string.anim_retreat)
     }
 
     private val skyUpper = 0

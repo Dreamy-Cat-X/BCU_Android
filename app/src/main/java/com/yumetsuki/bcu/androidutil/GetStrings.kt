@@ -160,25 +160,25 @@ class GetStrings(private val c: Context) {
             f.du
 
         return if (frse == 0)
-            du.itv.toString() + "f"
+            du.getItv(0).toString() + "f"
         else
-            DecimalFormat("#.##").format(du.itv.toDouble() / 30) + "s"
+            DecimalFormat("#.##").format(du.getItv(0).toDouble() / 30) + "s"
     }
 
     fun getAtkTime(em: Enemy?, frse: Int): String {
         if (em == null) return ""
-        return if (frse == 0) em.de.itv.toString() + "f" else DecimalFormat("#.##").format(em.de.itv.toDouble() / 30) + "s"
+        return if (frse == 0) em.de.getItv(0).toString() + "f" else DecimalFormat("#.##").format(em.de.getItv(0).toDouble() / 30) + "s"
     }
 
     fun getAbilT(f: Form?): String {
         if (f == null) return ""
-        val atkdat = f.du.rawAtkData()
+        val atkdat = f.du.getAtks(0)
         val result = StringBuilder()
         for (i in atkdat.indices) {
             if (i != atkdat.size - 1) {
-                if (atkdat[i][2] == 1) result.append(c.getString(R.string.unit_info_true)).append(" / ") else result.append(c.getString(R.string.unit_info_false)).append(" / ")
+                if (atkdat[i].canProc()) result.append(c.getString(R.string.unit_info_true)).append(" / ") else result.append(c.getString(R.string.unit_info_false)).append(" / ")
             } else {
-                if (atkdat[i][2] == 1) result.append(c.getString(R.string.unit_info_true)) else result.append(c.getString(R.string.unit_info_false))
+                if (atkdat[i].canProc()) result.append(c.getString(R.string.unit_info_true)) else result.append(c.getString(R.string.unit_info_false))
             }
         }
         return result.toString()
@@ -186,13 +186,13 @@ class GetStrings(private val c: Context) {
 
     fun getAbilT(em: Enemy?): String {
         if (em == null) return ""
-        val atks = em.de.rawAtkData()
+        val atks = em.de.getAtks(0)
         val result = StringBuilder()
         for (i in atks.indices) {
             if (i < atks.size - 1) {
-                if (atks[i][2] == 1) result.append(c.getString(R.string.unit_info_true)).append(" / ") else result.append(c.getString(R.string.unit_info_false)).append(" / ")
+                if (atks[i].canProc()) result.append(c.getString(R.string.unit_info_true)).append(" / ") else result.append(c.getString(R.string.unit_info_false)).append(" / ")
             } else {
-                if (atks[i][2] == 1) result.append(c.getString(R.string.unit_info_true)) else result.append(c.getString(R.string.unit_info_false))
+                if (atks[i].canProc()) result.append(c.getString(R.string.unit_info_true)) else result.append(c.getString(R.string.unit_info_false))
             }
         }
         return result.toString()
@@ -200,12 +200,12 @@ class GetStrings(private val c: Context) {
 
     fun getPost(f: Form?, frse: Int): String {
         if (f == null) return ""
-        return if (frse == 0) f.du.post.toString() + "f" else DecimalFormat("#.##").format(f.du.post.toDouble() / 30) + "s"
+        return if (frse == 0) f.du.getPost(false, 0).toString() + "f" else DecimalFormat("#.##").format(f.du.getPost(false, 0).toDouble() / 30) + "s"
     }
 
     fun getPost(em: Enemy?, frse: Int): String {
         if (em == null) return ""
-        return if (frse == 0) em.de.post.toString() + "f" else DecimalFormat("#.##").format(em.de.post.toDouble() / 30) + "s"
+        return if (frse == 0) em.de.getPost(false, 0).toString() + "f" else DecimalFormat("#.##").format(em.de.getPost(false, 0).toDouble() / 30) + "s"
     }
 
     fun getTBA(f: Form?, talent: Boolean, frse: Int, lvs: Level): String {
@@ -232,34 +232,34 @@ class GetStrings(private val c: Context) {
         if (f == null)
             return ""
 
-        val atkdat = f.du.rawAtkData()
+        val atkdat = f.du.getAtks(0)
         return if (frse == 0) {
             if (atkdat.size > 1) {
                 val result = StringBuilder()
 
                 for (i in atkdat.indices) {
                     if (i != atkdat.size - 1)
-                        result.append(atkdat[i][1]).append("f / ")
+                        result.append(atkdat[i].pre).append("f / ")
                     else
-                        result.append(atkdat[i][1]).append("f")
+                        result.append(atkdat[i].pre).append("f")
                 }
                 result.toString()
-            } else atkdat[0][1].toString() + "f"
+            } else atkdat[0].pre.toString() + "f"
         } else {
             if (atkdat.size > 1) {
                 val result = StringBuilder()
 
                 for (i in atkdat.indices) {
                     if (i != atkdat.size - 1)
-                        result.append(DecimalFormat("#.##").format(atkdat[i][1].toDouble() / 30)).append("s / ")
+                        result.append(DecimalFormat("#.##").format(atkdat[i].pre.toDouble() / 30)).append("s / ")
                     else
-                        result.append(DecimalFormat("#.##").format(atkdat[i][1].toDouble() / 30)).append("s")
+                        result.append(DecimalFormat("#.##").format(atkdat[i].pre.toDouble() / 30)).append("s")
                 }
 
                 result.toString()
 
             } else
-                DecimalFormat("#.##").format(atkdat[0][1].toDouble() / 30) + "s"
+                DecimalFormat("#.##").format(atkdat[0].pre.toDouble() / 30) + "s"
         }
     }
 
@@ -267,7 +267,7 @@ class GetStrings(private val c: Context) {
         if (em == null)
             return ""
 
-        val atkdat = em.de.rawAtkData()
+        val atkdat = em.de.getAtks(0)
 
         return if (frse == 0) {
             if (atkdat.size > 1) {
@@ -275,28 +275,28 @@ class GetStrings(private val c: Context) {
 
                 for (i in atkdat.indices) {
                     if (i != atkdat.size - 1)
-                        result.append(atkdat[i][1]).append("f / ")
+                        result.append(atkdat[i].pre).append("f / ")
                     else
-                        result.append(atkdat[i][1]).append("f")
+                        result.append(atkdat[i].pre).append("f")
                 }
                 result.toString()
             } else
-                atkdat[0][1].toString() + "f"
+                atkdat[0].pre.toString() + "f"
         } else {
             if (atkdat.size > 1) {
                 val result = StringBuilder()
 
                 for (i in atkdat.indices) {
                     if (i != atkdat.size - 1)
-                        result.append(DecimalFormat("#.##").format(atkdat[i][1].toDouble() / 30)).append("s / ")
+                        result.append(DecimalFormat("#.##").format(atkdat[i].pre.toDouble() / 30)).append("s / ")
                     else
-                        result.append(DecimalFormat("#.##").format(atkdat[i][1].toDouble() / 30)).append("s")
+                        result.append(DecimalFormat("#.##").format(atkdat[i].pre.toDouble() / 30)).append("s")
                 }
 
                 result.toString()
 
             } else
-                DecimalFormat("#.##").format(atkdat[0][1].toDouble() / 30) + "s"
+                DecimalFormat("#.##").format(atkdat[0].pre.toDouble() / 30) + "s"
         }
     }
 
@@ -347,10 +347,10 @@ class GetStrings(private val c: Context) {
         if(f.unit.id.pack != Identifier.DEF) {
             val du = f.du as CustomEntity
 
-            val ma = if(du.atkCount == 1) {
-                du.getAtkModel(0)
+            val ma = if(du.getAtkCount(0) == 1) {
+                du.getAtkModel(0, 0)
             } else if(allRangeSame(du)) {
-                du.getAtkModel(0)
+                du.getAtkModel(0, 0)
             } else {
                 du.repAtk
             }
@@ -366,8 +366,8 @@ class GetStrings(private val c: Context) {
         } else {
             val du = f.du as DataUnit
 
-            if(du.atkCount == 0 || allRangeSame(du)) {
-                val ma = du.getAtkModel(0)
+            if(du.getAtkCount(0) == 0 || allRangeSame(du)) {
+                val ma = du.getAtkModel(0, 0)
 
                 val lds = ma.shortPoint
 
@@ -380,8 +380,8 @@ class GetStrings(private val c: Context) {
             } else {
                 val builder = StringBuilder("$tb | ")
 
-                for(i in 0 until du.atkCount) {
-                    val ma = du.getAtkModel(i)
+                for(i in 0 until du.getAtkCount(0)) {
+                    val ma = du.getAtkModel(0, i)
 
                     val lds = ma.shortPoint
 
@@ -392,7 +392,7 @@ class GetStrings(private val c: Context) {
 
                     builder.append("$start ~ $end")
 
-                    if(i < du.atkCount - 1) {
+                    if(i < du.getAtkCount(0) - 1) {
                         builder.append(" / ")
                     }
                 }
@@ -414,8 +414,8 @@ class GetStrings(private val c: Context) {
         if(em.id.pack != Identifier.DEF) {
             val de = em.de as CustomEntity
 
-            val ma = if(de.atkCount == 1 || allRangeSame(de)) {
-                de.getAtkModel(0)
+            val ma = if(de.getAtkCount(0) == 1 || allRangeSame(de)) {
+                de.getAtkModel(0, 0)
             } else {
                 de.repAtk
             }
@@ -431,8 +431,8 @@ class GetStrings(private val c: Context) {
         } else {
             val de = em.de as DataEnemy
 
-            if(de.atkCount == 0 || allRangeSame(de)) {
-                val ma = de.getAtkModel(0)
+            if(de.getAtkCount(0) == 0 || allRangeSame(de)) {
+                val ma = de.getAtkModel(0, 0)
 
                 val lds = ma.shortPoint
 
@@ -445,8 +445,8 @@ class GetStrings(private val c: Context) {
             } else {
                 val builder = StringBuilder("$tb | ")
 
-                for(i in 0 until de.atkCount) {
-                    val ma = de.getAtkModel(i)
+                for(i in 0 until de.getAtkCount(0)) {
+                    val ma = de.getAtkModel(0, i)
 
                     val lds = ma.shortPoint
 
@@ -457,7 +457,7 @@ class GetStrings(private val c: Context) {
 
                     builder.append("$start ~ $end")
 
-                    if(i < de.atkCount - 1) {
+                    if(i < de.getAtkCount(0) - 1) {
                         builder.append(" / ")
                     }
                 }
@@ -471,7 +471,7 @@ class GetStrings(private val c: Context) {
         val near = ArrayList<Int>()
         val far = ArrayList<Int>()
 
-        for(atk in de.atks) {
+        for(atk in de.getAtks(0)) {
             near.add(atk.shortPoint)
             far.add(atk.longPoint)
         }
@@ -508,9 +508,9 @@ class GetStrings(private val c: Context) {
             f.du
 
         return if (frse == 0)
-            t.getFinRes(du.respawn, false).toString() + "f"
+            t.getFinRes(du.respawn, 0).toString() + "f"
         else
-            DecimalFormat("#.##").format(t.getFinRes(du.respawn, false).toDouble() / 30) + "s"
+            DecimalFormat("#.##").format(t.getFinRes(du.respawn, 0).toDouble() / 30) + "s"
     }
 
     fun getAtk(f: Form?, t: Treasure?, talent: Boolean, lvs: Level): String {
@@ -525,7 +525,7 @@ class GetStrings(private val c: Context) {
         else
             f.du
 
-        return if (du.rawAtkData().size > 1)
+        return if (du.getAtks(0).size > 1)
             getTotAtk(f, t, talent, lvs) + " " + getAtks(f, t, talent, lvs)
         else
             getTotAtk(f, t, talent, lvs)
@@ -535,7 +535,7 @@ class GetStrings(private val c: Context) {
         if (em == null)
             return ""
 
-        return if (em.de.rawAtkData().size > 1)
+        return if (em.de.getAtks(0).size > 1)
             getTotAtk(em, multi) + " " + getAtks(em, multi)
         else
             getTotAtk(em, multi)
@@ -602,7 +602,7 @@ class GetStrings(private val c: Context) {
             f.du
 
         val result = if(f.du.pCoin != null && talent) {
-            (((du.hp * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.defMulti).toInt() * (f.du.pCoin.getHPMultiplication(lvs.talents))).toInt()
+            (((du.hp * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.defMulti).toInt() * (f.du.pCoin.getStatMultiplication(Data.PC2_HP, lvs.talents))).toInt()
         } else {
             ((du.hp * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.defMulti).toInt()
         }
@@ -628,9 +628,9 @@ class GetStrings(private val c: Context) {
                 f.du else f.du
 
         val result: Int = if(f.du.pCoin != null && talent) {
-            (((du.allAtk() * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt() * f.du.pCoin.getAtkMultiplication(lvs.talents)).toInt()
+            (((du.allAtk(0) * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt() * f.du.pCoin.getStatMultiplication(Data.PC2_ATK, lvs.talents)).toInt()
         } else {
-            ((du.allAtk() * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt()
+            ((du.allAtk(0) * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt()
         }
 
         return result.toString()
@@ -640,7 +640,7 @@ class GetStrings(private val c: Context) {
         if (em == null)
             return ""
 
-        return (em.de.multi(BasisSet.current()) * em.de.allAtk() * multi / 100).toInt().toString()
+        return (em.de.multi(BasisSet.current()) * em.de.allAtk(0) * multi / 100).toInt().toString()
     }
 
     fun getDPS(f: Form?, t: Treasure?, talent: Boolean, lvs: Level): String {
@@ -652,7 +652,7 @@ class GetStrings(private val c: Context) {
             else
                 f.du
 
-            DecimalFormat("#.##").format(getTotAtk(f, t, talent, lvs).toDouble() / (du.itv / 30.0)).toString()
+            DecimalFormat("#.##").format(getTotAtk(f, t, talent, lvs).toDouble() / (du.getItv(0) / 30.0)).toString()
         }
     }
 
@@ -660,7 +660,7 @@ class GetStrings(private val c: Context) {
         return if (em == null)
             ""
         else
-            DecimalFormat("#.##").format(getTotAtk(em, multi).toDouble() / (em.de.itv.toDouble() / 30)).toString()
+            DecimalFormat("#.##").format(getTotAtk(em, multi).toDouble() / (em.de.getItv(0).toDouble() / 30)).toString()
     }
 
     fun getTrait(ef: Form?, talent: Boolean, lvs: Level, c: Context): String {
@@ -743,7 +743,7 @@ class GetStrings(private val c: Context) {
         if (em == null)
             return ""
 
-        return (em.de.drop * t.getDropMulti(false) / 100).toInt().toString()
+        return (em.de.drop * t.getDropMulti(0) / 100).toInt().toString()
     }
 
     private fun getAtks(f: Form?, t: Treasure?, talent: Boolean, lvs: Level): String {
@@ -758,15 +758,15 @@ class GetStrings(private val c: Context) {
         else
             f.du
 
-        val atks = du.rawAtkData()
+        val atks = du.getAtks(0)
 
         val damges = ArrayList<Int>()
 
         for (atk in atks) {
             val result: Int = if(f.du.pCoin != null && talent) {
-                (((atk[0] * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt() * f.du.pCoin.getAtkMultiplication(lvs.talents)).toInt()
+                (((atk.atk * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt() * f.du.pCoin.getStatMultiplication(Data.PC2_ATK, lvs.talents)).toInt()
             } else {
-                ((atk[0] * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt()
+                ((atk.atk * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt()
             }
 
             damges.add(result)
@@ -788,12 +788,12 @@ class GetStrings(private val c: Context) {
         if (em == null)
             return ""
 
-        val atks = em.de.rawAtkData()
+        val atks = em.de.getAtks(0)
 
         val damages = ArrayList<Int>()
 
         for (atk in atks) {
-            damages.add((atk[0] * em.de.multi(BasisSet.current()) * multi / 100).toInt())
+            damages.add((atk.atk * em.de.multi(BasisSet.current()) * multi / 100).toInt())
         }
 
         val result = StringBuilder("(")
@@ -997,20 +997,17 @@ class GetStrings(private val c: Context) {
             limits.add(result)
         }
 
-        if (l.group != null && l.group.set.size != 0) {
+        if (l.group != null && l.group.fset.size != 0) {
             val units = StringBuilder()
-            val u: List<common.util.unit.Unit> = ArrayList(l.group.set)
+            val u: List<Form> = ArrayList(l.group.fset)
 
             for (i in u.indices) {
-                if(u[i].forms == null || u[i].forms.isEmpty())
-                    continue
-
-                if (i == l.group.set.size - 1) {
-                    val f = MultiLangCont.get(u[i].forms[0]) ?: u[i].forms[0].names.toString()
+                if (i == l.group.fset.size - 1) {
+                    val f = MultiLangCont.get(u[i]) ?: u[i].names.toString()
 
                     units.append(f)
                 } else {
-                    val f = MultiLangCont.get(u[i].forms[0]) ?: u[i].forms[0].names.toString()
+                    val f = MultiLangCont.get(u[i]) ?: u[i].names.toString()
 
                     units.append(f).append(", ")
                 }
@@ -1064,7 +1061,7 @@ class GetStrings(private val c: Context) {
             res.add(c.getString(R.string.stg_info_numbplay).replace("_", st.cont.info.clearLimit.toString()))
         }
 
-        if (st.cont.info.cantUseGoldCPU) {
+        if (st.cont.info.unskippable) {
             res.add(c.getString(R.string.stg_info_nocpu))
         }
 
