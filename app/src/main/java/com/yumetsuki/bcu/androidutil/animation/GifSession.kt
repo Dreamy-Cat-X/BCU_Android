@@ -153,7 +153,7 @@ class GifSession(val recorder: ImageViewer.GifRecorder, private val type: Animat
                 if(d != null) {
                     val u = d.get()
 
-                    animation = u.forms[form].getEAnim(StaticStore.getAnimType(animationType, u.forms[form].anim.anims.size))
+                    animation = u.forms[form].getEAnim(u.forms[form].anim.types()[animationType])
 
                     currentForm = form
                     currentAnimationType = animationType
@@ -168,7 +168,7 @@ class GifSession(val recorder: ImageViewer.GifRecorder, private val type: Animat
                     val e = d.get()
 
                     if(e != null && e is Enemy) {
-                        animation = e.getEAnim(StaticStore.getAnimType(animationType, e.anim.anims.size))
+                        animation = e.getEAnim(e.anim.types()[animationType])
 
                         currentAnimationType = animationType
                     } else {

@@ -240,7 +240,7 @@ class UnitInfoPager : Fragment() {
 
         if(f.du.pCoin != null) {
             for(i in f.du.pCoin.info.indices) {
-                if(f.du.pCoin.info[i][13] == 1)
+                if(f.du.pCoin.getReqLv(i) > 0)
                     superTalentIndex.add(i)
                 else
                     talentIndex.add(i)
@@ -468,9 +468,7 @@ class UnitInfoPager : Fragment() {
                             f.du
 
                     val ability = Interpret.getAbi(du, fragment, 0, activity)
-
                     val abilityicon = Interpret.getAbiid(du)
-
                     val proc = Interpret.getProc(du, fs == 1, true, arrayOf(1.0, 1.0).toDoubleArray(), requireContext())
 
                     val linearLayoutManager = LinearLayoutManager(activity)

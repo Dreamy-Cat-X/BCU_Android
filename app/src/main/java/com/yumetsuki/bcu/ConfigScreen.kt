@@ -391,7 +391,7 @@ open class ConfigScreen : AppCompatActivity() {
             CommonStatic.getConfig().fps60 = checked
 
             val editor = shared.edit()
-            editor.putBoolean("performanceAnimation", checked)
+            editor.putBoolean("fps60", checked)
             editor.apply()
 
             warnText.visibility = if (CommonStatic.getConfig().fps60) {

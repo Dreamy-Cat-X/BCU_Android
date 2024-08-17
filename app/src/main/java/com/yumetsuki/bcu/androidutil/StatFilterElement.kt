@@ -2,6 +2,7 @@ package com.yumetsuki.bcu.androidutil
 
 import android.util.Log
 import common.battle.BasisSet
+import common.battle.data.MaskEntity
 import common.util.Data
 import common.util.unit.Enemy
 import common.util.unit.Form
@@ -37,31 +38,24 @@ class StatFilterElement(val type: Int, val option: Int, val lev: Int) {
 
         fun performFilter(entity: Form, orand: Boolean) : Boolean {
             var result = !orand
-
-            for(stat in statFilter) {
+            for(stat in statFilter)
                 result = stat.setFilter(entity, result, orand)
-            }
 
             return result
         }
 
         fun performFilter(entity: Enemy, orand: Boolean) : Boolean {
             var result = !orand
-
-            for(stat in statFilter) {
+            for(stat in statFilter)
                 result = stat.setFilter(entity, result, orand)
-            }
 
             return result
         }
 
         fun canBeAdded(type: Int, option: Int, lev: Int) : Boolean {
-            for(element in statFilter) {
-                if(element.type == type && element.option == option && element.lev == lev) {
+            for(element in statFilter)
+                if(element.type == type && element.option == option && element.lev == lev)
                     return false
-                }
-            }
-
             return true
         }
 
@@ -74,24 +68,20 @@ class StatFilterElement(val type: Int, val option: Int, val lev: Int) {
                 if(element.type == type) {
                     when(element.option) {
                         OPTION_LESS -> {
-                            if(!less.contains(element.lev)) {
+                            if(!less.contains(element.lev))
                                 less.add(element.lev)
-                            }
                         }
                         OPTION_EQUAL -> {
-                            if(!equal.contains(element.lev)) {
+                            if(!equal.contains(element.lev))
                                 equal.add(element.lev)
-                            }
                         }
                         OPTION_GREAT -> {
-                            if(!great.contains(element.lev)) {
+                            if(!great.contains(element.lev))
                                 great.add(element.lev)
-                            }
                         }
                     }
                 }
             }
-
             return !(less.size == 60 && equal.size == 60 && great.size == 60)
         }
 
@@ -100,9 +90,8 @@ class StatFilterElement(val type: Int, val option: Int, val lev: Int) {
 
             for(element in statFilter) {
                 if(element.type == type && element.option == option) {
-                    if(!res.contains(element.lev)) {
+                    if(!res.contains(element.lev))
                         res.add(element.lev)
-                    }
                 }
             }
 
@@ -130,7 +119,6 @@ class StatFilterElement(val type: Int, val option: Int, val lev: Int) {
         }
 
         val l = entity.unit.max.coerceAtMost(lev)
-
         when(type) {
             HP -> {
                 val hp = if(talent && entity.du.pCoin != null) {
@@ -155,52 +143,19 @@ class StatFilterElement(val type: Int, val option: Int, val lev: Int) {
 
                 return performData(result, orand, dps)
             }
-            HB -> {
-                return performData(result, orand, du.hb)
-            }
-            RANGE -> {
-                return performData(result, orand, du.range)
-            }
             COSTDROP -> {
                 return performData(result, orand, (du.price * 1.5).toInt())
-            }
-            SPEED -> {
-                return performData(result, orand, du.speed)
             }
             CD -> {
                 return performData(result, orand, t.getFinRes(du.respawn, 0))
             }
-            BARRIER -> {
-                return performData(result, orand, du.proc.BARRIER.health)
-            }
-            ATKTIME -> {
-                return performData(result, orand, du.getItv(curAtk))
-            }
-            PREATK -> {
-                var preatk = 0
-
-                for(data in du.getAtks(curAtk)) {
-                    preatk += data.pre
-                }
-
-                return performData(result, orand, preatk)
-            }
-            POSTATK -> {
-                return performData(result, orand, du.getPost(false, curAtk))
-            }
-            TBA -> {
-                return performData(result, orand, du.tba)
-            }
-            ATKCOUNT -> {
-                return performData(result, orand, du.getAtkCount(curAtk))
-            }
             else -> {
-                return false
+                return setFilter(du, result, orand)
             }
         }
     }
 
-    fun setFilter(entity: Enemy, result: Boolean, orand: Boolean) : Boolean {
+    fun setFilter(entity: Enemy, result : Boolean, orand: Boolean) : Boolean {
         when(type) {
             HP -> {
                 return performData(result, orand, entity.de.hp * lev / 100)
@@ -210,44 +165,49 @@ class StatFilterElement(val type: Int, val option: Int, val lev: Int) {
             }
             DPS -> {
                 val dps = (entity.de.allAtk(curAtk) * lev / 100 / (entity.de.getItv(curAtk) / 30))
-
                 return performData(result, orand, dps)
-            }
-            HB -> {
-                return performData(result, orand, entity.de.hb)
-            }
-            RANGE -> {
-                return performData(result, orand, entity.de.range)
             }
             COSTDROP -> {
                 return performData(result, orand, entity.de.drop)
+            } else -> {
+                return setFilter(entity.de, result, orand)
+            }
+        }
+    }
+
+    fun setFilter(mask: MaskEntity, result: Boolean, orand: Boolean) : Boolean {
+        when(type) {
+            HB -> {
+                return performData(result, orand, mask.hb)
+            }
+            RANGE -> {
+                return performData(result, orand, mask.range)
             }
             SPEED -> {
-                return performData(result, orand, entity.de.speed)
+                return performData(result, orand, mask.speed)
             }
             BARRIER -> {
-                return performData(result, orand, entity.de.proc.BARRIER.health)
+                return performData(result, orand, mask.proc.BARRIER.health)
             }
             ATKTIME -> {
-                return performData(result, orand, entity.de.getItv(curAtk))
+                return performData(result, orand, mask.getItv(curAtk))
             }
             PREATK -> {
                 var preatk = 0
-
-                for(data in entity.de.getAtks(curAtk)) {
+                for(data in mask.getAtks(curAtk)) {
                     preatk += data.pre
                 }
 
                 return performData(result, orand, preatk)
             }
             POSTATK -> {
-                return performData(result, orand, entity.de.getPost(false, curAtk))
+                return performData(result, orand, mask.getPost(false, curAtk))
             }
             TBA -> {
-                return performData(result, orand, entity.de.tba)
+                return performData(result, orand, mask.tba)
             }
             ATKCOUNT -> {
-                return performData(result, orand, entity.de.getAtkCount(curAtk))
+                return performData(result, orand, mask.getAtkCount(curAtk))
             }
             else -> {
                 return false

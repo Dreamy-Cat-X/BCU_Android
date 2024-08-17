@@ -1025,4 +1025,17 @@
     <string name="eff_guar">가드 (더미)</string>
     <string name="eff_meki">메탈 킬러</string>
     <string name="eff_mekie">메탈 킬러 적 측면</string>
+    <string name="sch_abi_stt">Strategist</string>
+    <string name="sch_abi_ltg">Lethargy</string>
+    <string name="sch_abi_rg">Rage</string>
+    <string name="sch_abi_hy">Hypnotize</string>
+    <string name="sch_abi_rms">RangeShield</string>
+    <string name="sch_abi_tps">FocusShield</string>
+    <string name="sch_abi_wlv">Worker Bonus</string>
+    <string name="sch_abi_cdc">Research Break</string>
+    <string name="sch_abi_waur">Weaking Aura</string>
+    <string name="sch_abi_saur">Motivating Aura</string>
+    <string name="sch_abi_imlt">Imu. Lethargy</string>
+    <string name="sch_abi_imr">Rage Immunity</string>
+    <string name="sch_abi_imh">Hypno Immunity</string>
 </resources>

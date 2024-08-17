@@ -47,13 +47,10 @@ import common.pack.UserProfile
 import common.system.fake.FakeImage
 import common.system.files.VFile
 import common.util.Data
-import common.util.anim.AnimU
-import common.util.anim.AnimU.UType
 import common.util.anim.ImgCut
 import common.util.lang.MultiLangCont
 import common.util.stage.Music
 import common.util.unit.*
-import common.util.unit.Unit
 import java.io.*
 import java.math.BigInteger
 import java.security.InvalidAlgorithmParameterException
@@ -150,30 +147,24 @@ object StaticStore {
 
     /** img15.png's parts  */
     var img15: Array<FakeImage>? = null
-
-    /** Ability icons  */
-    var icons: Array<Bitmap>? = null
-
+    /** Search filter format indexing */
+    val SF_NAME = 0
+    val SF_TYPE = 1
+    val SF_PROC = 2
+    /** imgcut index list of miscellaneous icons. Respectively belonging to Strong vs, Resist, Insane Res, Massive dmg, Insane dmg, And the rest to resistances.
+     * @see Interpret.immune */
+    val siinds = intArrayOf(203, 204, 122, 206, 114, 218, 43, 45, 47, 49, 51, 53, 109, 235, 241)
+    var sicons: Array<Bitmap>? = null
+    /** Regular Ability icons. */
+    var aicons: Array<Bitmap>? = null
     /** Proc icons  */
-    var picons: Array<Bitmap>? = null
+    var picons2: Array<Bitmap>? = null
 
     /** Cat fruit icons  */
     var fruit: Array<Bitmap>? = null
 
     /** Star used for difficulty **/
     var starDifficulty: Array<Bitmap>? = null
-
-    /** Imgcut index list of ablities  */
-    var anumber = intArrayOf(203, 204, 206, 202, 209, 218, 227, 227, 227, 260, 258, 227, 227, 110, 227, 122, 114, 297, 300, 315, 319)
-
-    /** Imgcut index list of procs  */
-    var pnumber = intArrayOf(195, 197, 198, 207, 266, 289, 231, 196, 199, 200, 201, 321, 264, 296, 229, 205, 293, 208, 310, 239, 317, 302, 213, 214, 215, 216, 210, 243, 262, 116, 237, 329, 330, 331, 332, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 227, 43, 45, 47, 49, 51, 53, 109, 235, 241)
-
-    /** File index list of abilities  */
-    var afiles = arrayOf("", "", "", "", "", "", "SnipeX.png", "TimeX.png", "Ghost.png", "", "", "Suicide.png", "ThemeX.png", "", "BossWaveX.png", "", "", "", "", "", "")
-
-    /** File index list of procs  */
-    var pfiles = arrayOf("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Burrow.png", "Revive.png", "Snipe.png", "Seal.png", "Time.png", "Summon.png", "Moving.png", "Theme.png", "Poison.png", "BossWave.png", "ArmorBreak.png", "Speed.png", "Counter.png", "DmgCut.png", "DmgCap.png", "CritX.png", "PoisonX.png", "SealX.png", "MovingX.png", "SummonX.png", "ArmorBreakX.png", "SpeedX.png", "CannonX.png", "", "", "", "", "", "", "", "", "")
 
     //Variables for Unit
 
@@ -287,8 +278,9 @@ object StaticStore {
         medallang = 1
         toast = null
         img15 = null
-        icons = null
-        picons = null
+        sicons = null
+        aicons = null
+        picons2 = null
         fruit = null
         unitinflistClick = SystemClock.elapsedRealtime()
         UisOpen = false
@@ -1097,28 +1089,6 @@ object StaticStore {
     }
 
     /**
-     * Returns animation type by checking specified mode
-     *
-     * @param mode Mode of animation
-     *
-     * @return Returns [UType] by checking specified [mode]. If [mode] is invalid, it will return [UType.WALK] as default
-     */
-    fun getAnimType(mode: Int, max: Int): UType {
-        return when (mode) {
-            AnimU.IDLE -> AnimU.TYPEDEF[AnimU.IDLE]
-            2 -> AnimU.TYPEDEF[2]
-            AnimU.HB -> AnimU.TYPEDEF[AnimU.HB]
-            4 -> if(max == 5)
-                AnimU.TYPEDEF[AnimU.ENTRY]
-            else
-                AnimU.TYPEDEF[AnimU.BURROW_DOWN]
-            AnimU.UNDERGROUND -> AnimU.TYPEDEF[AnimU.UNDERGROUND]
-            AnimU.BURROW_UP -> AnimU.TYPEDEF[AnimU.BURROW_UP]
-            else -> AnimU.TYPEDEF[AnimU.WALK]
-        }
-    }
-
-    /**
      * Get pack name from specified pack id
      *
      * @param id ID of pack
@@ -1384,7 +1354,43 @@ object StaticStore {
                 }
             }
         }
-
         return result
+    }
+
+    fun getAbiIcon(ind : Int) : Bitmap {
+        if (aicons == null)
+            aicons = Array(Data.ABI_TOT.toInt()) { i ->
+                if (CommonStatic.getBCAssets().icon[0][i].img != null)
+                    CommonStatic.getBCAssets().icon[0][i].img.bimg() as Bitmap
+                else
+                    empty(1, 1)
+            }
+        return aicons!![ind]
+    }
+
+    fun getProcIcon(ind : Int) : Bitmap { //Returns proc-based icon. Use negative for special cases like resistances, Strong vs, and WaveBlock
+        if (ind >= 0) {
+            if (picons2 == null)
+                picons2 = Array(Data.PROC_TOT.toInt()) { i ->
+                    if (CommonStatic.getBCAssets().icon[1][i].img != null)
+                        CommonStatic.getBCAssets().icon[1][i].img.bimg() as Bitmap
+                    else
+                        empty(1, 1)
+                }
+            return picons2!![ind]
+        }
+        return sicons?.get(abs(ind+1)) ?: empty(1, 1)
+    }
+
+    fun dmgType(atk : Boolean, mul : Int) : Int {
+        if (atk)
+            return if (mul >= 500) 4 else if(mul >= 300) 3 else 0
+        return if (mul >= 600) 2 else if(mul >= 400) 1 else 0
+    }
+
+    fun getMiscAbiIcon(abi : IntArray) : Bitmap {
+        return if (abi.size < SF_PROC+3) sicons?.get(5) ?: empty(1, 1) //waveblock lol
+        else if (abi[SF_PROC+2] == -1) getProcIcon(abi[SF_PROC])
+        else sicons?.get(dmgType(abi[SF_PROC+2] % 200 != 0, abi[SF_PROC+2])) ?: empty(1, 1)
     }
 }

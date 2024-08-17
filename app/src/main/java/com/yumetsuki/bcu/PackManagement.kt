@@ -84,7 +84,7 @@ class PackManagement : AppCompatActivity() {
                 if(cursor.moveToFirst()) {
                     val name = cursor.getString(0) ?: return@registerForActivityResult
 
-                    if(!name.endsWith(".pack.bcuzip")) {
+                    if(!name.endsWith(".pack.bcuzip") && !name.endsWith(".userpack")) {
                         StaticStore.showShortMessage(this, R.string.pack_import_invalid)
 
                         return@registerForActivityResult

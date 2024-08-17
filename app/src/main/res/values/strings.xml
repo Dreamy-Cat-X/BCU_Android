@@ -707,7 +707,7 @@
     <string name="pack_remove_result">Pack Removed</string>
     <string name="main_packs">Packs</string>
     <string name="pack_share_notfound">Can\'t find pack file</string>
-    <string name="pack_import_invalid">You can import only pack.bcuzip files</string>
+    <string name="pack_import_invalid">You can import only pack.bcuzip or userpack files</string>
     <string name="pack_import_exist">Pack Existing</string>
     <string name="pack_import_exist_msg">This pack file is already existing in your application. Will you replace file?</string>
     <string name="replace">Replace</string>
@@ -1024,4 +1024,17 @@
     <string name="eff_guar">Guard (Dummy)</string>
     <string name="eff_meki">Metal Killer</string>
     <string name="eff_mekie">Metal Killer Enemy Side</string>
+    <string name="sch_abi_stt">Strategist</string>
+    <string name="sch_abi_ltg">Lethargy</string>
+    <string name="sch_abi_rg">Rage</string>
+    <string name="sch_abi_hy">Hypnotize</string>
+    <string name="sch_abi_rms">RangeShield</string>
+    <string name="sch_abi_tps">FocusShield</string>
+    <string name="sch_abi_wlv">Worker Bonus</string>
+    <string name="sch_abi_cdc">Research Break</string>
+    <string name="sch_abi_waur">Weaking Aura</string>
+    <string name="sch_abi_saur">Motivating Aura</string>
+    <string name="sch_abi_imlt">Imu. Lethargy</string>
+    <string name="sch_abi_imr">Rage Immunity</string>
+    <string name="sch_abi_imh">Hypno Immunity</string>
 </resources>

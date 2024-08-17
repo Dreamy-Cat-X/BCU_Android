@@ -5,10 +5,13 @@ import com.yumetsuki.bcu.BuildConfig;
 
 import common.io.WebFileIO;
 import common.io.assets.AssetLoader;
+import common.io.json.JsonClass;
 import common.io.json.JsonDecoder;
 
+@JsonClass(noTag = JsonClass.NoTag.LOAD)
 public class ApkUpdateChecker {
 
+    @JsonClass(noTag = JsonClass.NoTag.LOAD)
     public static class ApkJson {
         public String ver;
         public String CORE_VER;
@@ -36,7 +39,7 @@ public class ApkUpdateChecker {
 
         @Override
         public String toString() {
-            return ver + "info:\n" + desc;
+            return desc;
         }
     }
     private static final String JAR_CHECK_URL = "https://raw.githubusercontent.com/Blacksun420/sun-bcu-assets/main/apk/check.json";
@@ -45,14 +48,16 @@ public class ApkUpdateChecker {
         try {
             JsonElement json = WebFileIO.read(JAR_CHECK_URL);
             if (json != null) {
-                ApkJson[] j = JsonDecoder.decode(json, ApkJson[].class);
-                if (!j[0].isNewer())
+                ApkUpdateChecker j = JsonDecoder.decode(json, ApkUpdateChecker.class);
+                if (!j.apk_update[0].isNewer())
                     return null;
-                return j[0];
+                return j.apk_update[0];//TODO multiple of them
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    public ApkJson[] apk_update;
 }

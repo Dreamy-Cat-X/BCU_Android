@@ -490,7 +490,7 @@ class ImageViewer : AppCompatActivity() {
                                 if (StaticStore.formposition != position) {
                                     StaticStore.formposition = position
 
-                                    cView.anim = u.forms[position].getEAnim(StaticStore.getAnimType(anims.selectedItemPosition, u.forms[position].anim.anims.size))
+                                    cView.anim = u.forms[position].getEAnim(u.forms[position].anim.types()[anims.selectedItemPosition])
 
                                     val max = cView.anim.len()
 
@@ -1039,21 +1039,18 @@ class ImageViewer : AppCompatActivity() {
 
                 val animationTypes = when (entity) {
                     is Unit -> {
-                        entity.forms[0].anim.anims
+                        entity.forms[0].anim.names()
                     }
                     is Enemy -> {
-                        entity.anim.anims
+                        entity.anim.names()
                     }
                     else -> {
                         null
                     }
                 } ?: return res
 
-                animationTypes.forEachIndexed { index, _ ->
-                    if(index == 4 && animationTypes.size == 5)
-                        res.add(getString(R.string.anim_entry))
-                    else
-                        res.add(getString(animationTypeText[index]))
+                animationTypes.forEach { str ->
+                    res.add(str)
                 }
             }
             is EffAnim<*> -> {

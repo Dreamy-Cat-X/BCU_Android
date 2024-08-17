@@ -20,10 +20,10 @@ class AdapterAbil(private val ability: List<String>, private val procs: List<Str
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
-        if (viewHolder.bindingAdapterPosition < abilicon.size) {
+        if (viewHolder.bindingAdapterPosition < ability.size) {
             viewHolder.abiltext.text = ability[viewHolder.bindingAdapterPosition]
 
-            val icon = StaticStore.icons?.get(abilicon[viewHolder.bindingAdapterPosition]) ?: StaticStore.empty(1, 1)
+            val icon = StaticStore.getAbiIcon(abilicon[viewHolder.bindingAdapterPosition])
 
             val resized: Bitmap = if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 StaticStore.getResizeb(icon, context, 28f)
@@ -46,8 +46,7 @@ class AdapterAbil(private val ability: List<String>, private val procs: List<Str
             val id = info[0].toInt()
 
             val resized: Bitmap
-
-            val icon = StaticStore.picons?.get(id) ?: StaticStore.empty(1, 1)
+            val icon = StaticStore.getProcIcon(id)
 
             resized = if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 StaticStore.getResizeb(icon, context, 28f)

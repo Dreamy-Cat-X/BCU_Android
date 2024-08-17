@@ -145,46 +145,12 @@ object Definer {
                     StaticStore.starDifficulty = arrayOf(images[33].bimg() as Bitmap, images[34].bimg() as Bitmap)
                 }
             }
-
-            if (StaticStore.img15 == null) {
+            if (StaticStore.img15 == null)
                 StaticStore.readImg()
-            }
 
-            if (StaticStore.icons == null) {
-                val number = StaticStore.anumber
-                val files = StaticStore.afiles
-
-                val iconpath = "./org/page/icons/"
-
-                StaticStore.icons = Array(number.size) {i ->
-                    if(number[i] == 227) {
-                        if(files[i].isNotEmpty()) {
-                            VFile.get(iconpath+files[i]).data.img.bimg() as Bitmap
-                        } else {
-                            StaticStore.empty(1, 1)
-                        }
-                    } else {
-                        (StaticStore.img15?.get(number[i])?.bimg() ?: StaticStore.empty(1,1)) as Bitmap
-                    }
-                }
-            }
-
-            if (StaticStore.picons == null) {
-                val number = StaticStore.pnumber
-                val files = StaticStore.pfiles
-
-                val iconpath = "./org/page/icons/"
-
-                StaticStore.picons = Array(number.size) {i ->
-                    if(number[i] == 227) {
-                        if(files[i].isNotEmpty()) {
-                            VFile.get(iconpath+files[i]).data.img.bimg() as Bitmap
-                        } else {
-                            StaticStore.empty(1, 1)
-                        }
-                    } else {
-                        (StaticStore.img15?.get(number[i])?.bimg() ?: StaticStore.empty(1,1)) as Bitmap
-                    }
+            if (StaticStore.sicons == null) {
+                StaticStore.sicons = Array(StaticStore.siinds.size) { i ->
+                    (StaticStore.img15?.get(StaticStore.siinds[i])?.bimg() ?: StaticStore.empty(1,1)) as Bitmap
                 }
             }
 

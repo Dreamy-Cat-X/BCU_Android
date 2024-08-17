@@ -15,7 +15,7 @@ import com.yumetsuki.bcu.androidutil.StaticStore
 import common.system.files.VFile
 import kotlin.math.ceil
 
-class SearchAbilityAdapter(private val context: Context, private val tool: IntArray, private val abils: Array<IntArray>, private val abdraw: IntArray, private val abdrawf: Array<String>) : RecyclerView.Adapter<SearchAbilityAdapter.ViewHolder>() {
+class SearchAbilityAdapter(private val context: Context, private val abils: Array<IntArray>) : RecyclerView.Adapter<SearchAbilityAdapter.ViewHolder>() {
     private val up = ArrayList<Int>()
 
     inner class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
@@ -56,7 +56,7 @@ class SearchAbilityAdapter(private val context: Context, private val tool: IntAr
         for(i in realPosit..endReal) {
             val ch = holder.abil[i-realPosit]
 
-            if(i >= abils.size || i >= abdraw.size || i >= abdrawf.size) {
+            if(i >= abils.size) {
                 ch.visibility = View.INVISIBLE
 
                 if(context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -64,33 +64,23 @@ class SearchAbilityAdapter(private val context: Context, private val tool: IntAr
                 } else {
                     ch.compoundDrawablePadding = StaticStore.dptopx(8f, context)
                 }
-
                 continue
             }
-
             val checker = java.util.ArrayList<Int>()
-
             for (j in abils[i])
                 checker.add(j)
 
             ch.isChecked = StaticStore.ability.contains(checker)
+            ch.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, getIcon(i), null)
 
-            if(abdraw[i] == -100) {
-                ch.setText(tool[i])
-                ch.setTextColor(StaticStore.getAttributeColor(context, R.attr.TextPrimary))
+            if(context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                ch.compoundDrawablePadding = StaticStore.dptopx(16f, context)
             } else {
-                ch.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, getIcon(i), null)
-
-                if(context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    ch.compoundDrawablePadding = StaticStore.dptopx(16f, context)
-                } else {
-                    ch.compoundDrawablePadding = StaticStore.dptopx(8f, context)
-                }
+                ch.compoundDrawablePadding = StaticStore.dptopx(8f, context)
             }
 
             ch.setOnLongClickListener {
-                StaticStore.showShortMessage(context, tool[i])
-
+                StaticStore.showShortMessage(context, abils[i][0])
                 true
             }
 
@@ -120,24 +110,18 @@ class SearchAbilityAdapter(private val context: Context, private val tool: IntAr
     }
 
     private fun getIcon(index: Int): Drawable? {
-        if(index >= abdraw.size || index >= abdrawf.size) {
+        if(index >= abils.size)
             return null
+
+        if (abils[index].size > StaticStore.SF_PROC + 1) {
+            return getDrawable(StaticStore.getMiscAbiIcon(abils[index]))
+        } else if (abils[index][StaticStore.SF_TYPE] == 0) {
+            for (i in 0..30)
+                if ((1 shl i) and abils[index][StaticStore.SF_PROC] > 0)
+                    return getDrawable(StaticStore.getAbiIcon(i))
+            return getDrawable(StaticStore.empty(1, 1))
         }
-
-        if(abdraw[index] == -1) {
-            if(abdrawf[index] == "")
-                return null
-
-            val name = "./org/page/icons/" + abdrawf[index] + ".png"
-
-            val b = VFile.get(name).data.img.bimg() as Bitmap
-
-            return getDrawable(b)
-        } else {
-            val icon = (StaticStore.img15?.get(abdraw[index])?.bimg() ?: StaticStore.empty(1, 1)) as Bitmap
-
-            return getDrawable(icon)
-        }
+        return getDrawable(StaticStore.getProcIcon(abils[index][StaticStore.SF_PROC]))
     }
 
     private fun getDrawable(b: Bitmap) : Drawable {

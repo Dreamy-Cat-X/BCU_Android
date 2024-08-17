@@ -324,7 +324,7 @@ class MainActivity : AppCompatActivity() {
 
         StaticStore.dialogisShowed = false
         StaticStore.toast = null
-        if (Logger.success)
+        if (Logger.success)//TODO - This doesn't go here but wherever the app closes
             Logger.logger.logClose()
 
         super.onDestroy()

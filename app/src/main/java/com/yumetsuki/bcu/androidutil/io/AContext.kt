@@ -236,27 +236,7 @@ class AContext : Context {
 
         if(file.startsWith("animation_type") && file.endsWith(".json"))
             return a.resources.openRawResource(R.raw.animation_type)
-
-        return when(CommonStatic.getConfig().langs[0]) {
-            CommonStatic.Lang.Locale.EN -> {
-                a.resources.openRawResource(R.raw.proc)
-            }
-            CommonStatic.Lang.Locale.ZH -> {
-                a.resources.openRawResource(R.raw.proc_zh)
-            }
-            CommonStatic.Lang.Locale.KR -> {
-                a.resources.openRawResource(R.raw.proc_kr)
-            }
-            CommonStatic.Lang.Locale.JP -> {
-                a.resources.openRawResource(R.raw.proc_jp)
-            }
-            CommonStatic.Lang.Locale.ES -> {
-                a.resources.openRawResource(R.raw.proc_es)
-            }
-            else -> {
-                a.resources.openRawResource(R.raw.proc)
-            }
-        }
+        return a.resources.openRawResource(R.raw.proc)
     }
 
     override fun preload(desc: PackLoader.ZipDesc.FileDesc): Boolean {
