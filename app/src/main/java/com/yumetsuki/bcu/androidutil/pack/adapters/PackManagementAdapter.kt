@@ -17,6 +17,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
+import common.CommonStatic
 import common.pack.PackData
 import common.pack.Source
 import common.pack.UserProfile
@@ -81,6 +82,13 @@ class PackManagementAdapter(private val ac: Activity, private val pList: ArrayLi
 
         popup.setOnMenuItemClickListener {
             when(it.itemId) {
+                R.id.saveremove -> {
+                    p.save.cSt.clear()
+                    val sf = CommonStatic.ctx.getAuxFile("./saves/" + p.desc.id + ".packsave")
+                    if (sf.exists())
+                        sf.delete()
+                    it.isVisible = false
+                }
                 R.id.packremove -> {
                     dialog.setTitle(R.string.pack_manage_remove_sure)
                     dialog.setMessage(R.string.pack_manage_remove_msg)
@@ -134,6 +142,7 @@ class PackManagementAdapter(private val ac: Activity, private val pList: ArrayLi
         }
 
         menu.getItem(1).isEnabled = !cantDelete(p)
+        menu.getItem(2).isVisible = p.save?.cSt?.isNotEmpty() == true
 
         holder.more.setOnClickListener(object : SingleClick() {
             override fun onSingleClick(v: View?) {
@@ -180,9 +189,7 @@ class PackManagementAdapter(private val ac: Activity, private val pList: ArrayLi
         }
 
         editor.remove(p.sid)
-
         editor.apply()
-
         UserProfile.unloadPack(p)
     }
 

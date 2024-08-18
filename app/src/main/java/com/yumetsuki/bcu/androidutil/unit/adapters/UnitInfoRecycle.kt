@@ -213,7 +213,7 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
             listeners(viewHolder, arrayOf(), arrayOf())
         } else {
             for(i in f.du.pCoin.info.indices) {
-                if(f.du.pCoin.info[i][13] == 1)
+                if(f.du.pCoin.getReqLv(i) > 0)
                     superTalentIndex.add(i)
                 else
                     talentIndex.add(i)
@@ -290,7 +290,7 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
                 level.talents[superTalentIndex[i]] = max[superTalentIndex[i]]
 
                 if(CommonStatic.getConfig().realLevel)
-                    changeSpinner(superTalent[i], level.lv + level.plusLv >= 60)
+                    changeSpinner(superTalent[i], level.totalLv >= f.du.pCoin.getReqLv(i))
             }
 
             if(superTalent.isEmpty())
@@ -516,7 +516,7 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
 
                 if(CommonStatic.getConfig().realLevel) {
                     for(i in superTalent.indices) {
-                        changeSpinner(superTalent[i], level + levelp >= 60)
+                        changeSpinner(superTalent[i], level + levelp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
                     }
 
                     validate(viewHolder, f, t)
@@ -548,7 +548,7 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
 
                 if(CommonStatic.getConfig().realLevel) {
                     for(i in superTalent.indices) {
-                        changeSpinner(superTalent[i], level + levelp >= 60)
+                        changeSpinner(superTalent[i], level + levelp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
                     }
 
                     validate(viewHolder, f, t)

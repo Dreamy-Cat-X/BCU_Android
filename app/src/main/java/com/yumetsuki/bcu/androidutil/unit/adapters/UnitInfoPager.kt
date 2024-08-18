@@ -317,7 +317,7 @@ class UnitInfoPager : Fragment() {
                 level.talents[superTalentIndex[i]] = max[superTalentIndex[i]]
 
                 if(CommonStatic.getConfig().realLevel) {
-                    changeSpinner(superTalent[i], level.lv + level.plusLv >= 60)
+                    changeSpinner(superTalent[i], level.totalLv >= f.du.pCoin.getReqLv(superTalentIndex[i]))
                 }
             }
 
@@ -591,7 +591,7 @@ class UnitInfoPager : Fragment() {
 
                 if(CommonStatic.getConfig().realLevel) {
                     for(i in superTalent.indices) {
-                        changeSpinner(superTalent[i], level + levelp >= 60)
+                        changeSpinner(superTalent[i], level + levelp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
                     }
 
                     validate(view, f, t)
@@ -624,7 +624,7 @@ class UnitInfoPager : Fragment() {
 
                 if(CommonStatic.getConfig().realLevel) {
                     for(i in superTalent.indices) {
-                        changeSpinner(superTalent[i], level + levelp >= 60)
+                        changeSpinner(superTalent[i], level + levelp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
                     }
 
                     validate(view, f, t)

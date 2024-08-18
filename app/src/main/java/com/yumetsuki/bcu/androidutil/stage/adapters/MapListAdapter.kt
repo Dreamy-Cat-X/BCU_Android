@@ -24,6 +24,7 @@ class MapListAdapter(private val activity: Activity, private val maps: ArrayList
         var count: TextView = row.findViewById(R.id.map_list_coutns)
         var star: ImageView = row.findViewById(R.id.map_list_star)
     }
+    val save = if (maps.isEmpty()) null else maps[0].get().cont.getSave(false)
 
     override fun getView(position: Int, view: View?, parent: ViewGroup): View {
         val holder: ViewHolder
@@ -38,29 +39,27 @@ class MapListAdapter(private val activity: Activity, private val maps: ArrayList
             row = view
             holder = row.tag as ViewHolder
         }
-
         val stm = Identifier.get(maps[position]) ?: return row
-
         holder.name.text = withID(maps[position])
 
-        val numbers: String = if (stm.list.size() == 1)
-                    stm.list.size().toString() + activity.getString(R.string.map_list_stage)
-                else
-                    stm.list.size().toString() + activity.getString(R.string.map_list_stages)
+        if (save?.nearUnlock(stm) == true) holder.name.paintFlags = holder.name.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+        else if (save?.clear(stm) == true) holder.name.paintFlags = holder.name.paintFlags or Paint.FAKE_BOLD_TEXT_FLAG
 
+        val numbers: String = if (stm.list.size() == 1)
+            stm.list.size().toString() + activity.getString(R.string.map_list_stage)
+        else
+            stm.list.size().toString() + activity.getString(R.string.map_list_stages)
         holder.count.text = numbers
 
-        if(!StaticStore.BCMapCode.contains(stm.id.pack))
+        if(!StaticStore.BCMapCodes.contains(stm.id.pack))
             holder.star.visibility = View.GONE
         else
             generateStar(holder.star, stm)
-
         return row
     }
 
     private fun withID(name: Identifier<StageMap>): String {
         val stm = Identifier.get(name) ?: return Data.trio(name.id)
-
         val n = MultiLangCont.get(stm) ?: stm.names.toString()
 
         return if (n == "") {

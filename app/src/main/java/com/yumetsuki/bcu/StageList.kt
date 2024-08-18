@@ -21,7 +21,6 @@ import com.yumetsuki.bcu.androidutil.LocaleManager
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
-import com.yumetsuki.bcu.androidutil.stage.adapters.CStageListAdapter
 import com.yumetsuki.bcu.androidutil.stage.adapters.StageListAdapter
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
@@ -113,25 +112,27 @@ class StageList : AppCompatActivity() {
 
                 val stages = if(StaticStore.filter != null) {
                     val f = StaticStore.filter ?: return@launch
-
                     val stmList = f[stm.cont.sid] ?: return@launch
-
                     val stList = stmList[stm.cont.maps.list.indexOf(stm)] ?: return@launch
+                    if (stm.cont.getSave(false) != null)
+                        stList.removeIf { s ->
+                            if (stm.cont.getSave(true).cSt.containsKey(stm)) stm.cont.getSave(true).cSt[stm]!! > s
+                            else s > 0
+                        }
 
                     Array<Identifier<Stage>>(stList.size) {
                         stm.list.list[stList[it]].id
                     }
                 } else {
-                    Array<Identifier<Stage>>(stm.list.list.size) { i ->
+                    val siz = if (stm.cont.getSave(false) != null) {
+                        1 + (stm.cont.getSave(true).cSt[stm]?.coerceAtMost(stm.list.list.size-1) ?: 0)
+                    } else stm.list.list.size
+                    Array<Identifier<Stage>>(siz) { i ->
                         stm.list.list[i].id
                     }
                 }
 
-                stageListAdapter = if(custom) {
-                    CStageListAdapter(this@StageList, stages)
-                } else {
-                    StageListAdapter(this@StageList, stages)
-                }
+                stageListAdapter = StageListAdapter(this@StageList, stages)//if(custom) {
 
                 stglist.adapter = stageListAdapter
 
@@ -142,14 +143,9 @@ class StageList : AppCompatActivity() {
                     StaticStore.stglistClick = SystemClock.elapsedRealtime()
 
                     val d: Identifier<Stage> = when (stglist.adapter) {
-                        is CStageListAdapter -> {
-                            (stglist.adapter as CStageListAdapter).getItem(position) ?: return@OnItemClickListener
-                        }
-
                         is StageListAdapter -> {
                             (stglist.adapter as StageListAdapter).getItem(position) ?: return@OnItemClickListener
                         }
-
                         else -> {
                             return@OnItemClickListener
                         }

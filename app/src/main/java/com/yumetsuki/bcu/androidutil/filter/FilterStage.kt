@@ -18,69 +18,58 @@ object FilterStage {
 
         println("Filtered enemy : $enemies")
 
-        for(n in 0 until StaticStore.mapcode.size) {
-            val i = StaticStore.mapcode[n]
+        for(n in 0 until StaticStore.allMCs.size) {
+            val i = StaticStore.allMCs[n]
             val m = MapColc.get(i) ?: continue
-
             val stresult = SparseArray<ArrayList<Int>>()
 
             for(j in m.maps.list.indices) {
                 val stm = m.maps.list[j] ?: continue
-
+                if (m.getSave(false)?.unlocked(stm) == false && m.getSave(false)?.nearUnlock(stm) == false)
+                    continue
                 val sresult = ArrayList<Int>()
-
                 for(k in 0 until stm.list.list.size) {
                     val s = stm.list.list[k] ?: continue
-
                     val nam = if(stmname != "") {
                         if(name != "") {
                             val stmnam = (MultiLangCont.get(stm) ?: stm.names.toString()).lowercase().contains(stmname.lowercase())
                             val stnam = (MultiLangCont.get(s) ?: s.names.toString()).lowercase().contains(name.lowercase())
 
                             stmnam && stnam
-                        } else {
+                        } else
                             (MultiLangCont.get(stm) ?: stm.names.toString()).lowercase().contains(stmname.lowercase())
-                        }
-                    } else {
+                    } else
                         (MultiLangCont.get(s) ?: s.names.toString()).lowercase().contains(name.lowercase())
-                    }
+                    if (!nam) continue
 
                     val es = ArrayList<Identifier<AbEnemy>>()
-
                     for(d in s.data.datas) {
                         val e = d.enemy ?: continue
 
-                        if(!es.contains(e)) {
+                        if(!es.contains(e))
                             es.add(e)
-                        }
                     }
-
-                    val enem = containEnemy(enemies, es, enemorand)
+                    if (!containEnemy(enemies, es, enemorand))
+                        continue
 
                     var mus = music.isEmpty()
-
                     if(!mus && s.mus0 != null && s.mus0.id != -1) {
                         val m0 = s.mus0.pack + " - " + Data.trio(s.mus0.id)
-
                         mus = m0 == music
                     }
-
                     if(!mus && s.mus1 != null && s.mus1.id != -1) {
                         val m1 = s.mus1.pack + " - " + Data.trio(s.mus1.id)
-
                         mus = m1 == music
                     }
+                    if (!mus) continue
 
                     var backg = bg.isEmpty()
-
                     if(!backg && s.bg != null && s.bg.id != -1) {
                         val b = s.bg.pack + " - " + Data.trio(s.bg.id)
-
                         backg = bg == b
                     }
-
-                    val stars = stm.stars.size > star
-
+                    if (!backg) continue
+                    if (stm.stars.size <= star) continue
                     val baseh = if(bh != -1) {
                         when(bhop) {
                             -1 -> true
@@ -89,32 +78,28 @@ object FilterStage {
                             2 -> s.health > bh
                             else -> false
                         }
-                    } else {
+                    } else
                         true
-                    }
-
+                    if (!baseh) continue
                     val cont = when(contin) {
                         -1 -> true
                         0 -> !s.non_con
                         1 -> s.non_con
                         else -> false
                     }
-
+                    if (!cont) continue
                     val bos = when(boss) {
                         -1 -> true
                         0 -> hasBoss(s, c)
                         1 -> !hasBoss(s, c)
                         else -> false
                     }
-
-                    if(nam && enem && mus && backg && stars && baseh && cont && bos)
+                    if(bos)
                         sresult.add(k)
                 }
-
                 if(sresult.isNotEmpty())
                     stresult.put(j,sresult)
             }
-
             if(stresult.isNotEmpty())
                 result[i] = stresult
         }

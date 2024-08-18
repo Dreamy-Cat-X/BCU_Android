@@ -6,6 +6,7 @@ import com.yumetsuki.bcu.androidutil.StaticStore
 import common.CommonStatic
 import common.battle.data.MaskEntity
 import common.pack.Identifier
+import common.pack.SaveData
 import common.pack.SortedPackSet
 import common.pack.UserProfile
 import common.util.Data
@@ -53,14 +54,14 @@ object FilterEntity {
     }
 
     @Synchronized
-    fun setLuFilter() : ArrayList<Identifier<AbUnit>> {
+    fun setLuFilter(save : SaveData?) : ArrayList<Identifier<AbUnit>> {
         val result = ArrayList<Identifier<AbUnit>>()
         for(info in StaticStore.ludata) {
             val u = try { Identifier.get(info)
             } catch (_: Exception) { continue }
             if(u !is Unit || (StaticStore.rare.isNotEmpty() && !StaticStore.rare.contains(u.rarity.toString())) || (StaticStore.entityname.isNotEmpty() && !validateName(u.forms[0])))
                 continue
-
+            if (save?.locked(u.forms[0]) == true) continue
             for(f in u.forms) {
                 val du = if(StaticStore.talents) f.maxu() else f.du
                 if (validate(du) && (StatFilterElement.statFilter.isEmpty() || StatFilterElement.performFilter(f, StatFilterElement.orand))) {

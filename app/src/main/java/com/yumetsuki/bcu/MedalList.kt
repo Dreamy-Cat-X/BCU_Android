@@ -88,7 +88,7 @@ class MedalList : AppCompatActivity() {
                             val medal = VFile.get("$path$name").data.img.bimg()
 
                             if (medal == null) {
-                                StaticStore.medals.add(StaticStore.empty(1, 1))
+                                StaticStore.medals.add(StaticStore.empty())
                             } else {
                                 StaticStore.medals.add(medal as Bitmap)
                             }
@@ -100,7 +100,7 @@ class MedalList : AppCompatActivity() {
                             val medal = VFile.get("$path$name").data.img.bimg()
 
                             if (medal == null) {
-                                StaticStore.medals.add(StaticStore.empty(1, 1))
+                                StaticStore.medals.add(StaticStore.empty())
                             } else {
                                 StaticStore.medals.add(medal as Bitmap)
                             }

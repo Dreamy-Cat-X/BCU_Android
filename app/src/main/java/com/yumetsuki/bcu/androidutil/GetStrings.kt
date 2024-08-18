@@ -94,10 +94,9 @@ class GetStrings(private val c: Context) {
             R.string.sch_abi_bh, //64: Behemoth Hunter
             R.string.sch_abi_ms, //65: Mini Surge
             R.string.sch_abi_sh //66: Super Sage Slayer
-        )
+        )//TODO - Custom proc talents
         private lateinit var talTool: Array<String>
-        private val mapcolcid = arrayOf("N", "S", "C", "CH", "E", "T", "V", "R", "M", "A", "B", "RA", "H", "CA", "Q")
-        val mapcodes = listOf("000000", "000001", "000002", "000003", "000004", "000006", "000007", "000011", "000012", "000013", "000014", "000024", "000025", "000027", "000031")
+        private val mapcolcid = arrayOf("N", "S", "C", "CH", "E", "T", "V", "R", "M", "A", "B", "RA", "H", "CA", "Q", "L", "ND", "SR")
         private val allColor: String
         private val allTrait: String
 
@@ -315,12 +314,10 @@ class GetStrings(private val c: Context) {
     fun getPackName(pack: String, isRaw: Boolean) : String {
         return if(isRaw) {
             pack
+        } else if(StaticStore.BCMapCodes.contains(pack)) {
+            c.getString(R.string.pack_default) + "(" + c.getString(StaticStore.bcMapNames[StaticStore.BCMapCodes.indexOf(pack)]) + ")"
         } else {
-            if(pack == Identifier.DEF || mapcodes.contains(pack)) {
-                c.getString(R.string.pack_default)
-            } else {
-                StaticStore.getPackName(pack)
-            }
+            StaticStore.getPackName(pack)
         }
     }
 
@@ -872,7 +869,7 @@ class GetStrings(private val c: Context) {
 
     fun getID(mapcode: String, stid: Int, posit: Int): String {
         return if(mapcode.length == 6) {
-            val index = mapcodes.indexOf(mapcode)
+            val index = StaticStore.BCMapCodes.indexOf(mapcode)
 
             if(index != -1) {
                 "${mapcolcid[index]}-$stid-$posit"
@@ -961,42 +958,34 @@ class GetStrings(private val c: Context) {
             return arrayOf("")
 
         val limits: MutableList<String> = ArrayList()
-
         if (l.line != 0) {
             val result = c.getString(R.string.limit_line) + " : " + c.getString(R.string.limit_line2)
             limits.add(result)
         }
-
         if (l.max != 0) {
             val result = c.getString(R.string.limit_max) + " : " + c.getString(R.string.limit_max2).replace("_", l.max.toString())
             limits.add(result)
         }
-
         if (l.min != 0) {
             val result = c.getString(R.string.limit_min) + " : " + c.getString(R.string.limit_min2).replace("_", l.min.toString())
             limits.add(result)
         }
-
         if (l.rare != 0) {
             val rid = intArrayOf(R.string.sch_rare_ba, R.string.sch_rare_ex, R.string.sch_rare_ra, R.string.sch_rare_sr, R.string.sch_rare_ur, R.string.sch_rare_lr)
             val rare = StringBuilder()
 
             for (i in rid.indices) {
-                if (l.rare shr i and 1 == 1) {
+                if (l.rare shr i and 1 == 1)
                     rare.append(c.getString(rid[i])).append(", ")
-                }
             }
 
             val result = c.getString(R.string.limit_rare) + " : " + rare.toString().substring(0, rare.length - 2)
-
             limits.add(result)
         }
-
         if (l.num != 0) {
             val result = c.getString(R.string.limit_deploy) + " : " + l.num
             limits.add(result)
         }
-
         if (l.group != null && l.group.fset.size != 0) {
             val units = StringBuilder()
             val u: List<Form> = ArrayList(l.group.fset)

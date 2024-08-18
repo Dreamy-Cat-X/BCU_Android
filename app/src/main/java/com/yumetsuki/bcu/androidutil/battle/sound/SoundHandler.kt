@@ -74,16 +74,15 @@ object SoundHandler {
 
     @JvmStatic
     fun setSE(ind: Int) {
-        if (speed > 3)
-            return
-
-        if (ind >= play.size)
-            return
-
+        if (ind != 29) {
+            if (battleEnd)
+                return
+            if (speed > 3)
+                return
+            if (ind >= play.size)
+                return
+        }
         if (play[ind])
-            return
-
-        if (battleEnd)
             return
 
         check()

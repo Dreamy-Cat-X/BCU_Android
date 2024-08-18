@@ -97,55 +97,37 @@ object Interpret : Data() {
         return ans.toString()
     }
 
-    fun getProc(du: MaskEntity, useSecond: Boolean, isEnemy: Boolean, magnif: DoubleArray, context: Context): List<String> {
+    fun getProc(du: MaskEntity, useSecond: Boolean, isEnemy: Boolean, magnif: DoubleArray, context: Context, atk : Int = 0): List<String> {
         val lang = Locale.getDefault().language
         val common = if(du is CustomEntity) du.common else true
 
         val l: MutableList<String> = ArrayList()
         val c = Formatter.Context(isEnemy, useSecond, magnif, du.traits)
-        if(common) {
-            val mr = du.repAtk
-            for (i in PROCIND.indices) {
-                if (isValidProc(i, mr)) {
-                    val f = ProcLang.get().get(PROCIND[i]).format
-                    val item = mr.proc.get(PROCIND[i])
-                    val ans = if ((P_INDEX[i] == P_DMGINC || P_INDEX[i] == P_DEFINC)) {
-                        "${-(StaticStore.dmgType(P_INDEX[i] == P_DMGINC, item[0])+1)}\\" + Formatter.format(f, item, c)
-                    } else if (immune.contains(P_INDEX[i]) && item[0] != 100) {//item[0] will always be mult, which calculates resistances
-                        if (P_INDEX[i] == P_IMUWAVE && item[1] != 0) "-6\\" + Formatter.format(f, item, c)
-                        else "${-(StaticStore.siinds.size - immune.size + immune.indexOf(P_INDEX[i])+1)}\\" + Formatter.format(f, item, c)
-                    } else
-                        "${P_INDEX[i]}\\" + Formatter.format(f, item, c)
 
-                    l.add(ans)
-                }
+        val mr = du.repAtk
+        for (i in PROCIND.indices) {
+            if (isValidProc(i, mr) && (common || mr.proc.sharable(P_INDEX[i].toInt()))) {
+                val f = ProcLang.get().get(PROCIND[i]).format
+                val item = mr.proc.get(PROCIND[i])
+                val ans = if ((P_INDEX[i] == P_DMGINC || P_INDEX[i] == P_DEFINC)) {
+                    "${-(StaticStore.dmgType(P_INDEX[i] == P_DMGINC, item[0])+1)}\\" + Formatter.format(f, item, c)
+                } else if (immune.contains(P_INDEX[i]) && item[0] != 100) {//item[0] will always be mult, which calculates resistances
+                    if (P_INDEX[i] == P_IMUWAVE && item[1] != 0) "-6\\" + Formatter.format(f, item, c)
+                    else "${-(StaticStore.siinds.size - immune.size + immune.indexOf(P_INDEX[i])+1)}\\" + Formatter.format(f, item, c)
+                } else
+                    "${P_INDEX[i]}\\" + Formatter.format(f, item, c)
+
+                l.add(ans)
             }
-        } else {
+        }
+        if (!common) {
             val atkMap = HashMap<String, ArrayList<Int>>()
-
-            val mr = du.repAtk
-            for (i in PROCIND.indices) {
-                if (isValidProc(i, mr) && mr.proc.sharable(P_INDEX[i].toInt())) {
-                    val f = ProcLang.get().get(PROCIND[i]).format
-                    val item = mr.proc.get(PROCIND[i])
-                    val ans = if ((P_INDEX[i] == P_DMGINC || P_INDEX[i] == P_DEFINC)) {
-                        "${-(StaticStore.dmgType(P_INDEX[i] == P_DMGINC, item[0])+1)}\\" + Formatter.format(f, item, c)
-                    } else if (immune.contains(P_INDEX[i]) && item[0] != 100) {//item[0] will always be mult, which calculates resistances
-                        if (P_INDEX[i] == P_IMUWAVE && item[1] != 0) "-6\\" + Formatter.format(f, item, c)
-                        else "${-(StaticStore.siinds.size - immune.size + immune.indexOf(P_INDEX[i])+1)}\\" + Formatter.format(f, item, c)
-                    } else
-                        "${P_INDEX[i]}\\" + Formatter.format(f, item, c)
-
-                    l.add(ans)
-                }
-            }
-
-            for (k in 0 until du.getAtkCount(0)) {
+            for (k in 0 until du.getAtkCount(atk)) {
                 val ma = du.getAtkModel(0, k)
                 for (i in PROCIND.indices) {
                     if (isValidProc(i, ma) && !ma.proc.sharable(P_INDEX[i].toInt())) {
                         val mf = ProcLang.get().get(PROCIND[i]).format
-                        val item = mr.proc.get(PROCIND[i])
+                        val item = ma.proc.get(PROCIND[i])
                         val ans = if ((P_INDEX[i] == P_DMGINC || P_INDEX[i] == P_DEFINC)) {
                             "${-(StaticStore.dmgType(P_INDEX[i] == P_DMGINC, item[0])+1)}\\" + Formatter.format(mf, item, c)
                         } else if (immune.contains(P_INDEX[i]) && item[0] != 100) {//item[0] will always be mult, which calculates resistances
@@ -160,14 +142,31 @@ object Interpret : Data() {
                     }
                 }
             }
+            var realIndex = du.getAtkCount(atk)
+            for (m in 0 until du.getSpAtks(true).size)
+                for (spa in du.getSpAtks(true, m)) {
+                    for (i in PROCIND.indices)
+                        if (isValidProc(i, spa) && !spa.proc.sharable(P_INDEX[i].toInt())) {
+                            val mf = ProcLang.get().get(PROCIND[i]).format
+                            val item = spa.proc.get(PROCIND[i])
+                            val ans = if ((P_INDEX[i] == P_DMGINC || P_INDEX[i] == P_DEFINC)) {
+                                "${-(StaticStore.dmgType(P_INDEX[i] == P_DMGINC, item[0])+1)}\\" + Formatter.format(mf, item, c)
+                            } else if (immune.contains(P_INDEX[i]) && item[0] != 100) {//item[0] will always be mult, which calculates resistances
+                                if (P_INDEX[i] == P_IMUWAVE && item[1] != 0) "-6\\" + Formatter.format(mf, item, c)
+                                else "${-(StaticStore.siinds.size - immune.size + immune.indexOf(P_INDEX[i])+1)}\\" + Formatter.format(mf, item, c)
+                            } else
+                                "${P_INDEX[i]}\\" + Formatter.format(mf, item, c)
 
+                            val inds = atkMap[ans] ?: ArrayList()
+                            inds.add(realIndex)
+                            atkMap[ans] = inds
+                        }
+                    realIndex++//TODO proper labeling of rev/res attacks
+                }
             for(key in atkMap.keys) {
                 val inds = atkMap[key] ?: ArrayList()
                 when {
-                    inds.isEmpty() -> {
-                        l.add(key)
-                    }
-                    inds.size == du.getAtkCount(0) -> {
+                    inds.isEmpty() || inds.size == du.getAtkCount(atk) -> {
                         l.add(key)
                     }
                     else -> {

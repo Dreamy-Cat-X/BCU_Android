@@ -122,6 +122,7 @@ class MainActivity : AppCompatActivity() {
         CommonStatic.getConfig().deadOpa = 0
         CommonStatic.getConfig().fullOpa = 100
         CommonStatic.getConfig().fps60 = shared.getBoolean("fps60", false)
+        CommonStatic.getConfig().prog = shared.getBoolean("prog", false)
 
         val result = intent
         var conf = false

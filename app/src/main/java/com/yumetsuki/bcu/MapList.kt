@@ -73,7 +73,7 @@ class MapList : AppCompatActivity() {
                 val collectionName = StaticStore.collectMapCollectionNames(this@MapList)
 
                 for (i in keys) {
-                    val index = StaticStore.mapcode.indexOf(i)
+                    val index = StaticStore.allMCs.indexOf(i)
 
                     if (index != -1) {
                         mapCollectionResult.add(collectionName[index])
@@ -125,7 +125,7 @@ class MapList : AppCompatActivity() {
 
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         try {
-                            var index = StaticStore.mapcode.indexOf(keys[position])
+                            var index = StaticStore.allMCs.indexOf(keys[position])
 
                             if (index == -1)
                                 index = 0
@@ -134,16 +134,14 @@ class MapList : AppCompatActivity() {
 
                             val resmaplist = f[keys[position]] ?: return
 
-                            val mc = MapColc.get(StaticStore.mapcode[index]) ?: return
+                            val mc = MapColc.get(StaticStore.allMCs[index]) ?: return
 
                             for(i in 0 until resmaplist.size()) {
                                 val stm = mc.maps[resmaplist.keyAt(i)]
-
                                 resmapname.add(stm.id)
                             }
 
                             val mapListAdapter = MapListAdapter(this@MapList, resmapname)
-
                             mapList.adapter = mapListAdapter
                         } catch (e: NullPointerException) {
                             ErrorLogWriter.writeLog(e, StaticStore.upload, this@MapList)
@@ -155,7 +153,7 @@ class MapList : AppCompatActivity() {
 
                 stageSet.adapter = adapter
 
-                val index = StaticStore.mapcode.indexOf(keys[stageSet.selectedItemPosition])
+                val index = StaticStore.allMCs.indexOf(keys[stageSet.selectedItemPosition])
 
                 if (index == -1)
                     return@registerForActivityResult
@@ -187,12 +185,14 @@ class MapList : AppCompatActivity() {
                     } else {
                         return@OnItemClickListener
                     }
-
+                    if (stm.get().list.isEmpty) return@OnItemClickListener
+                    if (stm.get().cont.getSave(false)?.nearUnlock(stm.get()) == true) {
+                        StaticStore.showShortMessage(this@MapList, getString(R.string.requirement_list).replace("_",stm.get().cont.getSave(true).requirements(stm.get()).toString()))
+                        return@OnItemClickListener
+                    }
                     val intent = Intent(this@MapList, StageList::class.java)
-
                     intent.putExtra("Data", JsonEncoder.encode(stm).toString())
-                    intent.putExtra("custom", !StaticStore.BCMapCode.contains(stm.cont.sid))
-
+                    intent.putExtra("custom", !StaticStore.BCMapCodes.contains(stm.cont.sid))
                     startActivity(intent)
                 }
             }
@@ -276,25 +276,18 @@ class MapList : AppCompatActivity() {
                 stageset.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         try {
-                            val positions = ArrayList<Int>()
+                            val mc = MapColc.get(StaticStore.allMCs[position])
 
-                            val mc = MapColc.get(StaticStore.mapcode[position])
-
+                            val names = ArrayList<Identifier<StageMap>>()
                             try {
                                 for (i in mc.maps.list.indices) {
-                                    positions.add(i)
+                                    val stm = mc.maps.list[i]
+                                    if (mc.getSave(false)?.unlocked(stm) != false || mc.getSave(true).nearUnlock(stm))
+                                        names.add(stm.id)
                                 }
                             } catch (e : java.lang.IndexOutOfBoundsException) {
                                 ErrorLogWriter.writeLog(e, StaticStore.upload, this@MapList)
                                 return
-                            }
-
-                            val names = ArrayList<Identifier<StageMap>>()
-
-                            for(i in mc.maps.list.indices) {
-                                val stm = mc.maps.list[i]
-
-                                names.add(stm.id)
                             }
 
                             val mapListAdapter = MapListAdapter(this@MapList, names)
@@ -311,11 +304,10 @@ class MapList : AppCompatActivity() {
 
                 stageset.setSelection(0)
 
-                val mc = MapColc.get(StaticStore.mapcode[stageset.selectedItemPosition]) ?: return@launch
+                val mc = MapColc.get(StaticStore.allMCs[stageset.selectedItemPosition]) ?: return@launch
 
                 for(i in mc.maps.list.indices) {
                     val stm = mc.maps[i]
-
                     name.add(stm.id)
                 }
 
@@ -331,12 +323,14 @@ class MapList : AppCompatActivity() {
                         return@OnItemClickListener
 
                     val stm = Identifier.get((maplist.adapter as MapListAdapter).getItem(position)) ?: return@OnItemClickListener
-
+                    if (stm.list.isEmpty) return@OnItemClickListener
+                    if (stm.cont.getSave(false)?.nearUnlock(stm) == true) {
+                        StaticStore.showShortMessage(this@MapList, getString(R.string.requirement_list).replace("_",stm.cont.getSave(true).requirements(stm).toString()))
+                        return@OnItemClickListener
+                    }
                     val intent = Intent(this@MapList, StageList::class.java)
-
                     intent.putExtra("Data", JsonEncoder.encode(stm.id).toString())
-                    intent.putExtra("custom", !StaticStore.BCMapCode.contains(stm.cont.sid))
-
+                    intent.putExtra("custom", !StaticStore.BCMapCodes.contains(stm.cont.sid))
                     startActivity(intent)
                 }
             } else {
@@ -357,7 +351,7 @@ class MapList : AppCompatActivity() {
                     keys.sort()
 
                     for (i in keys) {
-                        val index = StaticStore.mapcode.indexOf(i)
+                        val index = StaticStore.allMCs.indexOf(i)
 
                         if (index != -1) {
                             mapCollectionResult.add(collectionName[index])
@@ -390,20 +384,17 @@ class MapList : AppCompatActivity() {
 
                     stageset.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                         override fun onNothingSelected(parent: AdapterView<*>?) {
-
                         }
 
                         override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                             try {
                                 val resmapname = ArrayList<Identifier<StageMap>>()
-
                                 val resmaplist = f[keys[position]] ?: return
 
                                 val mc = MapColc.get(keys[position]) ?: return
 
                                 for(i in 0 until resmaplist.size()) {
                                     val stm = mc.maps.list[resmaplist.keyAt(i)]
-
                                     resmapname.add(stm.id)
                                 }
 
@@ -421,14 +412,11 @@ class MapList : AppCompatActivity() {
                     stageset.adapter = adapter
 
                     val mc = MapColc.get(keys[stageset.selectedItemPosition]) ?: return@launch
-
                     val resmapname = ArrayList<Identifier<StageMap>>()
-
                     val resmaplist = f[keys[stageset.selectedItemPosition]] ?: return@launch
 
                     for(i in 0 until resmaplist.size()) {
                         val stm = mc.maps.list[resmaplist.keyAt(i)]
-
                         resmapname.add(stm.id)
                     }
 
@@ -440,17 +428,18 @@ class MapList : AppCompatActivity() {
                             return@OnItemClickListener
 
                         StaticStore.maplistClick = SystemClock.elapsedRealtime()
-
-                        val intent = Intent(this@MapList, StageList::class.java)
-
                         if(maplist.adapter !is MapListAdapter)
                             return@OnItemClickListener
 
                         val stm = Identifier.get((maplist.adapter as MapListAdapter).getItem(position)) ?: return@OnItemClickListener
-
+                        if (stm.list.isEmpty) return@OnItemClickListener
+                        if (stm.cont.getSave(false)?.nearUnlock(stm) == true) {
+                            StaticStore.showShortMessage(this@MapList, getString(R.string.requirement_list).replace("_",stm.cont.getSave(true).requirements(stm).toString()))
+                            return@OnItemClickListener
+                        }
+                        val intent = Intent(this@MapList, StageList::class.java)
                         intent.putExtra("Data", JsonEncoder.encode(stm.id).toString())
-                        intent.putExtra("custom", !StaticStore.BCMapCode.contains(stm.cont.sid))
-
+                        intent.putExtra("custom", !StaticStore.BCMapCodes.contains(stm.cont.sid))
                         startActivity(intent)
                     }
                 }

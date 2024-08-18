@@ -384,7 +384,6 @@ open class ConfigScreen : AppCompatActivity() {
         })
 
         val fps60 = findViewById<SwitchCompat>(R.id.configperfanim)
-        val performanceBattle = findViewById<SwitchCompat>(R.id.configperfbattle) //TODO - Remove this button
         val warnText = findViewById<TextView>(R.id.configcaution)
 
         fps60.setOnCheckedChangeListener { _, checked ->
@@ -401,28 +400,12 @@ open class ConfigScreen : AppCompatActivity() {
             }
         }
 
-        performanceBattle.setOnCheckedChangeListener { _, checked ->
-            CommonStatic.getConfig().fps60 = checked
-
-            val editor = shared.edit()
-            editor.putBoolean("performanceBattle", checked)
-            editor.apply()
-
-            warnText.visibility = if (CommonStatic.getConfig().fps60) {
-                VISIBLE
-            } else {
-                GONE
-            }
-        }
-
         warnText.visibility = if (CommonStatic.getConfig().fps60) {
             VISIBLE
         } else {
             GONE
         }
-
         fps60.isChecked = CommonStatic.getConfig().fps60
-        performanceBattle.isChecked = CommonStatic.getConfig().fps60
 
         val mus = findViewById<SwitchCompat>(R.id.configmus)
         val musvol = findViewById<SeekBar>(R.id.configmusvol)
@@ -561,6 +544,17 @@ open class ConfigScreen : AppCompatActivity() {
             CommonStatic.getConfig().twoRow = isChecked
             editor.apply()
         }
+
+        val prog = findViewById<SwitchCompat>(R.id.configprog)
+
+        prog.setOnCheckedChangeListener { _, checked ->
+            CommonStatic.getConfig().prog = checked
+
+            val editor = shared.edit()
+            editor.putBoolean("prog", checked)
+            editor.apply()
+        }
+        prog.isChecked = CommonStatic.getConfig().prog
 
         val build = findViewById<TextView>(R.id.configbuildver)
 

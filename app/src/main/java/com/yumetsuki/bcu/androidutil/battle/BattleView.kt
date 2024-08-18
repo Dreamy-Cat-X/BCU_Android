@@ -31,6 +31,7 @@ import common.battle.BattleField
 import common.battle.SBCtrl
 import common.battle.entity.EEnemy
 import common.io.json.JsonEncoder
+import common.pack.Source
 import common.pack.UserProfile
 import common.system.P
 import common.util.Data
@@ -87,6 +88,7 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
 
     private var continued = false
     private var upd = 0
+    var fanfareDelay = 75f
 
     init {
         var default = false
@@ -123,7 +125,7 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
         loadSE(SoundHandler.SE_SE, 25, 26)
         loadSE(SoundHandler.SE_ATK, 20, 21)
         loadSE(SoundHandler.SE_BASE, 22)
-        loadSE(SoundHandler.SE_UI, 10, 15, 19, 27, 28)
+        loadSE(SoundHandler.SE_UI, 10, 15, 19, 27, 28, 29)
 
         for (fs in painter.bf.sb.b.lu.fs) {
             for (f in fs) {
@@ -285,6 +287,10 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
                 if (!battleEnd) {
                     checkWin()
                     checkLose()
+                } else if (fanfareDelay > 0) {
+                    fanfareDelay -= CommonStatic.fltFpsDiv(1f)
+                    if (fanfareDelay <= 0)
+                        showBattleResult(true)
                 }
             }
 
@@ -333,8 +339,6 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
 
             battleEnd = true
             SoundHandler.battleEnd = true
-
-            showBattleResult(true)
         }
     }
 
@@ -344,9 +348,9 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
             SoundHandler.MUSIC.seekTo(0)
             SoundHandler.MUSIC.repeatMode = Player.REPEAT_MODE_OFF
 
-            if(SoundHandler.sePlay) {
+            if(SoundHandler.sePlay)
                 SoundHandler.setBGM(UserProfile.getBCData().musics[9].id)
-            }
+            fanfareDelay = -1f
 
             battleEnd = true
             SoundHandler.battleEnd = true
@@ -488,8 +492,16 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
 
     private fun showBattleResult(win: Boolean) {
         val st = painter.bf.sb.st
+        if (win && st.mc.getSave(false) != null) {
+            val spoils = st.mc.getSave(true).validClear(st)
+            Source.Workspace.saveData(st.mc.getSave(true).pack)
+            if (spoils != null && spoils[0].isNotEmpty()) {
+                SoundHandler.setSE(29) //Fanfare SE
+                //TODO display unlocked stuff
+            }
+        }
 
-        if(win && CommonStatic.getConfig().exContinuation && st.info != null && (st.info.exConnection() || st.info.exStages != null)) {
+        if(win && CommonStatic.getConfig().exContinuation && st.info != null && st.info.exStages?.isNotEmpty() == true) {
             if(CommonStatic.getConfig().realEx) {
                 val stage = pickOneEXStage()
 
@@ -586,17 +598,12 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
             return
 
         val dialog = BottomSheetDialog(context)
-
         dialog.setContentView(R.layout.battle_result_bottom_dialog)
-
         dialog.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-
         dialog.setCanceledOnTouchOutside(false)
-
         dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
 
         val text = dialog.findViewById<TextView>(R.id.resulttext) ?: return
-
         val primary = dialog.findViewById<Button>(R.id.resultprimary) ?: return
         val secondary = dialog.findViewById<Button>(R.id.resultsecondary) ?: return
 

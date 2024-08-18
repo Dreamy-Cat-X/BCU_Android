@@ -27,7 +27,7 @@ class LUUnitList : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, group: ViewGroup?, bundle: Bundle?): View? {
         val view = inflater.inflate(R.layout.lineup_unit_list, group, false)
 
-        numbers = FilterEntity.setLuFilter()
+        numbers = FilterEntity.setLuFilter(stage?.mc?.getSave(false))
 
         val adapter = LUUnitListAdapter(requireActivity(), numbers, stage)
 
@@ -73,7 +73,7 @@ class LUUnitList : Fragment() {
         val unitList = v.findViewById<ListView>(R.id.lineupunitlist)
 
         numbers.clear()
-        numbers = FilterEntity.setLuFilter()
+        numbers = FilterEntity.setLuFilter(stage?.mc?.getSave(false))
 
         val adapter1 = LUUnitListAdapter(requireActivity(), numbers, stage)
 

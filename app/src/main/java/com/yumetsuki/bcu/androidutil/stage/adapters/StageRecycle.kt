@@ -33,6 +33,7 @@ import common.pack.Identifier
 import common.util.Data
 import common.util.stage.Limit
 import common.util.stage.Stage
+import common.util.stage.info.CustomStageInfo
 import common.util.stage.info.DefStageInfo
 import java.text.DecimalFormat
 import java.text.NumberFormat
@@ -54,6 +55,7 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
         val id = itemView.findViewById<TextView>(R.id.stginfoidr)!!
         val star = itemView.findViewById<Spinner>(R.id.stginfostarr)!!
         val energy = itemView.findViewById<TextView>(R.id.stginfoengr)!!
+        val lxp = itemView.findViewById<TextView>(R.id.stginfoxp)!!
         val xp = itemView.findViewById<TextView>(R.id.stginfoxpr)!!
         val health = itemView.findViewById<TextView>(R.id.stginfobhr)!!
         val difficulty = itemView.findViewById<TextView>(R.id.stginfodifr)!!
@@ -96,66 +98,52 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
         val t = BasisSet.current().t()
-
         val st = Identifier.get(data) ?: return
         val stm = st.cont ?: return
 
         viewHolder.id.text = s.getID(st.cont.cont.sid, stm.id.id, data.id)
-
         val stars: MutableList<String> = ArrayList()
 
         for (k in stm.stars.indices) {
             val s: String = (k + 1).toString() + " (" + stm.stars[k] + " %)"
-
             stars.add(s)
         }
-
-        if(st.info != null && st.info is DefStageInfo && (st.info as DefStageInfo).drop != null) {
+        if (st.info is DefStageInfo && (st.info as DefStageInfo).drop != null) {
             val info = st.info as DefStageInfo
             if(info.drop.size >= 2 || info.rand == -3) {
                 var same = true
                 val d = info.drop[0][0]
-
                 for(data in info.drop) {
                     if(d != data[0])
                         same = false
                 }
-
-                if(same) {
+                if(same)
                     viewHolder.chanceText.text = activity.getText(R.string.stg_enem_list_num)
-                }
             }
-        }
+        } else if (st.info is CustomStageInfo && (st.info as CustomStageInfo).rewards.isNotEmpty())
+            viewHolder.chanceText.text = activity.getText(R.string.lineup_unit)
 
-        viewHolder.stgpack.text = s.getPackName(st.cont.cont.sid, isRaw)
-
+        viewHolder.stgpack.text = s.getPackName(st.mc.sid, isRaw)
         viewHolder.pack.setOnClickListener {
             isRaw = !isRaw
-
-            viewHolder.stgpack.text = s.getPackName(st.cont.cont.sid, isRaw)
+            viewHolder.stgpack.text = s.getPackName(st.mc.sid, isRaw)
         }
 
         val arrayAdapter = ArrayAdapter(activity, R.layout.spinnerdefault, stars)
-
         viewHolder.star.adapter = arrayAdapter
-
         viewHolder.star.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val enrec = activity.findViewById<RecyclerView>(R.id.stginfoenrec)
 
                 enrec.layoutManager = LinearLayoutManager(activity)
-
                 ViewCompat.setNestedScrollingEnabled(enrec, false)
-
                 val listRecycle = EnemyListRecycle(activity, st, stm.stars[position])
 
                 enrec.adapter = listRecycle
-
                 StaticStore.stageSpinner = position
-
                 val l = st.getLim(position)
 
-                if (none(l)) {
+                if (l.none()) {
                     viewHolder.limitNone.visibility = View.VISIBLE
                     viewHolder.limitscroll.visibility = View.GONE
                 } else {
@@ -167,9 +155,8 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
                             viewHolder.limitrec.layoutManager = LinearLayoutManager(activity)
 
                             ViewCompat.setNestedScrollingEnabled(viewHolder.limitrec, false)
-
-                            val limitRecycle = LimitRecycle(activity, l)
-
+                            val limitRecycle = LimitRecycle(activity, l)//TODO - Make CharaGroup collapsible
+                            //viewHolder.limitrec.setOnClickListener() {}
                             viewHolder.limitrec.adapter = limitRecycle
                         }
                     }
@@ -183,18 +170,19 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
             viewHolder.star.setSelection(StaticStore.stageSpinner)
         }
 
-        if (st.info != null && st.info is DefStageInfo) {
+        if (st.info is DefStageInfo) {
             val info = st.info as DefStageInfo
             if (st.cont.cont.sid == "000000" || st.cont.cont.sid == "000013")
                 viewHolder.xp.text = s.getXP(info.xp, t, true)
             else
                 viewHolder.xp.text = s.getXP(info.xp, t, false)
-        } else {
+        } else if (st.info is CustomStageInfo && (st.info as CustomStageInfo).ubase != null) {
+            viewHolder.lxp.text = activity.getString(R.string.stg_info_ct)
+            viewHolder.xp.text = (st.info as CustomStageInfo).ubase.toString()
+        } else
             viewHolder.xp.text = "0"
-        }
 
         viewHolder.energy.text = s.getEnergy(st, activity)
-
         viewHolder.health.text = st.health.toString()
 
         if (st.info != null && st.info is DefStageInfo)
@@ -323,27 +311,21 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
 
         viewHolder.castle.setOnLongClickListener {
             st.castle ?: return@setOnLongClickListener true
-
             StaticStore.showShortMessage(activity, st.castle.pack)
-
             true
         }
 
         viewHolder.minres.text = toFrame(st.minSpawn, st.maxSpawn)
-
         viewHolder.bossGuard.text = if (st.bossGuard)
             activity.getString(R.string.stg_info_poss)
         else
             activity.getString(R.string.stg_info_impo)
 
         if (st.info != null) {
-            if(st.info.exConnection() || st.info.exStages != null) {
+            if(st.info.exStages?.isNotEmpty() == true) {
                 val linearLayoutManager = LinearLayoutManager(activity)
-
                 linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
                 viewHolder.ex.layoutManager = linearLayoutManager
-
                 viewHolder.ex.adapter = ExRecycle(st, activity)
             } else {
                 viewHolder.exrow.visibility = View.GONE
@@ -351,18 +333,15 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
                 viewHolder.extitle.visibility = View.GONE
             }
 
-            if (st.info is DefStageInfo && (st.info as DefStageInfo).drop.isNotEmpty()) {
+            if ((st.info is DefStageInfo && (st.info as DefStageInfo).drop.isNotEmpty()) || (st.info is CustomStageInfo && (st.info as CustomStageInfo).rewards.isNotEmpty())) {
                 val linearLayoutManager = LinearLayoutManager(activity)
-
                 linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
                 viewHolder.drop.layoutManager = linearLayoutManager
-
                 val dropRecycle = DropRecycle(st, activity)
-
                 viewHolder.drop.adapter = dropRecycle
                 ViewCompat.setNestedScrollingEnabled(viewHolder.drop, false)
             } else {
+                viewHolder.drop.visibility = View.GONE
                 viewHolder.droprow.visibility = View.GONE
                 viewHolder.dropscroll.visibility = View.GONE
             }
@@ -371,9 +350,7 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
                 val linearLayoutManager = LinearLayoutManager(activity)
 
                 linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
                 viewHolder.score.layoutManager = linearLayoutManager
-
                 val scoreRecycle = ScoreRecycle(st, activity)
 
                 viewHolder.score.adapter = scoreRecycle

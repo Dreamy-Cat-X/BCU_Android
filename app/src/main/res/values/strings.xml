@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BCU</string>
+    <string name="app_name">BC Unlimited</string>
     <string name="anim_view">Animation Viewer</string>
     <string name="stg_inf">Stage Info</string>
     <string name="def_animsch">Open Filter screens</string>
@@ -300,8 +300,8 @@
     <string name="stg_info_insa">Insane</string>
     <string name="stg_info_dead">Deadly</string>
     <string name="stg_info_merc">Merciless</string>
-    <string name="stg_info_poss">True</string>
-    <string name="stg_info_impo">False</string>
+    <string name="stg_info_poss">Yes</string>
+    <string name="stg_info_impo">No</string>
     <string name="stg_info_loadic">Loading Icons…</string>
     <string name="stg_info_loadbg">Loading Backgrounds…</string>
     <string name="stg_info_score">Score</string>
@@ -701,6 +701,7 @@
     <string name="load_add">Loading UI Data…</string>
     <string name="pack_manage_remove">Remove pack</string>
     <string name="pack_manage_share">Share pack</string>
+    <string name="pack_manage_savedel">Delete SaveData</string>
     <string name="pack_manage_remove_sure">Removing Pack</string>
     <string name="pack_manage_remove_msg">Are you sure you want to remove pack? This cannot be undone</string>
     <string name="remove">Remove</string>
@@ -833,6 +834,7 @@
     <string name="battle_tworow">Battle layout : Two rows</string>
     <string name="battle_onerow">Battle layout : One row</string>
     <string name="config_battle">Battle</string>
+    <string name="battle_prog">Simulate Progression</string>
     <string name="datareset_selected">Reset selected data</string>
     <string name="datareset_warning">Are you sure that you want to delete selected data? This cannot be undone</string>
     <string name="datareset_reset">Reset</string>
@@ -950,6 +952,7 @@
     <string name="config_showres">Show battle results upon ends</string>
     <string name="stage_L">Labyrinth Stages</string>
     <string name="stage_ND">Zero Legends</string>
+    <string name="stage_SR">Cat Colosseum</string>
     <string name="fruit24">Purple Behemoth Crystal</string>
     <string name="fruit25">Red Behemoth Crystal</string>
     <string name="fruit26">Blue Behemoth Crystal</string>
@@ -1037,4 +1040,8 @@
     <string name="sch_abi_imlt">Imu. Lethargy</string>
     <string name="sch_abi_imr">Rage Immunity</string>
     <string name="sch_abi_imh">Hypno Immunity</string>
+    <string name="requirement_list">Clear _ to unlock this chapter</string>
+    <string name="list_unlock">You have unlocked:</string>
+    <string name="list_unlock_u">Units: _</string>
+    <string name="list_unlock_c">Chapters: _</string>
 </resources>

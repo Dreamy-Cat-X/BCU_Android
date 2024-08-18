@@ -42,7 +42,6 @@ import common.battle.BasisSet
 import common.io.json.JsonDecoder
 import common.pack.Identifier
 import common.pack.IndexContainer.Indexable
-import common.pack.PackData
 import common.pack.UserProfile
 import common.system.fake.FakeImage
 import common.system.files.VFile
@@ -181,10 +180,9 @@ object StaticStore {
     //Variables for Map/Stage
 
     var SisOpen = false
-    var bcMapNames = intArrayOf(R.string.stage_sol, R.string.stage_event, R.string.stage_collabo, R.string.stage_eoc, R.string.stage_ex, R.string.stage_dojo, R.string.stage_heavenly, R.string.stage_ranking, R.string.stage_challenge, R.string.stage_uncanny, R.string.stage_night, R.string.stage_baron, R.string.stage_enigma, R.string.stage_CA, R.string.stage_Q, R.string.stage_L, R.string.stage_ND)
-    var mapcode: ArrayList<String> = ArrayList(listOf("000000", "000001", "000002", "000003", "000004", "000006", "000007", "000011", "000012", "000013", "000014", "000024", "000025", "000027", "000031", "000033", "000034"))
-    var BCmaps = mapcode.size
-    val BCMapCode = listOf("000000", "000001", "000002", "000003", "000004", "000006", "000007", "000011", "000012", "000013", "000014", "000024", "000025", "000027", "000031", "000033", "000034")
+    val bcMapNames = intArrayOf(R.string.stage_sol, R.string.stage_event, R.string.stage_collabo, R.string.stage_eoc, R.string.stage_ex, R.string.stage_dojo, R.string.stage_heavenly, R.string.stage_ranking, R.string.stage_challenge, R.string.stage_uncanny, R.string.stage_night, R.string.stage_baron, R.string.stage_enigma, R.string.stage_CA, R.string.stage_Q, R.string.stage_L, R.string.stage_ND, R.string.stage_SR)
+    val BCMapCodes: ArrayList<String> = ArrayList(listOf("000000", "000001", "000002", "000003", "000004", "000006", "000007", "000011", "000012", "000013", "000014", "000024", "000025", "000027", "000031", "000033", "000034", "000036"))
+    val allMCs: ArrayList<String> = ArrayList()//Like the one above, but includes custom maps
     var eicons: Array<Bitmap>? = null
     var maplistClick = SystemClock.elapsedRealtime()
     var stglistClick = SystemClock.elapsedRealtime()
@@ -340,9 +338,8 @@ object StaticStore {
     fun resetUserPacks() {
         UserProfile.unloadAllUserPacks()
 
-        mapcode = ArrayList(listOf("000000", "000001", "000002", "000003", "000004", "000006", "000007", "000011", "000012", "000013", "000014", "000024", "000025", "000027", "000031", "000033", "000034"))
+        allMCs.clear()
         PackConflict.conflicts.clear()
-
         packRead = false
     }
 
@@ -402,7 +399,7 @@ object StaticStore {
      * @return Returns empty Bitmap using specified dpi value.
      */
     fun empty(context: Context?, w: Float, h: Float): Bitmap {
-        context ?: return empty(1, 1)
+        context ?: return empty()
 
         val r = context.resources
 
@@ -421,7 +418,7 @@ object StaticStore {
      * @param h Height of generated Bitmap. Must be pixel value.
      * @return Returns empty Bitmap using specified pixel value.
      */
-    fun empty(w: Int, h: Int): Bitmap {
+    fun empty(w: Int = 1, h: Int = 1): Bitmap {
         return Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
     }
 
@@ -624,7 +621,7 @@ object StaticStore {
      * If vectid returns null, then it will generate empty icon.
      */
     fun getBitmapFromVector(context: Context?, vectid: Int): Bitmap {
-        context ?: return empty(1,1)
+        context ?: return empty()
 
         val drawable = ContextCompat.getDrawable(context, vectid)
                 ?: return empty(context, 100f, 100f)
@@ -1334,24 +1331,15 @@ object StaticStore {
 
     fun collectMapCollectionNames(context: Context) : ArrayList<String> {
         val result = ArrayList<String>()
-
-        for(i in bcMapNames) {
+        for(i in bcMapNames)
             result.add(context.getString(i))
-        }
 
-        for(i in UserProfile.getAllPacks()) {
-            if(i is PackData.DefPack)
-                continue
-            else if(i is PackData.UserPack) {
-                if(i.mc.maps.list.isNotEmpty()) {
-                    var k = i.desc.names.toString()
-
-                    if(k.isEmpty()) {
-                        k = i.desc.id
-                    }
-
-                    result.add(k)
-                }
+        for(i in UserProfile.getUserPacks()) {
+            if(i.mc.maps.list.isNotEmpty()) {
+                var k = i.desc.names.toString()
+                if(k.isEmpty())
+                    k = i.desc.id
+                result.add(k)
             }
         }
         return result
@@ -1363,7 +1351,7 @@ object StaticStore {
                 if (CommonStatic.getBCAssets().icon[0][i].img != null)
                     CommonStatic.getBCAssets().icon[0][i].img.bimg() as Bitmap
                 else
-                    empty(1, 1)
+                    empty()
             }
         return aicons!![ind]
     }
@@ -1375,11 +1363,11 @@ object StaticStore {
                     if (CommonStatic.getBCAssets().icon[1][i].img != null)
                         CommonStatic.getBCAssets().icon[1][i].img.bimg() as Bitmap
                     else
-                        empty(1, 1)
+                        empty()
                 }
             return picons2!![ind]
         }
-        return sicons?.get(abs(ind+1)) ?: empty(1, 1)
+        return sicons?.get(abs(ind+1)) ?: empty()
     }
 
     fun dmgType(atk : Boolean, mul : Int) : Int {
@@ -1389,8 +1377,8 @@ object StaticStore {
     }
 
     fun getMiscAbiIcon(abi : IntArray) : Bitmap {
-        return if (abi.size < SF_PROC+3) sicons?.get(5) ?: empty(1, 1) //waveblock lol
+        return if (abi.size < SF_PROC+3) sicons?.get(5) ?: empty() //waveblock lol
         else if (abi[SF_PROC+2] == -1) getProcIcon(abi[SF_PROC])
-        else sicons?.get(dmgType(abi[SF_PROC+2] % 200 != 0, abi[SF_PROC+2])) ?: empty(1, 1)
+        else sicons?.get(dmgType(abi[SF_PROC+2] % 200 != 0, abi[SF_PROC+2])) ?: empty()
     }
 }

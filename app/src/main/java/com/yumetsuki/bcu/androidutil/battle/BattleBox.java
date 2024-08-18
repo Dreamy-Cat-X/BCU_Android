@@ -16,9 +16,9 @@ import common.battle.BattleField;
 import common.battle.attack.ContAb;
 import common.battle.attack.ContWaveAb;
 import common.battle.data.DataEnemy;
+import common.battle.data.DataUnit;
 import common.battle.entity.EAnimCont;
 import common.battle.entity.ECastle;
-import common.battle.entity.EEnemy;
 import common.battle.entity.Entity;
 import common.battle.entity.WaprCont;
 import common.pack.Identifier;
@@ -288,7 +288,7 @@ public interface BattleBox {
             int w = box.getWidth();
             int h = box.getHeight();
             int cw = 0;
-            int time = bf.sb.timeFlow != 1 ? (bf.sb.time / 5) % 2 : 1;
+            int time = bf.sb.timeFlow != 0 ? (int)(bf.sb.time / (bf.sb.timeFlow*5)) % 2 : 1;
             int mtype = bf.sb.money < bf.sb.upgradeCost ? 0 : time == 0 ? 1 : 2;
 
             if (bf.sb.work_lv >= 8)
@@ -436,8 +436,9 @@ public interface BattleBox {
 
                     int pri = bf.sb.elu.price[i][j];
 
-                    if (pri == -1)
-                        g.colRect(x, y, iw, ih, 255, 0, 0, 100);
+                    if (pri == -1 || pri == -2)
+                        g.colRect(x, y, iw, ih, 255 / -pri, 0, 0, 100 * -pri);
+
 
                     double cool = bf.sb.elu.cool[i][j];
 
@@ -489,7 +490,7 @@ public interface BattleBox {
                         g.colRect(x + iw - dw - xw, y + ih - dh * 2, xw, dh, 0, 0, 0, 255);
 
                         g.colRect(x + dw, y + ih - dh * 2, iw - dw * 2 - xw, dh, 100, 212, 255, 255);
-                    } else if (pri != -1 && !bf.sb.elu.readySpirit(i, j)) {
+                    } else if (pri != -1 && pri != -2 && !bf.sb.elu.readySpirit(i, j)) {
                         setSym(g, hr, x + iw * 1.05f, y + ih * 1.05f, 3);
 
                         Res.getCost(pri / 100, !b, sym);
@@ -537,8 +538,8 @@ public interface BattleBox {
 
                 int pri = bf.sb.elu.price[index][i % 5];
 
-                if (pri == -1)
-                    g.colRect(x, y, iw, ih, 255, 0, 0, 100);
+                if (pri == -1 || pri == -2)
+                    g.colRect(x, y, iw, ih, 255 / -pri, 0, 0, 100 / -pri);
 
                 double cool = bf.sb.elu.cool[index][i % 5];
 
@@ -591,7 +592,7 @@ public interface BattleBox {
                         g.colRect(x + iw - dw - xw, y + ih - dh * 2, xw, dh, 0, 0, 0, 255);
 
                         g.colRect(x + dw, y + ih - dh * 2, iw - dw * 2 - xw, dh, 100, 212, 255, 255);
-                    } else if (pri != -1 && !bf.sb.elu.readySpirit(index, i % 5)) {
+                    } else if (pri != -1 && pri != -2 && !bf.sb.elu.readySpirit(index, i % 5)) {
                         setSym(g, hr, x + iw, y + ih, 3);
 
                         Res.getCost(pri / 100, !b, sym);
@@ -661,7 +662,7 @@ public interface BattleBox {
 
             float shake = 0f;
 
-            if(bf.sb.ebase.health <= 0 || (drawCast ? ((EEnemy) bf.sb.ebase).hit : ((ECastle) bf.sb.ebase).hit) > 0) {
+            if(bf.sb.ebase.health <= 0 || bf.sb.ebase.hit > 0) {
                 shake = (2 + (bf.sb.time % 2 * -4)) * bf.sb.siz;
             }
 
@@ -697,12 +698,24 @@ public interface BattleBox {
 
             shake = 0f;
 
-            if(bf.sb.ubase.health <= 0 || ((ECastle)bf.sb.ubase).hit > 0) {
+            if(bf.sb.ubase.health <= 0 || bf.sb.ubase.hit > 0) {
                 shake = (2 + (bf.sb.time % 2 * -4)) * bf.sb.siz;
             }
 
-            drawNyCast(gra, (int) (midh - road_h * bf.sb.siz), (int) (posx + shake), bf.sb.siz, bf.sb.nyc);
+            if (bf.sb.ubase instanceof ECastle)
+                drawNyCast(gra, (int) (midh - road_h * bf.sb.siz), (int) (posx + shake), bf.sb.siz, bf.sb.nyc);
+            else {
+                if(bf.sb.timeFlow != 1 && (bf.sb.ubase.getAbi() & Data.AB_TIMEI) != 0)
+                    gra.setComposite(CVGraphics.POSITIVE, 0, 0);
+                ((Entity) bf.sb.ubase).anim.draw(gra,  setP(posx + shake, posy), bf.sb.siz * sprite);
 
+                if(bf.sb.ubase.health > 0) //This causes some rarted bug and idk how to even deal with it
+                    ((Entity) bf.sb.ubase).anim.drawEff(gra, p, bf.sb.siz * sprite);
+
+                if(((CVGraphics) gra).neg)
+                    gra.setComposite(FakeGraphics.GRAY, 0, 0);
+                gra.setTransform(at);
+            }
             gra.delete(at);
         }
 
@@ -728,8 +741,20 @@ public interface BattleBox {
 
             Res.getBase(bf.sb.ebase, sym, bf.sb.st.trail);
 
-            posy = (int) (midh - road_h * bf.sb.siz - casth * bf.sb.siz - aux.num[5][0].getImg().getHeight() * bf.sb.siz);
-            posx = (int) (((bf.sb.st.len - 800) * ratio + off) * bf.sb.siz + bf.sb.pos);
+            if (bf.sb.ubase instanceof Entity && ((Entity) bf.sb.ubase).data instanceof DataUnit) {
+                posx = (int) ((bf.sb.ubase.pos * ratio + off) * bf.sb.siz + bf.sb.pos);
+                posx = (int) (posx - castw * bf.sb.siz / 2);
+
+                AnimU<?> anim = ((Entity) bf.sb.ubase).data.getPack().anim;
+
+                if(anim != null && anim.mamodel.confs.length > 1) {
+                    posx = (int) (posx + anim.mamodel.confs[1][2] * 2.5f * anim.mamodel.parts[0][8] / anim.mamodel.ints[0] * bf.sb.siz * ratio);
+                    posy = (int) (posy + anim.mamodel.confs[1][3] * 2.5f * anim.mamodel.parts[0][9] / anim.mamodel.ints[0] * bf.sb.siz * ratio);
+                }
+            } else {
+                posy = (int) (midh - road_h * bf.sb.siz - casth * bf.sb.siz - aux.num[5][0].getImg().getHeight() * bf.sb.siz);
+                posx = (int) (((bf.sb.st.len - 800) * ratio + off) * bf.sb.siz + bf.sb.pos);
+            }
 
             setSym(gra, bf.sb.siz * 0.8f, posx, posy, 0);
 
@@ -752,7 +777,7 @@ public interface BattleBox {
                 if(bf.sb.le.get(i).dead)
                     continue;
 
-                if ((bf.sb.timeFlow != 1 || (bf.sb.le.get(i).getAbi() & Data.AB_TIMEI) == 0)) {
+                if ((bf.sb.timeFlow == 1 || (bf.sb.le.get(i).getAbi() & Data.AB_TIMEI) == 0)) {
                     int dep = bf.sb.le.get(i).layer * DEP;
 
                     while (!efList.isEmpty()) {
@@ -798,7 +823,7 @@ public interface BattleBox {
             }
 
             if(bf.sb.ebase instanceof Entity) {
-                if(bf.sb.timeFlow != 1 || (bf.sb.ebase.getAbi() & Data.AB_TIMEI) > 0) {
+                if(bf.sb.timeFlow == 1 || (bf.sb.ebase.getAbi() & Data.AB_TIMEI) > 0) {
                     if(((Entity) bf.sb.ebase).anim.smoke != null && !((Entity) bf.sb.ebase).anim.smoke.done()) {
                         gra.setTransform(at);
 
@@ -809,7 +834,7 @@ public interface BattleBox {
                     }
                 }
             } else if(bf.sb.ebase instanceof ECastle) {
-                if(bf.sb.timeFlow == 0 && ((ECastle) bf.sb.ebase).smoke != null && !((ECastle) bf.sb.ebase).smoke.done()) {
+                if(bf.sb.timeFlow == 1 && ((ECastle) bf.sb.ebase).smoke != null && !((ECastle) bf.sb.ebase).smoke.done()) {
                     gra.setTransform(at);
 
                     float sx = getX(((ECastle) bf.sb.ebase).smokeX);
@@ -818,9 +843,19 @@ public interface BattleBox {
                     ((ECastle) bf.sb.ebase).smoke.draw(gra, setP(sx, sy), psiz * 1.2f);
                 }
             }
+            if(bf.sb.ubase instanceof Entity) {
+                if (bf.sb.timeFlow == 1 || (bf.sb.ubase.getAbi() & Data.AB_TIMEI) > 0) {
+                    if (((Entity) bf.sb.ubase).anim.smoke != null && !((Entity) bf.sb.ubase).anim.smoke.done()) {
+                        gra.setTransform(at);
 
-            if(bf.sb.ubase instanceof ECastle) {
-                if(bf.sb.timeFlow == 0 && ((ECastle) bf.sb.ubase).smoke != null && !((ECastle) bf.sb.ubase).smoke.done()) {
+                        float sx = getX(((Entity) bf.sb.ubase).anim.smokeX);
+                        float sy = midh - (road_h - ((Entity) bf.sb.ubase).anim.smokeLayer * DEP + 100f) * bf.sb.siz;
+
+                        ((Entity) bf.sb.ubase).anim.smoke.draw(gra, setP(sx, sy), psiz * 1.2f);
+                    }
+                }
+            } else if(bf.sb.ubase instanceof ECastle) {
+                if(bf.sb.timeFlow == 1 && ((ECastle) bf.sb.ubase).smoke != null && !((ECastle) bf.sb.ubase).smoke.done()) {
                     gra.setTransform(at);
 
                     float sx = getX(((ECastle) bf.sb.ubase).smokeX);
@@ -860,7 +895,6 @@ public interface BattleBox {
                     eac.draw(gra, setP(p, y), psiz);
                 }
             }
-
             if(bf.sb.ubase.health <= 0) {
                 for(int i = 0; i < bf.sb.ubaseSmoke.size(); i++) {
                     EAnimCont eac = bf.sb.ubaseSmoke.get(i);
@@ -899,7 +933,7 @@ public interface BattleBox {
 
                     float shake = 0f;
 
-                    if(bf.sb.ebase.health <= 0 || (bf.sb.ebase instanceof ECastle && ((ECastle) bf.sb.ebase).hit > 0) || (bf.sb.ebase instanceof EEnemy && ((EEnemy) bf.sb.ebase).hit > 0)) {
+                    if(bf.sb.ebase.health <= 0 || bf.sb.ebase.hit > 0) {
                         shake = (2 + (bf.sb.time % 2 * -4)) * bf.sb.siz;
                     }
 
@@ -921,6 +955,30 @@ public interface BattleBox {
                         gra.setComposite(FakeGraphics.GRAY, 0, 0);
                     }
                 }
+                if((bf.sb.ubase.getAbi() * Data.AB_TIMEI) != 0) {
+                    if(((CVGraphics)gra).neg) {
+                        gra.setComposite(CVGraphics.POSITIVE, 0, 0);
+                    }
+                    float shake = 0f;
+                    if(bf.sb.ubase.health <= 0 || bf.sb.ubase.hit > 0)
+                        shake = (2 + (bf.sb.time % 2 * -4)) * bf.sb.siz;
+
+                    if (bf.sb.ubase instanceof Entity) {
+                        int posx = (int) getX(bf.sb.ubase.pos);
+                        int posy = (int) (midh - road_h * bf.sb.siz);
+
+                        ((Entity) bf.sb.ubase).anim.draw(gra, setP(posx + shake, posy), bf.sb.siz * sprite);
+
+                        if(((Entity) bf.sb.ubase).anim.smoke != null) {
+                            ((Entity) bf.sb.ubase).anim.smoke.draw(gra, setP(posx + shake, posy), bf.sb.siz * sprite);
+                        }
+                        if (bf.sb.ubase.health > 0)
+                            ((Entity) bf.sb.ubase).anim.drawEff(gra, setP(posx + shake, posy), bf.sb.siz * sprite);
+                    }
+
+                    if(((CVGraphics)gra).neg)
+                        gra.setComposite(FakeGraphics.GRAY, 0, 0);
+                }
 
                 for (int i = 0; i < bf.sb.le.size(); i++) {
                     if(bf.sb.le.get(i).dead)
@@ -941,7 +999,6 @@ public interface BattleBox {
                         bf.sb.le.get(i).anim.draw(gra, setP(p, y), psiz);
 
                         gra.setTransform(at);
-
                         if (bf.sb.le.get(i).anim.corpse == null || bf.sb.le.get(i).anim.corpse.type == EffAnim.ZombieEff.BACK) {
                             bf.sb.le.get(i).anim.drawEff(gra, setP(p, y), bf.sb.siz);
                         }

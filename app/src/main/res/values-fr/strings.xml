@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BCU</string>
+    <string name="app_name">BC Unlimited</string>
     <string name="anim_view">Visionneuse D\'Animation</string>
     <string name="stg_inf">Info Étages</string>
     <string name="def_animsch">Ouvrir Écrans Filtres</string>
@@ -701,6 +701,7 @@
     <string name="load_add">Dévélopment de l\'Information de l\'Interface Utilisateur en Cours…</string>
     <string name="pack_manage_remove">Effacer paquet</string>
     <string name="pack_manage_share">Partager paquet</string>
+    <string name="pack_manage_savedel">Delete SaveData</string>
     <string name="pack_manage_remove_sure">Effacement de Paquet en Cours</string>
     <string name="pack_manage_remove_msg">Êtes-vous sur que vous voulez effacer ce paquet? Cette action n\'est pas reversable</string>
     <string name="remove">Effacer</string>
@@ -833,6 +834,7 @@
     <string name="battle_tworow">Disposition de Battaile : Deux Lignes</string>
     <string name="battle_onerow">Disposition de Battaile : Une Ligne</string>
     <string name="config_battle">Battaile</string>
+    <string name="battle_prog">Simulate Progression</string>
     <string name="datareset_selected">Réinitialiser Informations Selectées</string>
     <string name="datareset_warning">Êtes-vous sur que vous voulez effacer ces informations? Cette action n\'est pas reversable</string>
     <string name="datareset_reset">Réinitialiser</string>
@@ -950,6 +952,7 @@
     <string name="config_showres">Show battle results upon ends</string>
     <string name="stage_L">Labyrinth Stages</string>
     <string name="stage_ND">Zero Legends</string>
+    <string name="stage_SR">Cat Colosseum</string>
     <string name="fruit24">Purple Behemoth Crystal</string>
     <string name="fruit25">Red Behemoth Crystal</string>
     <string name="fruit26">Blue Behemoth Crystal</string>
@@ -1037,4 +1040,8 @@
     <string name="sch_abi_imlt">Imu. Lethargy</string>
     <string name="sch_abi_imr">Rage Immunity</string>
     <string name="sch_abi_imh">Hypno Immunity</string>
+    <string name="requirement_list">Clear _ to unlock this chapter</string>
+    <string name="list_unlock">You have unlocked:</string>
+    <string name="list_unlock_u">Units: _</string>
+    <string name="list_unlock_c">Chapters: _</string>
 </resources>

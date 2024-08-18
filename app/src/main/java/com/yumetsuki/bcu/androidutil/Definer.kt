@@ -122,9 +122,9 @@ object Definer {
                 )
 
                 StaticStore.fruit = Array(names.size) {i ->
-                    val vf = VFile.get(path1+names[i]) ?: return@Array StaticStore.empty(1, 1)
+                    val vf = VFile.get(path1+names[i]) ?: return@Array StaticStore.empty()
 
-                    val icon = vf.data?.img?.bimg() ?: return@Array StaticStore.empty(1, 1)
+                    val icon = vf.data?.img?.bimg() ?: return@Array StaticStore.empty()
 
                     icon as Bitmap
                 }
@@ -150,23 +150,16 @@ object Definer {
 
             if (StaticStore.sicons == null) {
                 StaticStore.sicons = Array(StaticStore.siinds.size) { i ->
-                    (StaticStore.img15?.get(StaticStore.siinds[i])?.bimg() ?: StaticStore.empty(1,1)) as Bitmap
+                    (StaticStore.img15?.get(StaticStore.siinds[i])?.bimg() ?: StaticStore.empty()) as Bitmap
                 }
             }
 
-            val packs = UserProfile.getAllPacks()
-
-            if(packs.size != 1 && StaticStore.mapcode.size == StaticStore.BCmaps) {
-                for(p in packs) {
-                    if(p is PackData.DefPack)
-                        continue
-                    else if(p is PackData.UserPack) {
-                        if(p.mc.maps.list.isNotEmpty()) {
-                            StaticStore.mapcode.add(p.mc.sid)
-                        }
-                    }
-                }
-            }
+            StaticStore.allMCs.addAll(StaticStore.BCMapCodes)
+            val packs = UserProfile.getUserPacks()
+            for(p in packs)
+                if(p is PackData.UserPack)
+                    if(p.mc.maps.list.isNotEmpty())
+                        StaticStore.allMCs.add(p.mc.sid)
 
             if(StaticStore.medalnumber == 0) {
                 val vf = VFile.get("./org/page/medal")
@@ -533,6 +526,7 @@ object Definer {
         CommonStatic.getConfig().deadOpa = 0
         CommonStatic.getConfig().fullOpa = 100
         CommonStatic.getConfig().fps60 = shared.getBoolean("fps60", false)
+        CommonStatic.getConfig().prog = shared.getBoolean("prog", false)
     }
 
     private fun extractMusic(p: PackData.UserPack, shared: SharedPreferences) {

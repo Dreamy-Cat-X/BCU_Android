@@ -11,6 +11,7 @@ import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
 import common.util.lang.MultiLangCont
 import common.util.stage.Stage
+import common.util.stage.info.CustomStageInfo
 import common.util.stage.info.DefStageInfo
 import java.text.DecimalFormat
 
@@ -34,6 +35,16 @@ class DropRecycle(private val st: Stage, private val activity: Activity) : Recyc
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
+        if (st.info is CustomStageInfo) {
+            val info = st.info as CustomStageInfo
+            if (i < info.rewards.size) {
+                val c = (i+1).toString()
+                viewHolder.chance.text = c
+                viewHolder.item.text = info.rewards[i].toString()
+                viewHolder.amount.text = "1"
+            }
+            return
+        }
         val info = st.info as DefStageInfo
 
         val c = when {

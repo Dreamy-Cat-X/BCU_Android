@@ -17,6 +17,7 @@ import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import common.battle.BasisSet
 import common.battle.LineUp
+import common.pack.SaveData
 import common.system.files.VFile
 import common.util.stage.Limit
 import common.util.stage.Stage
@@ -34,6 +35,7 @@ class LineUpView : View {
 
     private val pager: ViewPager2?
     private var limit: Limit? = null
+    private var save: SaveData? = null
     private var price = 0
 
     /**
@@ -44,6 +46,7 @@ class LineUpView : View {
      * Flag whether draw unusable red box or not
      */
     private val isUnusable = Array(2) { Array(5) { false } }
+    private val isLocked = Array(2) { Array(5) { false } } //Same but progLocks
     /**
      * Bitmap of empty icon
      */
@@ -78,6 +81,7 @@ class LineUpView : View {
      * Bitmap that is used when unit is unusable
      */
     private lateinit var unusable: Bitmap
+    private lateinit var locked: Bitmap //same but progLocks
     /**
      * Currently selected lineup
      */
@@ -141,6 +145,7 @@ class LineUpView : View {
 
     private lateinit var replaceFormIcon: Bitmap
     private var isReplaceFormUnusable = false
+    private var replaceFormLocked = false
 
     var yellow = false
 
@@ -205,9 +210,11 @@ class LineUpView : View {
         paint.color = StaticStore.getAttributeColor(context, R.attr.SemiWarningPrimary)
 
         canvas.drawRect(0f, 0f, originalIcon.width.toFloat(), originalIcon.height.toFloat(), paint)
-
         unusable = StaticStore.getResizebp(StaticStore.makeIcon(context, preUnusable, 48f), bw, bw)
 
+        paint.color = StaticStore.getAttributeColor(context, R.attr.SemiWarningSecondary)
+        canvas.drawRect(0f, 0f, originalIcon.width.toFloat(), originalIcon.height.toFloat(), paint)
+        locked = StaticStore.getResizebp(StaticStore.makeIcon(context, preUnusable, 48f), bw, bw)
 
         syncLineUp()
 
@@ -245,6 +252,7 @@ class LineUpView : View {
     fun attachStageLimit(stage: Stage, star: Int) {
         val container = stage.cont ?: return
 
+        save = stage.mc.getSave(false)
         limit = stage.getLim(star)
         price = container.price
     }
@@ -311,13 +319,13 @@ class LineUpView : View {
     private fun drawReplaceBox(c: Canvas) {
         c.drawBitmap(replaceFormIcon, 0f, bw * 2, p)
 
-        if (repform == null) {
+        if (repform == null)
             c.drawBitmap(replace, bw / 2 - replace.width.toFloat() / 2, bw * 2.5f - replace.height.toFloat() / 2, icon)
-        }
 
-        if (isReplaceFormUnusable) {
+        if (replaceFormLocked)
+            c.drawBitmap(locked, 0f, bw * 2, p)
+        if (isReplaceFormUnusable)
             c.drawBitmap(unusable, 0f, bw * 2, p)
-        }
     }
 
     /**
@@ -328,9 +336,10 @@ class LineUpView : View {
             icons.forEachIndexed { y, coordinate ->
                 c.drawBitmap(units[x][y], coordinate[0], coordinate[1], p)
 
-                if (isUnusable[x][y]) {
+                if (isLocked[x][y])
+                    c.drawBitmap(locked, coordinate[0], coordinate[1], p)
+                else if (isUnusable[x][y])
                     c.drawBitmap(unusable, coordinate[0], coordinate[1], p)
-                }
             }
         }
     }
@@ -534,33 +543,21 @@ class LineUpView : View {
                 else
                     empty
 
-                isUnusable[x][y] = limit != null && lu.fs[x][y] is Form && limit?.unusable((lu.fs[x][y] as Form).du, price, x.toByte()) == true
+                isLocked[x][y] = lu.fs[x][y] is Form && save?.locked(lu.fs[x][y]) == true
+                isUnusable[x][y] = !isLocked[x][y] && limit != null && lu.fs[x][y] is Form && limit?.unusable((lu.fs[x][y] as Form).du, price, x.toByte()) == true
             }
         }
 
-        if (repform != null) {
-            val icon = repform?.deployIcon?.img?.bimg()
-
-            if (icon == null) {
-                replaceFormIcon = StaticStore.getResizebp(StaticStore.makeIcon(context, empty, 48f), bw, bw)
-                isReplaceFormUnusable = false
-
-                return
-            }
-
-            if (icon !is Bitmap) {
-                replaceFormIcon = StaticStore.getResizebp(StaticStore.makeIcon(context, empty, 48f), bw, bw)
-                isReplaceFormUnusable = false
-
-                return
-            }
-
-            replaceFormIcon = StaticStore.getResizebp(StaticStore.makeIcon(context, icon, 48f), bw, bw)
-            isReplaceFormUnusable = limit != null && repform is Form && limit?.unusable((repform as Form).du, price, -108) == true
-        } else {
+        val icon = repform?.deployIcon?.img?.bimg()
+        if (icon == null || icon !is Bitmap) {
             replaceFormIcon = StaticStore.getResizebp(StaticStore.makeIcon(context, empty, 48f), bw, bw)
             isReplaceFormUnusable = false
+            replaceFormLocked = false
+            return
         }
+        replaceFormIcon = StaticStore.getResizebp(StaticStore.makeIcon(context, icon, 48f), bw, bw)
+        replaceFormLocked = repform is Form && save?.locked(repform) == true
+        isReplaceFormUnusable = !replaceFormLocked && limit != null && repform is Form && limit?.unusable((repform as Form).du, price, -108) == true
     }
 
     /**
@@ -605,6 +602,7 @@ class LineUpView : View {
         for(i in units.indices) {
             for(j in units[i].indices) {
                 units[i][j] = empty
+                isLocked[i][j] = false
                 isUnusable[i][j] = false
             }
         }

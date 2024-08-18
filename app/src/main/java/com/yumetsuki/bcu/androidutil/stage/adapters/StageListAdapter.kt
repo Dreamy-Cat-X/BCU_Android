@@ -15,14 +15,15 @@ import common.util.lang.MultiLangCont
 import common.util.stage.SCDef
 import common.util.stage.Stage
 import common.util.unit.AbEnemy
+import java.util.Locale
 
 class StageListAdapter(private val activity: Activity, private val stages: Array<Identifier<Stage>>) : ArrayAdapter<Identifier<Stage>>(activity, R.layout.stage_list_layout, stages) {
 
     private class ViewHolder constructor(row: View) {
         var name: TextView = row.findViewById(R.id.stagename)
         var icons: FlexboxLayout = row.findViewById(R.id.enemicon)
+        var enemy: TextView = row.findViewById(R.id.map_list_coutns)
         var images: MutableList<ImageView?> = ArrayList()
-
     }
 
     override fun getView(position: Int, view: View?, parent: ViewGroup): View {
@@ -50,10 +51,24 @@ class StageListAdapter(private val activity: Activity, private val stages: Array
         holder.icons.removeAllViews()
 
         val ids = getid(st.data)
-
         val icons = arrayOfNulls<ImageView>(ids.size)
+        holder.enemy.visibility = View.GONE
 
         for (i in ids.indices) {
+            if (ids[i].pack != Identifier.DEF) {
+                holder.images.clear()
+                holder.icons.removeAllViews()
+                holder.enemy.visibility = View.VISIBLE
+
+                val lang = Locale.getDefault().language
+                val enemies = if(lang == "en" || lang == "ru" || lang == "fr") {
+                    getEnemyText(ids.size, lang)
+                } else
+                    context.getString(R.string.stg_enem_num).replace("_", ids.size.toString())
+                holder.enemy.text = enemies
+                break
+            }
+
             icons[i] = ImageView(activity)
             icons[i]?.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             if(ids[i].id < (StaticStore.eicons?.size ?: 0)) {
@@ -118,4 +133,29 @@ class StageListAdapter(private val activity: Activity, private val stages: Array
         return if (num in 0..9) "00$num" else if (num in 10..99) "0$num" else "" + num
     }
 
+    private fun getEnemyText(num: Int, lang: String) : String {
+        return when(lang) {
+            "en" -> {
+                when(num) {
+                    1 -> "$num Enemy"
+                    else -> "$num Enemies"
+                }
+            }
+            "ru" -> {
+                when(num) {
+                    1 -> "$num враг"
+                    else -> "$num враги"
+                }
+            }
+            "fr" -> {
+                when(num) {
+                    1 -> "$num Enemmi"
+                    else -> "$num Ennemis"
+                }
+            }
+            else -> {
+                "$num"
+            }
+        }
+    }
 }

@@ -203,8 +203,8 @@ class BattleSimulation : AppCompatActivity() {
 
                 if(CommonStatic.getConfig().realLevel)
                     lu.simulateBCLeveling()
-
-                val ctrl = SBCtrl(AndroidKeys(), stg, star, lu, item, r.nextLong(), 0)//TODO set save
+                val prog = if (stg.mc.getSave(false) != null) 1 else 0
+                val ctrl = SBCtrl(AndroidKeys(), stg, star, lu, item, r.nextLong(), prog.toByte())
 
                 val axis = shared.getBoolean("Axis", true)
 
@@ -349,10 +349,8 @@ class BattleSimulation : AppCompatActivity() {
                                     battleView.initPoint = P.newP(0f, 0f)
 
                                 battleView.dragFrame = 1
-
                                 battleView.initPoint?.x = event.x
                                 battleView.initPoint?.y = event.y
-
                                 battleView.isSliding = true
 
                                 velocity?.addMovement(event)
@@ -361,20 +359,17 @@ class BattleSimulation : AppCompatActivity() {
                         } else if (action == MotionEvent.ACTION_UP) {
                             battleView.endPoint = null
                             battleView.initPoint = null
-
                             battleView.isSliding = false
-
                             battleView.dragFrame = 0
-
                             battleView.performed = false
 
                             if (battleView.painter.bf.sb.ubase.health > 0 && battleView.painter.bf.sb.ebase.health > 0) {
                                 battleView.getPainter().click(Point(event.x.toInt(), event.y.toInt()), action)
-                            }
+                            } else if (battleView.fanfareDelay > 0)
+                                battleView.fanfareDelay = 0.5f
 
-                            if (!twoTouched && horizontal) {
+                            if (!twoTouched && horizontal)
                                 battleView.velocity = (velocity?.xVelocity ?: 0f) * 0.5f
-                            }
 
                             horizontal = false
                             vertical = false

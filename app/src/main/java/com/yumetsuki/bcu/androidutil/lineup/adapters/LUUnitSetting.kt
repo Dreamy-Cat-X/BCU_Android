@@ -118,7 +118,7 @@ class LUUnitSetting : Fragment() {
                 val max = f.du.pCoin.max
 
                 for(i in f.du.pCoin.info.indices) {
-                    if(f.du.pCoin.info[i][13] == 1)
+                    if(f.du.pCoin.getReqLv(i) > 0)
                         superTalentIndex.add(i)
                     else
                         talentIndex.add(i)
@@ -299,7 +299,7 @@ class LUUnitSetting : Fragment() {
 
                     if(CommonStatic.getConfig().realLevel) {
                         for(i in superTalent.indices) {
-                            changeSpinner(superTalent[i], lev + levp >= 60)
+                            changeSpinner(superTalent[i], lev + levp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
                         }
                     }
                 }
@@ -325,7 +325,7 @@ class LUUnitSetting : Fragment() {
 
                     if(CommonStatic.getConfig().realLevel) {
                         for(i in superTalent.indices) {
-                            changeSpinner(superTalent[i], lev + levp >= 60)
+                            changeSpinner(superTalent[i], lev + levp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
                         }
                     }
 
@@ -536,7 +536,7 @@ class LUUnitSetting : Fragment() {
                         }
 
                         if(CommonStatic.getConfig().realLevel) {
-                            changeSpinner(superTalent[i], level.lv + level.plusLv >= 60)
+                            changeSpinner(superTalent[i], level.totalLv >= f.du.pCoin.getReqLv(superTalentIndex[i]))
                         }
                     }
 

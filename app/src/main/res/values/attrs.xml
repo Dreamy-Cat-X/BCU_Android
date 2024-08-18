@@ -19,5 +19,6 @@
     <attr name="SemiBackgroundPrimary" format="color"/>
     <attr name="BorderPrimary" format="color"/>
     <attr name="SemiWarningPrimary" format="color"/>
+    <attr name="SemiWarningSecondary" format="color"/>
     <attr name="SemiCautionPrimary" format="color"/>
 </resources>

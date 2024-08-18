@@ -10,12 +10,12 @@ import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.GetStrings
 import common.util.stage.Limit
 
-class LimitRecycle(private val activity: Activity, l: Limit?) : RecyclerView.Adapter<LimitRecycle.ViewHolder>() {
+class LimitRecycle(private val activity: Activity, val l: Limit?) : RecyclerView.Adapter<LimitRecycle.ViewHolder>() {
     private val limits: Array<String>
+    var name = true
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var limit: TextView = itemView.findViewById(R.id.limitst)
-
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
@@ -24,7 +24,7 @@ class LimitRecycle(private val activity: Activity, l: Limit?) : RecyclerView.Ada
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
-        viewHolder.limit.text = limits[viewHolder.bindingAdapterPosition]
+        viewHolder.limit.text = if (name) l?.toString() else limits[viewHolder.bindingAdapterPosition]
     }
 
     override fun getItemCount(): Int {

@@ -55,7 +55,7 @@ class FIBM : FakeImage {
     private var offsetBottom = 0
 
     constructor() {
-        bit = StaticStore.empty(1, 1)
+        bit = StaticStore.empty()
         bit.recycle()
     }
 
@@ -171,7 +171,7 @@ class FIBM : FakeImage {
 
     override fun cloneImage(): FakeImage {
         val copy = if(bit.isRecycled)
-            StaticStore.empty(1, 1)
+            StaticStore.empty()
         else
             bit.copy(bit.config, true)
 
