@@ -59,6 +59,7 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
     private var isRaw = false
     private val talentIndex = java.util.ArrayList<Int>()
     private val superTalentIndex = java.util.ArrayList<Int>()
+    private var catk = 0
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val pack = itemView.findViewById<Button>(R.id.unitinfpack)!!
@@ -171,6 +172,7 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
             viewHolder.uniticon.setImageBitmap(StaticStore.makeIcon(context, icon as Bitmap, 48f))
         }
 
+        catk = f.du.firstAtk()
         viewHolder.unitname.text = names[position]
         viewHolder.unitpack.text = s.getPackName(f.unit.id, isRaw)
         viewHolder.unitid.text = s.getID(viewHolder, StaticStore.trio(u.id.id))
@@ -182,7 +184,7 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         viewHolder.unitsimu.text = s.getSimu(f)
         viewHolder.unitspd.text = s.getSpd(f, false, level)
         viewHolder.unitcd.text = s.getCD(f, t, fs, false, level)
-        viewHolder.unitrang.text = s.getRange(f)
+        viewHolder.unitrang.text = s.getRange(f, catk, false, level)
         viewHolder.unitpreatk.text = s.getPre(f, fs)
         viewHolder.unitpost.text = s.getPost(f, fs)
         viewHolder.unittba.text = s.getTBA(f, false, fs, level)

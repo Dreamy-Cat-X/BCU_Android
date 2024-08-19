@@ -79,6 +79,7 @@ class UnitInfoPager : Fragment() {
     private var isRaw = false
     private val talentIndex = ArrayList<Int>()
     private val superTalentIndex = ArrayList<Int>()
+    private var catk = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, bundle: Bundle?): View? {
         val view = inflater.inflate(R.layout.unit_table, container, false)
@@ -196,9 +197,8 @@ class UnitInfoPager : Fragment() {
 
         var icon = if(tempIcon is Bitmap) {
             tempIcon
-        } else {
+        } else
             StaticStore.empty(StaticStore.dptopx(48f, activity),StaticStore.dptopx(48f, activity))
-        }
 
         icon = if (icon.height != icon.width)
             StaticStore.makeIcon(activity, icon, 48f)
@@ -206,9 +206,9 @@ class UnitInfoPager : Fragment() {
             StaticStore.getResizeb(icon, activity, 48f)
 
         uniticon.setImageBitmap(icon)
-
         unitname.text = name
 
+        catk = f.du.firstAtk()
         unitpack.text = s.getPackName(f.unit.id, isRaw)
         unitid.text = s.getID(form, StaticStore.trio(u.id.id))
         unithp.text = s.getHP(f, t, false, level)
@@ -216,10 +216,10 @@ class UnitInfoPager : Fragment() {
         unitatk.text = s.getTotAtk(f, t, false, level)
         unittrait.text = s.getTrait(f, false, level, activity)
         unitcost.text = s.getCost(f, false, level)
-        unitsimu.text = s.getSimu(f)
+        unitsimu.text = s.getSimu(f, catk)
         unitspd.text = s.getSpd(f, false, level)
         unitcd.text = s.getCD(f, t, fs, false, level)
-        unitrang.text = s.getRange(f)
+        unitrang.text = s.getRange(f, catk, false, level)
         unitpreatk.text = s.getPre(f, fs)
         unitpost.text = s.getPost(f, fs)
         unittba.text = s.getTBA(f, talents, fs, level)

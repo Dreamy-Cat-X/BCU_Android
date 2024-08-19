@@ -97,9 +97,18 @@ object Interpret : Data() {
         return ans.toString()
     }
 
+    fun getAtkModel(ent : MaskEntity, index : Int) : Array<MaskAtk> {
+        if (index < ent.allAtks.size)
+            return ent.allAtks[index]
+        val arr : Array<MaskAtk> = Array(ent.getSpAtks(true, index).size) { i ->
+            ent.getSpAtks(true, index)[i]
+        }
+        return arr
+    }
+
     fun getProc(du: MaskEntity, useSecond: Boolean, isEnemy: Boolean, magnif: DoubleArray, context: Context, atk : Int = 0): List<String> {
         val lang = Locale.getDefault().language
-        val common = if(du is CustomEntity) du.common else true
+        val common = du.isCommon
 
         val l: MutableList<String> = ArrayList()
         val c = Formatter.Context(isEnemy, useSecond, magnif, du.traits)
@@ -122,8 +131,8 @@ object Interpret : Data() {
         }
         if (!common) {
             val atkMap = HashMap<String, ArrayList<Int>>()
-            for (k in 0 until du.getAtkCount(atk)) {
-                val ma = du.getAtkModel(0, k)
+            for (k in 0 until getAtkModel(du, atk).size) {
+                val ma = getAtkModel(du, atk)[k]
                 for (i in PROCIND.indices) {
                     if (isValidProc(i, ma) && !ma.proc.sharable(P_INDEX[i].toInt())) {
                         val mf = ProcLang.get().get(PROCIND[i]).format
@@ -142,31 +151,10 @@ object Interpret : Data() {
                     }
                 }
             }
-            var realIndex = du.getAtkCount(atk)
-            for (m in 0 until du.getSpAtks(true).size)
-                for (spa in du.getSpAtks(true, m)) {
-                    for (i in PROCIND.indices)
-                        if (isValidProc(i, spa) && !spa.proc.sharable(P_INDEX[i].toInt())) {
-                            val mf = ProcLang.get().get(PROCIND[i]).format
-                            val item = spa.proc.get(PROCIND[i])
-                            val ans = if ((P_INDEX[i] == P_DMGINC || P_INDEX[i] == P_DEFINC)) {
-                                "${-(StaticStore.dmgType(P_INDEX[i] == P_DMGINC, item[0])+1)}\\" + Formatter.format(mf, item, c)
-                            } else if (immune.contains(P_INDEX[i]) && item[0] != 100) {//item[0] will always be mult, which calculates resistances
-                                if (P_INDEX[i] == P_IMUWAVE && item[1] != 0) "-6\\" + Formatter.format(mf, item, c)
-                                else "${-(StaticStore.siinds.size - immune.size + immune.indexOf(P_INDEX[i])+1)}\\" + Formatter.format(mf, item, c)
-                            } else
-                                "${P_INDEX[i]}\\" + Formatter.format(mf, item, c)
-
-                            val inds = atkMap[ans] ?: ArrayList()
-                            inds.add(realIndex)
-                            atkMap[ans] = inds
-                        }
-                    realIndex++//TODO proper labeling of rev/res attacks
-                }
             for(key in atkMap.keys) {
                 val inds = atkMap[key] ?: ArrayList()
                 when {
-                    inds.isEmpty() || inds.size == du.getAtkCount(atk) -> {
+                    inds.isEmpty() || inds.size == getAtkModel(du, atk).size -> {
                         l.add(key)
                     }
                     else -> {
@@ -262,12 +250,12 @@ object Interpret : Data() {
         return l
     }
 
-    fun isType(de: MaskEntity, type: Int): Boolean {
-        val raw = de.getAtks(0)
+    fun isType(de: MaskEntity, type: Int, index : Int): Boolean {
+        val raw = getAtkModel(de, index)
 
         return when (type) {
-            0 -> !de.isRange(0)
-            1 -> de.isRange(0)
+            0 -> !de.isRange(index)
+            1 -> de.isRange(index)
             2 -> de.isLD
             3 -> raw.size > 1
             4 -> de.isOmni

@@ -1,6 +1,7 @@
 package com.yumetsuki.bcu.androidutil.stage.adapters
 
 import android.app.Activity
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -55,7 +56,8 @@ class StageListAdapter(private val activity: Activity, private val stages: Array
         holder.enemy.visibility = View.GONE
 
         for (i in ids.indices) {
-            if (ids[i].pack != Identifier.DEF) {
+            val icn = getIcon(ids[i])
+            if (icn == null) {
                 holder.images.clear()
                 holder.icons.removeAllViews()
                 holder.enemy.visibility = View.VISIBLE
@@ -68,21 +70,22 @@ class StageListAdapter(private val activity: Activity, private val stages: Array
                 holder.enemy.text = enemies
                 break
             }
-
             icons[i] = ImageView(activity)
             icons[i]?.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            if(ids[i].id < (StaticStore.eicons?.size ?: 0)) {
-                val ic = StaticStore.eicons?.get(ids[i].id) ?: StaticStore.empty(1,1)
-                icons[i]?.setImageBitmap(ic)
-            } else {
-                icons[i]?.setImageBitmap(StaticStore.empty(context, 18f, 18f))
-            }
+            icons[i]?.setImageBitmap(icn)
             icons[i]?.setPadding(StaticStore.dptopx(12f, activity), StaticStore.dptopx(4f, activity), 0, StaticStore.dptopx(4f, activity))
             holder.icons.addView(icons[i])
             holder.images.add(icons[i])
         }
-
         return row
+    }
+
+    private fun getIcon(ene : Identifier<AbEnemy>) : Bitmap? {
+        if (ene.pack == Identifier.DEF) {
+            return if (ene.id < (StaticStore.eicons?.size ?: 0)) StaticStore.eicons?.get(ene.id)// ?: StaticStore.empty()
+            else null//StaticStore.empty(context, 18f, 18f)
+        }
+        return ene.get().preview?.img?.bimg() as Bitmap?
     }
 
     private fun getid(stage: SCDef): List<Identifier<AbEnemy>> {

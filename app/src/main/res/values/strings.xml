@@ -1044,4 +1044,7 @@
     <string name="list_unlock">You have unlocked:</string>
     <string name="list_unlock_u">Units: _</string>
     <string name="list_unlock_c">Chapters: _</string>
+    <string name="info_prev_hit">Previous Atk</string>
+    <string name="info_next_hit">Next Atk</string>
+    <string name="info_current_hit">Attack Pattern #_</string>
 </resources>

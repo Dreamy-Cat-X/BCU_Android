@@ -7,7 +7,6 @@ import com.yumetsuki.bcu.R
 import common.battle.BasisSet
 import common.battle.Treasure
 import common.battle.data.CustomEntity
-import common.battle.data.DataEnemy
 import common.battle.data.DataUnit
 import common.battle.data.MaskEntity
 import common.battle.data.MaskUnit
@@ -18,6 +17,7 @@ import common.util.stage.Limit
 import common.util.stage.SCDef
 import common.util.stage.Stage
 import common.util.stage.info.DefStageInfo
+import common.util.unit.Character
 import common.util.unit.Enemy
 import common.util.unit.Form
 import common.util.unit.Level
@@ -152,21 +152,15 @@ class GetStrings(private val c: Context) {
     fun getAtkTime(f: Form?, talent: Boolean, frse: Int, lvs: Level): String {
         if (f == null)
             return ""
+        val du = if(f.du.pCoin != null && talent) f.du.pCoin.improve(lvs.talents) else f.du
 
-        val du = if(f.du.pCoin != null && talent)
-            f.du.pCoin.improve(lvs.talents)
-        else
-            f.du
-
-        return if (frse == 0)
-            du.getItv(0).toString() + "f"
-        else
-            DecimalFormat("#.##").format(du.getItv(0).toDouble() / 30) + "s"
+        return if (frse == 0) du.getItv(0).toString() + "f"
+        else DecimalFormat("#.##").format(du.getItv(0).toDouble() / 30) + "s"
     }
 
-    fun getAtkTime(em: Enemy?, frse: Int): String {
-        if (em == null) return ""
-        return if (frse == 0) em.de.getItv(0).toString() + "f" else DecimalFormat("#.##").format(em.de.getItv(0).toDouble() / 30) + "s"
+    fun getAtkTime(em: Enemy?, frse: Boolean, index : Int): String {
+        if (em == null || index > em.de.atkTypeCount) return ""
+        return if (frse) em.de.getItv(index).toString() + "f" else DecimalFormat("#.##").format(em.de.getItv(index).toDouble() / 30) + "s"
     }
 
     fun getAbilT(f: Form?): String {
@@ -183,9 +177,9 @@ class GetStrings(private val c: Context) {
         return result.toString()
     }
 
-    fun getAbilT(em: Enemy?): String {
-        if (em == null) return ""
-        val atks = em.de.getAtks(0)
+    fun getAbilT(ch: Character?, index: Int): String {
+        if (ch == null) return ""
+        val atks = ch.mask.getAtks(index)
         val result = StringBuilder()
         for (i in atks.indices) {
             if (i < atks.size - 1) {
@@ -197,24 +191,20 @@ class GetStrings(private val c: Context) {
         return result.toString()
     }
 
+    fun getPost(c: Character?, frse: Int, index : Int): String {
+        if (c == null || index >= c.mask.atkTypeCount) return ""
+        return if (frse == 0) c.mask.getPost(false, index).toString() + "f" else DecimalFormat("#.##").format(c.mask.getPost(false, index).toDouble() / 30) + "s"
+    }
+
     fun getPost(f: Form?, frse: Int): String {
         if (f == null) return ""
         return if (frse == 0) f.du.getPost(false, 0).toString() + "f" else DecimalFormat("#.##").format(f.du.getPost(false, 0).toDouble() / 30) + "s"
     }
 
-    fun getPost(em: Enemy?, frse: Int): String {
-        if (em == null) return ""
-        return if (frse == 0) em.de.getPost(false, 0).toString() + "f" else DecimalFormat("#.##").format(em.de.getPost(false, 0).toDouble() / 30) + "s"
-    }
-
     fun getTBA(f: Form?, talent: Boolean, frse: Int, lvs: Level): String {
         if (f == null)
             return ""
-
-        val du = if(f.du.pCoin != null && talent)
-            f.du.pCoin.improve(lvs.talents)
-        else
-            f.du
+        val du = if(f.du.pCoin != null && talent) f.du.pCoin.improve(lvs.talents) else f.du
 
         return if (frse == 0)
             du.tba.toString() + "f"
@@ -225,6 +215,34 @@ class GetStrings(private val c: Context) {
     fun getTBA(em: Enemy?, frse: Int): String {
         if (em == null) return ""
         return if (frse == 0) em.de.tba.toString() + "f" else DecimalFormat("#.##").format(em.de.tba.toDouble() / 30) + "s"
+    }
+
+    fun getPre(c: Character?, frse: Int, index : Int): String {
+        if (c == null)
+            return ""
+
+        val atkdat = Interpret.getAtkModel(c.mask, index)
+        return if (frse == 0) {
+            if (atkdat.size > 1) {
+                val result = StringBuilder()
+
+                for (i in atkdat.indices) {
+                    if (i != atkdat.size - 1) result.append(atkdat[i].pre).append("f / ")
+                    else result.append(atkdat[i].pre).append("f")
+                }
+                result.toString()
+            } else atkdat[0].pre.toString() + "f"
+        } else {
+            if (atkdat.size > 1) {
+                val result = StringBuilder()
+
+                for (i in atkdat.indices) {
+                    if (i != atkdat.size - 1) result.append(DecimalFormat("#.##").format(atkdat[i].pre.toDouble() / 30)).append("s / ")
+                    else result.append(DecimalFormat("#.##").format(atkdat[i].pre.toDouble() / 30)).append("s")
+                }
+                result.toString()
+            } else DecimalFormat("#.##").format(atkdat[0].pre.toDouble() / 30) + "s"
+        }
     }
 
     fun getPre(f: Form?, frse: Int): String {
@@ -262,232 +280,128 @@ class GetStrings(private val c: Context) {
         }
     }
 
-    fun getPre(em: Enemy?, frse: Int): String {
-        if (em == null)
-            return ""
-
-        val atkdat = em.de.getAtks(0)
-
-        return if (frse == 0) {
-            if (atkdat.size > 1) {
-                val result = StringBuilder()
-
-                for (i in atkdat.indices) {
-                    if (i != atkdat.size - 1)
-                        result.append(atkdat[i].pre).append("f / ")
-                    else
-                        result.append(atkdat[i].pre).append("f")
-                }
-                result.toString()
-            } else
-                atkdat[0].pre.toString() + "f"
-        } else {
-            if (atkdat.size > 1) {
-                val result = StringBuilder()
-
-                for (i in atkdat.indices) {
-                    if (i != atkdat.size - 1)
-                        result.append(DecimalFormat("#.##").format(atkdat[i].pre.toDouble() / 30)).append("s / ")
-                    else
-                        result.append(DecimalFormat("#.##").format(atkdat[i].pre.toDouble() / 30)).append("s")
-                }
-
-                result.toString()
-
-            } else
-                DecimalFormat("#.##").format(atkdat[0].pre.toDouble() / 30) + "s"
-        }
-    }
-
     fun getPackName(id: Identifier<*>, isRaw: Boolean) : String {
         return if(isRaw) {
             id.pack
-        } else {
-            if(id.pack == Identifier.DEF) {
-                c.getString(R.string.pack_default)
-            } else {
-                StaticStore.getPackName(id.pack)
-            }
-        }
+        } else if (id.pack == Identifier.DEF) {
+            c.getString(R.string.pack_default)
+        } else
+            StaticStore.getPackName(id.pack)
     }
-
     fun getPackName(pack: String, isRaw: Boolean) : String {
         return if(isRaw) {
             pack
         } else if(StaticStore.BCMapCodes.contains(pack)) {
             c.getString(R.string.pack_default) + "(" + c.getString(StaticStore.bcMapNames[StaticStore.BCMapCodes.indexOf(pack)]) + ")"
-        } else {
+        } else
             StaticStore.getPackName(pack)
-        }
     }
 
     fun getID(viewHolder: RecyclerView.ViewHolder?, id: String): String {
-        return if (viewHolder == null)
-            ""
-        else
-            id + "-" + viewHolder.bindingAdapterPosition
+        return if (viewHolder == null) ""
+        else id + "-" + viewHolder.bindingAdapterPosition
     }
-
     fun getID(form: Int, id: String): String {
         return "$id-$form"
     }
 
-    fun getRange(f: Form?): String {
+    fun getRange(f: Form?, index : Int, talent: Boolean, lvs: Level): String {
         if (f == null)
             return ""
 
-        val tb = f.du.range
+        val du = if(f.du.pCoin != null && talent) f.du.pCoin.improve(lvs.talents) else f.du//Custom range talents exist in this fork
+        val tb = du.range
 
         if(!f.du.isLD && !f.du.isOmni)
             return tb.toString()
 
-        if(f.unit.id.pack != Identifier.DEF) {
-            val du = f.du as CustomEntity
-
-            val ma = if(du.getAtkCount(0) == 1) {
-                du.getAtkModel(0, 0)
-            } else if(allRangeSame(du)) {
-                du.getAtkModel(0, 0)
-            } else {
-                du.repAtk
-            }
+        val model = Interpret.getAtkModel(du, index)
+        if(model.isEmpty() || allRangeSame(du, index)) {
+            val ma = model[0]
 
             val lds = ma.shortPoint
-
             val ldr = ma.longPoint - ma.shortPoint
 
             val start = lds.coerceAtMost(lds + ldr)
             val end = lds.coerceAtLeast(lds + ldr)
 
             return "$tb | $start ~ $end"
-        } else {
-            val du = f.du as DataUnit
-
-            if(du.getAtkCount(0) == 0 || allRangeSame(du)) {
-                val ma = du.getAtkModel(0, 0)
-
-                val lds = ma.shortPoint
-
-                val ldr = ma.longPoint - ma.shortPoint
-
-                val start = lds.coerceAtMost(lds + ldr)
-                val end = lds.coerceAtLeast(lds + ldr)
-
-                return "$tb | $start ~ $end"
-            } else {
-                val builder = StringBuilder("$tb | ")
-
-                for(i in 0 until du.getAtkCount(0)) {
-                    val ma = du.getAtkModel(0, i)
-
-                    val lds = ma.shortPoint
-
-                    val ldr = ma.longPoint - ma.shortPoint
-
-                    val start = lds.coerceAtMost(lds + ldr)
-                    val end = lds.coerceAtLeast(lds + ldr)
-
-                    builder.append("$start ~ $end")
-
-                    if(i < du.getAtkCount(0) - 1) {
-                        builder.append(" / ")
-                    }
-                }
-
-                return builder.toString()
-            }
         }
+        val builder = StringBuilder("$tb | ")
+
+        for(i in model.indices) {
+            val ma = model[i]
+
+            val lds = ma.shortPoint
+            val ldr = ma.longPoint - ma.shortPoint
+
+            val start = lds.coerceAtMost(lds + ldr)
+            val end = lds.coerceAtLeast(lds + ldr)
+
+            builder.append("$start ~ $end")
+
+            if(i < model.size - 1)
+                builder.append(" / ")
+
+        }
+        return builder.toString()
     }
 
-    fun getRange(em: Enemy?): String {
-        if (em == null)
+    fun getRange(e: Enemy?, index : Int): String {
+        if (e == null)
             return ""
 
-        val tb = em.de.range
-
-        if(!em.de.isLD && !em.de.isOmni)
+        val tb = e.de.range
+        if(!e.de.isLD && !e.de.isOmni)
             return tb.toString()
 
-        if(em.id.pack != Identifier.DEF) {
-            val de = em.de as CustomEntity
-
-            val ma = if(de.getAtkCount(0) == 1 || allRangeSame(de)) {
-                de.getAtkModel(0, 0)
-            } else {
-                de.repAtk
-            }
-
+        val model = Interpret.getAtkModel(e.de, index)
+        if(model.isEmpty() || allRangeSame(e.de, index)) {
+            val ma = Interpret.getAtkModel(e.de, index)[0]
             val lds = ma.shortPoint
-
             val ldr = ma.longPoint - ma.shortPoint
 
             val start = lds.coerceAtMost(lds + ldr)
             val end = lds.coerceAtLeast(lds + ldr)
-
             return "$tb | $start ~ $end"
         } else {
-            val de = em.de as DataEnemy
-
-            if(de.getAtkCount(0) == 0 || allRangeSame(de)) {
-                val ma = de.getAtkModel(0, 0)
+            val builder = StringBuilder("$tb | ")
+            for(i in model.indices) {
+                val ma = model[i]
 
                 val lds = ma.shortPoint
-
                 val ldr = ma.longPoint - ma.shortPoint
 
                 val start = lds.coerceAtMost(lds + ldr)
                 val end = lds.coerceAtLeast(lds + ldr)
 
-                return "$tb | $start ~ $end"
-            } else {
-                val builder = StringBuilder("$tb | ")
-
-                for(i in 0 until de.getAtkCount(0)) {
-                    val ma = de.getAtkModel(0, i)
-
-                    val lds = ma.shortPoint
-
-                    val ldr = ma.longPoint - ma.shortPoint
-
-                    val start = lds.coerceAtMost(lds + ldr)
-                    val end = lds.coerceAtLeast(lds + ldr)
-
-                    builder.append("$start ~ $end")
-
-                    if(i < de.getAtkCount(0) - 1) {
-                        builder.append(" / ")
-                    }
-                }
-
-                return builder.toString()
+                builder.append("$start ~ $end")
+                if(i < model.size-1)
+                    builder.append(" / ")
             }
+
+            return builder.toString()
         }
     }
 
-    private fun allRangeSame(de: MaskEntity) : Boolean {
+    private fun allRangeSame(de: MaskEntity, index : Int) : Boolean {
         val near = ArrayList<Int>()
         val far = ArrayList<Int>()
 
-        for(atk in de.getAtks(0)) {
+        for(atk in Interpret.getAtkModel(de, index)) {
             near.add(atk.shortPoint)
             far.add(atk.longPoint)
         }
-
-        if(near.isEmpty() && far.isEmpty()) {
+        if(near.isEmpty() && far.isEmpty())
             return true
-        }
 
-        for(n in near) {
-            if(n != near[0]) {
+        for(n in near)
+            if(n != near[0])
                 return false
-            }
-        }
 
-        for(f in far) {
-            if(f != far[0]) {
+        for(f in far)
+            if(f != far[0])
                 return false
-            }
-        }
 
         return true
     }
@@ -497,17 +411,11 @@ class GetStrings(private val c: Context) {
             return ""
 
         val du: MaskUnit = if (f.du.pCoin != null)
-            if (talent)
-                f.du.pCoin.improve(lvs.talents)
-            else
-                f.du
-        else
-            f.du
+            if (talent) f.du.pCoin.improve(lvs.talents) else f.du
+        else f.du
 
-        return if (frse == 0)
-            t.getFinRes(du.respawn, 0).toString() + "f"
-        else
-            DecimalFormat("#.##").format(t.getFinRes(du.respawn, 0).toDouble() / 30) + "s"
+        return if (frse == 0) t.getFinRes(du.respawn, 0).toString() + "f"
+        else DecimalFormat("#.##").format(t.getFinRes(du.respawn, 0).toDouble() / 30) + "s"
     }
 
     fun getAtk(f: Form?, t: Treasure?, talent: Boolean, lvs: Level): String {
@@ -528,14 +436,12 @@ class GetStrings(private val c: Context) {
             getTotAtk(f, t, talent, lvs)
     }
 
-    fun getAtk(em: Enemy?, multi: Int): String {
+    fun getAtk(em: Enemy?, multi: Int, index: Int): String {
         if (em == null)
             return ""
 
-        return if (em.de.getAtks(0).size > 1)
-            getTotAtk(em, multi) + " " + getAtks(em, multi)
-        else
-            getTotAtk(em, multi)
+        return if (em.de.getAtks(index).size > 1) getTotAtk(em, multi, index) + " " + getAtks(em, multi, index)
+        else getTotAtk(em, multi, index)
     }
 
     fun getSpd(f: Form?, talent: Boolean, lvs: Level): String {
@@ -633,57 +539,44 @@ class GetStrings(private val c: Context) {
         return result.toString()
     }
 
-    private fun getTotAtk(em: Enemy?, multi: Int): String {
+    private fun getTotAtk(em: Enemy?, multi: Int, index : Int): String {
         if (em == null)
             return ""
 
-        return (em.de.multi(BasisSet.current()) * em.de.allAtk(0) * multi / 100).toInt().toString()
+        return (em.de.multi(BasisSet.current()) * em.de.allAtk(index) * multi / 100).toInt().toString()
     }
 
     fun getDPS(f: Form?, t: Treasure?, talent: Boolean, lvs: Level): String {
         return if (f == null || t == null)
             ""
         else {
-            val du = if(talent && f.du.pCoin != null)
-                f.du.pCoin.improve(lvs.talents)
-            else
-                f.du
+            val du = if(talent && f.du.pCoin != null) f.du.pCoin.improve(lvs.talents) else f.du
 
             DecimalFormat("#.##").format(getTotAtk(f, t, talent, lvs).toDouble() / (du.getItv(0) / 30.0)).toString()
         }
     }
 
-    fun getDPS(em: Enemy?, multi: Int): String {
-        return if (em == null)
-            ""
-        else
-            DecimalFormat("#.##").format(getTotAtk(em, multi).toDouble() / (em.de.getItv(0).toDouble() / 30)).toString()
+    fun getDPS(em: Enemy?, multi: Int, index : Int): String {
+        return if (em == null) ""
+        else DecimalFormat("#.##").format(getTotAtk(em, multi, index).toDouble() / (em.de.getItv(index).toDouble() / 30)).toString()
     }
 
     fun getTrait(ef: Form?, talent: Boolean, lvs: Level, c: Context): String {
         if (ef == null) return ""
 
-        val du: MaskUnit = if (ef.du.pCoin != null && talent)
-            ef.du.pCoin.improve(lvs.talents)
-        else
-            ef.du
+        val du: MaskUnit = if (ef.du.pCoin != null && talent) ef.du.pCoin.improve(lvs.talents)
+        else ef.du
 
-        var result: String
-
-        result = Interpret.getTrait(du.traits, 0, c)
-
+        var result = Interpret.getTrait(du.traits, 0, c)
         if (result == "")
             result = c.getString(R.string.unit_info_t_none)
-
         if (result == allColor)
             result = c.getString(R.string.unit_info_t_allc)
-
         if (result == allTrait)
             result = c.getString(R.string.unit_info_t_allt)
 
         if (result.endsWith(", "))
             result = result.substring(0, result.length - 2)
-
         return result
     }
 
@@ -692,11 +585,9 @@ class GetStrings(private val c: Context) {
 
         val allcolor = StringBuilder()
         val alltrait = StringBuilder()
-
         for (i in 0..8) {
             if (i != 0)
                 allcolor.append(Interpret.TRAIT[i]).append(", ")
-
             alltrait.append(Interpret.TRAIT[i]).append(", ")
         }
 
@@ -748,77 +639,51 @@ class GetStrings(private val c: Context) {
             return ""
 
         val du: MaskUnit = if (f.du.pCoin != null)
-            if (talent)
-                f.du.pCoin.improve(lvs.talents)
-            else
-                f.du
-        else
-            f.du
+            if (talent) f.du.pCoin.improve(lvs.talents)
+            else f.du
+        else f.du
 
         val atks = du.getAtks(0)
-
         val damges = ArrayList<Int>()
 
         for (atk in atks) {
             val result: Int = if(f.du.pCoin != null && talent) {
                 (((atk.atk * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt() * f.du.pCoin.getStatMultiplication(Data.PC2_ATK, lvs.talents)).toInt()
-            } else {
+            } else
                 ((atk.atk * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt()
-            }
-
             damges.add(result)
         }
 
         val result = StringBuilder("(")
-
         for (i in damges.indices) {
-            if (i < damges.size - 1)
-                result.append(damges[i]).append(", ")
-            else
-                result.append(damges[i]).append(")")
+            if (i < damges.size - 1) result.append(damges[i]).append(", ")
+            else result.append(damges[i]).append(")")
         }
-
         return result.toString()
     }
 
-    private fun getAtks(em: Enemy?, multi: Int): String {
+    private fun getAtks(em: Enemy?, multi: Int, index : Int): String {
         if (em == null)
             return ""
 
-        val atks = em.de.getAtks(0)
-
+        val atks = Interpret.getAtkModel(em.de, index)
         val damages = ArrayList<Int>()
 
-        for (atk in atks) {
+        for (atk in atks)
             damages.add((atk.atk * em.de.multi(BasisSet.current()) * multi / 100).toInt())
-        }
 
         val result = StringBuilder("(")
-
         for (i in damages.indices) {
-            if (i < damages.size - 1)
-                result.append("").append(damages[i]).append(", ")
-            else
-                result.append("").append(damages[i]).append(")")
+            if (i < damages.size - 1) result.append("").append(damages[i]).append(", ")
+            else result.append("").append(damages[i]).append(")")
         }
         return result.toString()
     }
 
-    fun getSimu(f: Form?): String {
-        if (f == null)
+    fun getSimu(ch: Character?, index: Int = 0): String {
+        if (ch == null)
             return ""
-
-        return if (Interpret.isType(f.du, 1))
-            c.getString(R.string.sch_atk_ra)
-        else
-            c.getString(R.string.sch_atk_si)
-    }
-
-    fun getSimu(em: Enemy?): String {
-        if (em == null)
-            return ""
-
-        return if (Interpret.isType(em.de, 1))
+        return if (Interpret.isType(ch.mask, 1, index))
             c.getString(R.string.sch_atk_ra)
         else
             c.getString(R.string.sch_atk_si)

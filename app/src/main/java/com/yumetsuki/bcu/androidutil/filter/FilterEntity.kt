@@ -79,15 +79,15 @@ object FilterEntity {
 
         var check = StaticStore.empty
         if (!check)
-            if (StaticStore.atksimu) check = Interpret.isType(de, 1)
-            else check = Interpret.isType(de, 0)
+            if (StaticStore.atksimu) check = Interpret.isType(de, 1, de.firstAtk())
+            else check = Interpret.isType(de, 0, de.firstAtk())
         if (!check)
             return false
 
         check = StaticStore.attack.isEmpty() || !StaticStore.atkorand
         for (k in StaticStore.attack.indices) {
-            check = if (StaticStore.atkorand) check or Interpret.isType(de, StaticStore.attack[k].toInt())
-            else check and Interpret.isType(de, StaticStore.attack[k].toInt())
+            check = if (StaticStore.atkorand) check or Interpret.isType(de, StaticStore.attack[k].toInt(), de.firstAtk())
+            else check and Interpret.isType(de, StaticStore.attack[k].toInt(), de.firstAtk())
         }
         if (!check)
             return false

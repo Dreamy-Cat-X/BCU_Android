@@ -36,11 +36,10 @@ class DropRecycle(private val st: Stage, private val activity: Activity) : Recyc
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
         if (st.info is CustomStageInfo) {
-            val info = st.info as CustomStageInfo
-            if (i < info.rewards.size) {
+            if (i < dropData.size) {
                 val c = (i+1).toString()
                 viewHolder.chance.text = c
-                viewHolder.item.text = info.rewards[i].toString()
+                viewHolder.item.text = dropData[i]
                 viewHolder.amount.text = "1"
             }
             return
@@ -48,23 +47,14 @@ class DropRecycle(private val st: Stage, private val activity: Activity) : Recyc
         val info = st.info as DefStageInfo
 
         val c = when {
-            dropData.isEmpty() -> {
-                (i+1).toString()
-            }
-            i >= dropData.size -> {
-                info.drop[i][0].toString() + "%"
-            }
-            else -> {
-                dropData[i] + "%"
-            }
+            dropData.isEmpty() -> (i+1).toString()
+            i >= dropData.size -> info.drop[i][0].toString() + "%"
+            else -> dropData[i] + "%"
         }
-
         val data = info.drop[i]
-
         viewHolder.chance.text = c
 
         var reward = MultiLangCont.getStageDrop(data[1])
-
         if (reward == null)
             reward = data[1].toString()
 
@@ -74,42 +64,39 @@ class DropRecycle(private val st: Stage, private val activity: Activity) : Recyc
 
                 bd.isFilterBitmap = true
                 bd.setAntiAlias(true)
-
                 viewHolder.item.setCompoundDrawablesWithIntrinsicBounds(null, null, bd, null)
             }
 
-            if (info.rand == 1 || data[1] >= 1000) {
+            if (info.rand == 1 || data[1] >= 1000)
                 reward += activity.getString(R.string.stg_info_once)
-
-                viewHolder.item.text = reward
-            } else {
-                viewHolder.item.text = reward
-            }
-        } else {
-            viewHolder.item.text = reward
         }
-
+        viewHolder.item.text = reward
         viewHolder.amount.text = data[2].toString()
     }
 
     override fun getItemCount(): Int {
-        return (st.info as DefStageInfo).drop.size
+        return if (st.info is DefStageInfo) (st.info as DefStageInfo).drop.size
+        else (st.info as CustomStageInfo).rewards.size
     }
 
     private fun handleDrops() : List<String> {
-        val info = st.info as DefStageInfo
         val res = ArrayList<String>()
-
+        if (st.info is CustomStageInfo) {
+            val info = st.info as CustomStageInfo
+            for (rwd in info.rewards) {
+                val str = if (rwd.fid == 1) rwd.unit.toString() else rwd.toString()
+                res.add(str)
+            }
+            return res
+        }
+        val info = st.info as DefStageInfo
         val data = info.drop
 
         var sum = 0
-
-        for(i in data) {
+        for(i in data)
             sum += i[0]
-        }
 
         val df = DecimalFormat("#.##")
-
         if(sum == 1000) {
             for(i in data)
                 res.add(df.format(i[0].toDouble()/10))
@@ -123,38 +110,30 @@ class DropRecycle(private val st: Stage, private val activity: Activity) : Recyc
 
             if(data[0][0] == 100) {
                 res.add("100")
-
                 for(i in 1 until data.size) {
                     val filter = rest * data[i][0].toDouble() / 100.0
                     rest -= filter
-
                     res.add(df.format(filter))
                 }
-            } else {
+            } else
                 for(i in data) {
                     val filter = rest * i[0].toDouble() / 100.0
                     rest -= filter
-
                     res.add(df.format(filter))
                 }
-            }
         } else if(info.rand == -4) {
             var total = 0
-
-            for(i in data) {
+            for(i in data)
                 total += i[0]
-            }
 
             if(total == 0) {
                 for(i in data)
                     res.add(i[0].toString())
-
                 return res
             }
 
-            for(i in data) {
+            for(i in data)
                 res.add(df.format(i[0] * 100.0 / total))
-            }
         } else {
             for(i in data)
                 res.add(i[0].toString())

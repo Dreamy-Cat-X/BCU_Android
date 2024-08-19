@@ -43,6 +43,7 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
     private val data: Identifier<AbEnemy>
 
     private var isRaw = false
+    var catk = 0
 
     constructor(activity: Activity, data: Identifier<AbEnemy>) {
         this.activity = activity
@@ -94,6 +95,10 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         val none = itemView.findViewById<TextView>(R.id.eneminfnone)
         val emabil = itemView.findViewById<RecyclerView>(R.id.eneminfabillist)
         val enemamulti = itemView.findViewById<EditText>(R.id.eneminfamultir)
+
+        val prevatk = itemView.findViewById<Button>(R.id.btn_prevatk)
+        val curatk = itemView.findViewById<TextView>(R.id.atk_index)
+        val nextatk = itemView.findViewById<Button>(R.id.btn_nextatk)
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
@@ -103,12 +108,10 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
         val em = Identifier.get(data) ?: return
-
         if(em !is Enemy)
             return
 
         val t = BasisSet.current().t()
-
         val shared = activity.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
 
         if (shared.getBoolean("frame", true)) {
@@ -156,60 +159,44 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         }
 
         viewHolder.name.text = MultiLangCont.get(em) ?: em.names.toString()
-
         val name = StaticStore.trio(em.id.id)
-
         viewHolder.enemyId.text = name
 
         val ratio = 32f / 32f
-
         val img = em.anim?.edi?.img
 
         var b: Bitmap? = null
-
         if (img != null)
             b = img.bimg() as Bitmap
 
+        catk = em.de.firstAtk()
+        if (em.de.realAtkCount() == 1) {
+            viewHolder.prevatk.visibility = View.GONE
+            viewHolder.curatk.visibility = View.GONE
+            viewHolder.nextatk.visibility = View.GONE
+        } else
+            viewHolder.curatk.text = activity.getString(R.string.info_current_hit).replace("_", (catk+1).toString())
+
+        multiply(viewHolder, em)
+
         viewHolder.enemyPack.text = s.getPackName(em.id, isRaw)
         viewHolder.enemyIcon.setImageBitmap(StaticStore.getResizeb(b, activity, 85f * ratio, 32f * ratio))
-        viewHolder.enemhp.text = s.getHP(em, multiplication)
         viewHolder.enemhb.text = s.getHB(em)
         viewHolder.enemmulti.setText(multiplication.toString())
         viewHolder.enemamulti.setText(attackMultiplication.toString())
-        viewHolder.enematk.text = s.getAtk(em, attackMultiplication)
-        viewHolder.enematktime.text = s.getAtkTime(em, fs)
-        viewHolder.enemabilt.text = s.getAbilT(em)
-        viewHolder.enempre.text = s.getPre(em, fs)
-        viewHolder.enempost.text = s.getPost(em, fs)
-        viewHolder.enemtba.text = s.getTBA(em, fs)
         viewHolder.enemtrait.text = s.getTrait(em, activity)
-        viewHolder.enematkt.text = s.getSimu(em)
-        viewHolder.enemdrop.text = s.getDrop(em, t)
-        viewHolder.enemrange.text = s.getRange(em)
+        viewHolder.enematkt.text = s.getSimu(em, catk)
+        viewHolder.enemrange.text = s.getRange(em, catk)
         viewHolder.enembarrier.text = s.getBarrier(em)
         viewHolder.enemspd.text = s.getSpd(em)
 
-        val proc: List<String> = Interpret.getProc(em.de, fs == 1, true, arrayOf(multiplication / 100.0, attackMultiplication / 100.0).toDoubleArray(), activity)
-        val ability = Interpret.getAbi(em.de, fragment, 0, this.activity)
-        val abilityicon = Interpret.getAbiid(em.de)
+        viewHolder.enematktime.text = s.getAtkTime(em, fs == 0, catk)
+        viewHolder.enemabilt.text = s.getAbilT(em, catk)
+        viewHolder.enempre.text = s.getPre(em, fs, catk)
+        viewHolder.enempost.text = s.getPost(em, fs, catk)
 
-        if (ability.isNotEmpty() || proc.isNotEmpty()) {
-            viewHolder.none.visibility = View.GONE
-
-            val linearLayoutManager = LinearLayoutManager(this.activity)
-
-            linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
-            viewHolder.emabil.layoutManager = linearLayoutManager
-
-            val adapterAbil = AdapterAbil(ability, proc, abilityicon, activity)
-
-            viewHolder.emabil.adapter = adapterAbil
-
-            ViewCompat.setNestedScrollingEnabled(viewHolder.emabil, false)
-        } else {
-            viewHolder.emabil.visibility = View.GONE
-        }
+        viewHolder.enemtba.text = s.getTBA(em, fs)
+        viewHolder.enemdrop.text = s.getDrop(em, t)
 
         aclevt.setText(t.tech[1].toString())
         actreat.setText(t.trea[3].toString())
@@ -246,7 +233,6 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
 
         viewHolder.pack.setOnClickListener {
             isRaw = !isRaw
-
             viewHolder.enemyPack.text = s.getPackName(em.id, isRaw)
         }
 
@@ -255,51 +241,47 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
                 activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
             val data = ClipData.newPlainText(null, viewHolder.name.text)
-
             clipboardManager.setPrimaryClip(data)
-
             StaticStore.showShortMessage(activity, R.string.enem_info_copied)
-
             true
         }
 
         val reset = activity.findViewById<Button>(R.id.enemtreareset)
 
+        viewHolder.prevatk.setOnClickListener {
+            while (em.de.getShare(--catk) == 0);
+            changeAtk(viewHolder, em)
+        }
+        viewHolder.nextatk.setOnClickListener {
+            while (em.de.getShare(++catk) == 0);
+            changeAtk(viewHolder, em)
+        }
+
         viewHolder.enemmulti.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (viewHolder.enemmulti.text.toString() == "") {
-                    multiplication = 100
-                    multiply(viewHolder, em)
+                multiplication = if (viewHolder.enemmulti.text.toString() == "") {
+                    100
                 } else {
-                    multiplication = if (viewHolder.enemmulti.text.toString().toDouble() > Int.MAX_VALUE)
-                        Int.MAX_VALUE
-                    else
-                        Integer.valueOf(viewHolder.enemmulti.text.toString())
-
-                    multiply(viewHolder, em)
+                    if (viewHolder.enemmulti.text.toString().toDouble() > Int.MAX_VALUE) Int.MAX_VALUE
+                    else Integer.valueOf(viewHolder.enemmulti.text.toString())
                 }
+                multiply(viewHolder, em)
             }
-
             override fun afterTextChanged(s: Editable) {}
         })
-
         viewHolder.enemamulti.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (viewHolder.enemamulti.text.toString() == "") {
-                    attackMultiplication = 100
-                    multiply(viewHolder, em)
+                attackMultiplication = if (viewHolder.enemamulti.text.toString() == "") {
+                    100
                 } else {
-                    attackMultiplication = if (viewHolder.enemamulti.text.toString().toDouble() > Int.MAX_VALUE)
-                        Int.MAX_VALUE
-                    else
-                        Integer.valueOf(viewHolder.enemamulti.text.toString())
-
-                    multiply(viewHolder, em)
+                    if (viewHolder.enemamulti.text.toString().toDouble() > Int.MAX_VALUE) Int.MAX_VALUE
+                    else Integer.valueOf(viewHolder.enemamulti.text.toString())
                 }
+                multiply(viewHolder, em)
             }
 
             override fun afterTextChanged(s: Editable) {}
@@ -319,33 +301,33 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
 
         viewHolder.enematkb.setOnClickListener {
             if (viewHolder.enematkb.text == activity.getString(R.string.unit_info_atk)) {
-                viewHolder.enematk.text = s.getDPS(em, attackMultiplication)
+                viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
                 viewHolder.enematkb.text = activity.getString(R.string.unit_info_dps)
             } else {
-                viewHolder.enematk.text = s.getAtk(em, attackMultiplication)
+                viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
                 viewHolder.enematkb.text = activity.getString(R.string.unit_info_atk)
             }
         }
 
         viewHolder.enempreb.setOnClickListener {
             if (viewHolder.enempre.text.toString().endsWith("f"))
-                viewHolder.enempre.text = s.getPre(em, 1)
+                viewHolder.enempre.text = s.getPre(em, 1, catk)
             else
-                viewHolder.enempre.text = s.getPre(em, 0)
+                viewHolder.enempre.text = s.getPre(em, 0, catk)
         }
 
         viewHolder.enematktimeb.setOnClickListener {
             if (viewHolder.enematktime.text.toString().endsWith("f"))
-            viewHolder.enematktime.text = s.getAtkTime(em, 1)
+            viewHolder.enematktime.text = s.getAtkTime(em, false, catk)
             else
-                viewHolder.enematktime.text = s.getAtkTime(em, 0)
+                viewHolder.enematktime.text = s.getAtkTime(em, true, catk)
         }
 
         viewHolder.enempostb.setOnClickListener {
             if (viewHolder.enempost.text.toString().endsWith("f"))
-                viewHolder.enempost.text = s.getPost(em, 1)
+                viewHolder.enempost.text = s.getPost(em, 1, catk)
             else
-                viewHolder.enempost.text = s.getPost(em, 0)
+                viewHolder.enempost.text = s.getPost(em, 0, catk)
         }
 
         viewHolder.enemtbab.setOnClickListener {
@@ -490,18 +472,18 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
                         t.alien = text.toString().toInt()
                         viewHolder.enemhp.text = s.getHP(em, multiplication)
                         if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                            viewHolder.enematk.text = s.getDPS(em, attackMultiplication)
+                            viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
                         } else {
-                            viewHolder.enematk.text = s.getAtk(em, attackMultiplication)
+                            viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
                         }
                     }
                 } else {
                     t.alien = 0
                     viewHolder.enemhp.text = s.getHP(em, multiplication)
                     if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                        viewHolder.enematk.text = s.getDPS(em, attackMultiplication)
+                        viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
                     } else {
-                        viewHolder.enematk.text = s.getAtk(em, attackMultiplication)
+                        viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
                     }
                 }
             }
@@ -544,18 +526,18 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
                         t.star = text.toString().toInt()
                         viewHolder.enemhp.text = s.getHP(em, multiplication)
                         if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                            viewHolder.enematk.text = s.getDPS(em, attackMultiplication)
+                            viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
                         } else {
-                            viewHolder.enematk.text = s.getAtk(em, attackMultiplication)
+                            viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
                         }
                     }
                 } else {
                     t.star = 0
                     viewHolder.enemhp.text = s.getHP(em, multiplication)
                     if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                        viewHolder.enematk.text = s.getDPS(em, attackMultiplication)
+                        viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
                     } else {
-                        viewHolder.enematk.text = s.getAtk(em, attackMultiplication)
+                        viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
                     }
                 }
             }
@@ -599,19 +581,18 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
                             t.gods[i] = text.toString().toInt()
                             viewHolder.enemhp.text = s.getHP(em, multiplication)
                             if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                                viewHolder.enematk.text = s.getDPS(em, attackMultiplication)
+                                viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
                             } else {
-                                viewHolder.enematk.text = s.getAtk(em, attackMultiplication)
+                                viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
                             }
                         }
                     } else {
                         t.gods[i] = 0
                         viewHolder.enemhp.text = s.getHP(em, multiplication)
                         if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                            viewHolder.enematk.text = s.getDPS(em, attackMultiplication)
-                        } else {
-                            viewHolder.enematk.text = s.getAtk(em, attackMultiplication)
-                        }
+                            viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
+                        } else
+                            viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
                     }
                 }
             })
@@ -639,10 +620,9 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
             viewHolder.enemhp.text = s.getHP(em, multiplication)
 
             if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                viewHolder.enematk.text = s.getDPS(em, attackMultiplication)
-            } else {
-                viewHolder.enematk.text = s.getAtk(em, attackMultiplication)
-            }
+                viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
+            } else
+                viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
 
             viewHolder.enemdrop.text = s.getDrop(em, t)
         }
@@ -652,59 +632,53 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         return 1
     }
 
+    private fun changeAtk(viewHolder: ViewHolder, em: Enemy) {
+        viewHolder.enematk.text = if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps))
+            s.getDPS(em, attackMultiplication, catk) else s.getAtk(em, attackMultiplication, catk)
+        viewHolder.enematkt.text = s.getSimu(em, catk)
+
+        viewHolder.curatk.text = activity.getString(R.string.info_current_hit).replace("_", (catk+1).toString())
+        viewHolder.nextatk.isEnabled = catk < em.de.realAtkCount() - 1
+        viewHolder.prevatk.isEnabled = catk > em.de.firstAtk()
+
+        retime(viewHolder, em)
+    }
+
     private fun multiply(viewHolder: ViewHolder, em: Enemy) {
         viewHolder.enemhp.text = s.getHP(em, multiplication)
-        viewHolder.enematk.text = s.getAtk(em, attackMultiplication)
+        viewHolder.enematk.text = if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps))
+            s.getDPS(em, attackMultiplication, catk) else s.getAtk(em, attackMultiplication, catk)
+        viewHolder.enemabilt.text = s.getAbilT(em, catk)
 
-        val proc: List<String> = Interpret.getProc(em.de, fs == 1, true, arrayOf(multiplication / 100.0, attackMultiplication / 100.0).toDoubleArray(), activity)
-
-        val ability = Interpret.getAbi(em.de, fragment, 0, activity)
-
-        val abilityicon = Interpret.getAbiid(em.de)
-
-        if (ability.isNotEmpty() || proc.isNotEmpty()) {
-            viewHolder.none.visibility = View.GONE
-
-            val linearLayoutManager = LinearLayoutManager(activity)
-
-            linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
-            viewHolder.emabil.layoutManager = linearLayoutManager
-
-            val adapterAbil = AdapterAbil(ability, proc, abilityicon, activity)
-
-            viewHolder.emabil.adapter = adapterAbil
-
-            ViewCompat.setNestedScrollingEnabled(viewHolder.emabil, false)
-        }
+        setAbi(viewHolder, em)
     }
 
     private fun retime(viewHolder: ViewHolder, em: Enemy) {
-        viewHolder.enematktime.text = s.getAtkTime(em, fs)
-        viewHolder.enempre.text = s.getPre(em, fs)
-        viewHolder.enempost.text = s.getPost(em, fs)
+        viewHolder.enematktime.text = s.getAtkTime(em, fs == 0, catk)
+        viewHolder.enempre.text = s.getPre(em, fs, catk)
+        viewHolder.enempost.text = s.getPost(em, fs, catk)
         viewHolder.enemtba.text = s.getTBA(em, fs)
 
-        val proc: List<String> = Interpret.getProc(em.de, fs == 1, true, arrayOf(multiplication / 100.0, attackMultiplication / 100.0).toDoubleArray(), activity)
+        setAbi(viewHolder, em)
+    }
 
+    private fun setAbi(viewHolder: ViewHolder, em: Enemy) {
+        val proc: List<String> = Interpret.getProc(em.de, fs == 1, true, arrayOf(multiplication / 100.0, attackMultiplication / 100.0).toDoubleArray(), activity, catk)
         val ability = Interpret.getAbi(em.de, fragment, 0, activity)
-
         val abilityicon = Interpret.getAbiid(em.de)
 
         if (ability.isNotEmpty() || proc.isNotEmpty()) {
             viewHolder.none.visibility = View.GONE
-
+            viewHolder.emabil.visibility = View.VISIBLE
             val linearLayoutManager = LinearLayoutManager(activity)
-
             linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
             viewHolder.emabil.layoutManager = linearLayoutManager
-
             val adapterAbil = AdapterAbil(ability, proc, abilityicon, activity)
-
             viewHolder.emabil.adapter = adapterAbil
-
             ViewCompat.setNestedScrollingEnabled(viewHolder.emabil, false)
+        } else {
+            viewHolder.emabil.visibility = View.GONE
+            viewHolder.none.visibility = View.VISIBLE
         }
     }
 }
