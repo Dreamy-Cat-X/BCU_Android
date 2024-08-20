@@ -6,8 +6,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.yumetsuki.bcu.R
 import common.battle.BasisSet
 import common.battle.Treasure
-import common.battle.data.CustomEntity
-import common.battle.data.DataUnit
 import common.battle.data.MaskEntity
 import common.battle.data.MaskUnit
 import common.pack.Identifier
@@ -149,12 +147,12 @@ class GetStrings(private val c: Context) {
         return if (name == "") rarity else result.append(rarity).append(" - ").append(name).toString()
     }
 
-    fun getAtkTime(f: Form?, talent: Boolean, frse: Int, lvs: Level): String {
+    fun getAtkTime(f: Form?, talent: Boolean, frse: Int, lvs: Level, index : Int): String {
         if (f == null)
             return ""
         val du = if(f.du.pCoin != null && talent) f.du.pCoin.improve(lvs.talents) else f.du
 
-        return if (frse == 0) du.getItv(0).toString() + "f"
+        return if (frse == 0) du.getItv(index).toString() + "f"
         else DecimalFormat("#.##").format(du.getItv(0).toDouble() / 30) + "s"
     }
 
@@ -163,23 +161,9 @@ class GetStrings(private val c: Context) {
         return if (frse) em.de.getItv(index).toString() + "f" else DecimalFormat("#.##").format(em.de.getItv(index).toDouble() / 30) + "s"
     }
 
-    fun getAbilT(f: Form?): String {
-        if (f == null) return ""
-        val atkdat = f.du.getAtks(0)
-        val result = StringBuilder()
-        for (i in atkdat.indices) {
-            if (i != atkdat.size - 1) {
-                if (atkdat[i].canProc()) result.append(c.getString(R.string.unit_info_true)).append(" / ") else result.append(c.getString(R.string.unit_info_false)).append(" / ")
-            } else {
-                if (atkdat[i].canProc()) result.append(c.getString(R.string.unit_info_true)) else result.append(c.getString(R.string.unit_info_false))
-            }
-        }
-        return result.toString()
-    }
-
     fun getAbilT(ch: Character?, index: Int): String {
         if (ch == null) return ""
-        val atks = ch.mask.getAtks(index)
+        val atks = Interpret.getAtkModel(ch.mask, index)
         val result = StringBuilder()
         for (i in atks.indices) {
             if (i < atks.size - 1) {
@@ -187,18 +171,13 @@ class GetStrings(private val c: Context) {
             } else {
                 if (atks[i].canProc()) result.append(c.getString(R.string.unit_info_true)) else result.append(c.getString(R.string.unit_info_false))
             }
-        }
+        }//TODO: Remove this
         return result.toString()
     }
 
-    fun getPost(c: Character?, frse: Int, index : Int): String {
+    fun getPost(c: Character?, frse: Boolean, index : Int): String {
         if (c == null || index >= c.mask.atkTypeCount) return ""
-        return if (frse == 0) c.mask.getPost(false, index).toString() + "f" else DecimalFormat("#.##").format(c.mask.getPost(false, index).toDouble() / 30) + "s"
-    }
-
-    fun getPost(f: Form?, frse: Int): String {
-        if (f == null) return ""
-        return if (frse == 0) f.du.getPost(false, 0).toString() + "f" else DecimalFormat("#.##").format(f.du.getPost(false, 0).toDouble() / 30) + "s"
+        return if (frse) c.mask.getPost(false, index).toString() + "f" else DecimalFormat("#.##").format(c.mask.getPost(false, index).toDouble() / 30) + "s"
     }
 
     fun getTBA(f: Form?, talent: Boolean, frse: Int, lvs: Level): String {
@@ -206,15 +185,15 @@ class GetStrings(private val c: Context) {
             return ""
         val du = if(f.du.pCoin != null && talent) f.du.pCoin.improve(lvs.talents) else f.du
 
-        return if (frse == 0)
-            du.tba.toString() + "f"
-        else
-            DecimalFormat("#.##").format(du.tba.toDouble() / 30) + "s"
+        return if (frse == 0) du.tba.toString() + "f"
+        else DecimalFormat("#.##").format(du.tba.toDouble() / 30) + "s"
     }
 
-    fun getTBA(em: Enemy?, frse: Int): String {
-        if (em == null) return ""
-        return if (frse == 0) em.de.tba.toString() + "f" else DecimalFormat("#.##").format(em.de.tba.toDouble() / 30) + "s"
+    fun getTBA(em: Enemy?, frame: Boolean): String {
+        return if (em == null) "" else getTBA(em.de, frame)
+    }
+    private fun getTBA(ma : MaskEntity, frame : Boolean) : String {
+        return if (frame) ma.tba.toString() + "f" else DecimalFormat("#.##").format(ma.tba.toDouble() / 30) + "s"
     }
 
     fun getPre(c: Character?, frse: Int, index : Int): String {
@@ -242,41 +221,6 @@ class GetStrings(private val c: Context) {
                 }
                 result.toString()
             } else DecimalFormat("#.##").format(atkdat[0].pre.toDouble() / 30) + "s"
-        }
-    }
-
-    fun getPre(f: Form?, frse: Int): String {
-        if (f == null)
-            return ""
-
-        val atkdat = f.du.getAtks(0)
-        return if (frse == 0) {
-            if (atkdat.size > 1) {
-                val result = StringBuilder()
-
-                for (i in atkdat.indices) {
-                    if (i != atkdat.size - 1)
-                        result.append(atkdat[i].pre).append("f / ")
-                    else
-                        result.append(atkdat[i].pre).append("f")
-                }
-                result.toString()
-            } else atkdat[0].pre.toString() + "f"
-        } else {
-            if (atkdat.size > 1) {
-                val result = StringBuilder()
-
-                for (i in atkdat.indices) {
-                    if (i != atkdat.size - 1)
-                        result.append(DecimalFormat("#.##").format(atkdat[i].pre.toDouble() / 30)).append("s / ")
-                    else
-                        result.append(DecimalFormat("#.##").format(atkdat[i].pre.toDouble() / 30)).append("s")
-                }
-
-                result.toString()
-
-            } else
-                DecimalFormat("#.##").format(atkdat[0].pre.toDouble() / 30) + "s"
         }
     }
 
@@ -308,56 +252,23 @@ class GetStrings(private val c: Context) {
     fun getRange(f: Form?, index : Int, talent: Boolean, lvs: Level): String {
         if (f == null)
             return ""
-
         val du = if(f.du.pCoin != null && talent) f.du.pCoin.improve(lvs.talents) else f.du//Custom range talents exist in this fork
-        val tb = du.range
-
-        if(!f.du.isLD && !f.du.isOmni)
-            return tb.toString()
-
-        val model = Interpret.getAtkModel(du, index)
-        if(model.isEmpty() || allRangeSame(du, index)) {
-            val ma = model[0]
-
-            val lds = ma.shortPoint
-            val ldr = ma.longPoint - ma.shortPoint
-
-            val start = lds.coerceAtMost(lds + ldr)
-            val end = lds.coerceAtLeast(lds + ldr)
-
-            return "$tb | $start ~ $end"
-        }
-        val builder = StringBuilder("$tb | ")
-
-        for(i in model.indices) {
-            val ma = model[i]
-
-            val lds = ma.shortPoint
-            val ldr = ma.longPoint - ma.shortPoint
-
-            val start = lds.coerceAtMost(lds + ldr)
-            val end = lds.coerceAtLeast(lds + ldr)
-
-            builder.append("$start ~ $end")
-
-            if(i < model.size - 1)
-                builder.append(" / ")
-
-        }
-        return builder.toString()
+        return getRange(f, index, du.range)
     }
 
     fun getRange(e: Enemy?, index : Int): String {
         if (e == null)
             return ""
+        return getRange(e, index, e.de.range)
+    }
 
-        val tb = e.de.range
-        if(!e.de.isLD && !e.de.isOmni)
+    fun getRange(c: Character, index : Int, tb : Int): String {
+        if(!c.mask.isLD && !c.mask.isOmni)
             return tb.toString()
 
-        val model = Interpret.getAtkModel(e.de, index)
-        if(model.isEmpty() || allRangeSame(e.de, index)) {
-            val ma = Interpret.getAtkModel(e.de, index)[0]
+        val model = Interpret.getAtkModel(c.mask, index)
+        if(model.isEmpty() || allRangeSame(c.mask, index)) {
+            val ma = Interpret.getAtkModel(c.mask, index)[0]
             val lds = ma.shortPoint
             val ldr = ma.longPoint - ma.shortPoint
 
@@ -379,7 +290,6 @@ class GetStrings(private val c: Context) {
                 if(i < model.size-1)
                     builder.append(" / ")
             }
-
             return builder.toString()
         }
     }
@@ -398,67 +308,42 @@ class GetStrings(private val c: Context) {
         for(n in near)
             if(n != near[0])
                 return false
-
         for(f in far)
             if(f != far[0])
                 return false
-
         return true
     }
 
     fun getCD(f: Form?, t: Treasure?, frse: Int, talent: Boolean, lvs: Level): String {
         if (f == null || t == null)
             return ""
-
-        val du: MaskUnit = if (f.du.pCoin != null)
-            if (talent) f.du.pCoin.improve(lvs.talents) else f.du
-        else f.du
+        val du: MaskUnit = if (talent && f.du.pCoin != null) f.du.pCoin.improve(lvs.talents) else f.du
 
         return if (frse == 0) t.getFinRes(du.respawn, 0).toString() + "f"
         else DecimalFormat("#.##").format(t.getFinRes(du.respawn, 0).toDouble() / 30) + "s"
     }
 
-    fun getAtk(f: Form?, t: Treasure?, talent: Boolean, lvs: Level): String {
+    fun getAtk(f: Form?, t: Treasure?, talent: Boolean, lvs: Level, index : Int): String {
         if (f == null || t == null)
             return ""
-
-        val du: MaskUnit = if (f.du.pCoin != null)
-            if (talent)
-                f.du.pCoin.improve(lvs.talents)
-            else
-                f.du
-        else
-            f.du
-
-        return if (du.getAtks(0).size > 1)
-            getTotAtk(f, t, talent, lvs) + " " + getAtks(f, t, talent, lvs)
-        else
-            getTotAtk(f, t, talent, lvs)
+        return if (Interpret.getAtkModel(f.du, index).size > 1) getTotAtk(f, t, talent, lvs, index) + " " + getAtks(f, t, talent, lvs, index)
+        else getTotAtk(f, t, talent, lvs, index)
     }
 
     fun getAtk(em: Enemy?, multi: Int, index: Int): String {
         if (em == null)
             return ""
-
-        return if (em.de.getAtks(index).size > 1) getTotAtk(em, multi, index) + " " + getAtks(em, multi, index)
+        return if (Interpret.getAtkModel(em.de, index).size > 1) getTotAtk(em, multi, index) + " " + getAtks(em, multi, index)
         else getTotAtk(em, multi, index)
     }
 
     fun getSpd(f: Form?, talent: Boolean, lvs: Level): String {
         if (f == null)
             return ""
-
-        val du: MaskUnit = if (f.du.pCoin != null)
-            if (talent)
-                f.du.pCoin.improve(lvs.talents)
-            else
-                f.du
-        else
-            f.du
+        val du: MaskUnit = if (talent && f.du.pCoin != null) f.du.pCoin.improve(lvs.talents) else f.du
 
         return du.speed.toString()
     }
-
     fun getSpd(em: Enemy?): String {
         return em?.de?.speed?.toString() ?: ""
     }
@@ -476,14 +361,7 @@ class GetStrings(private val c: Context) {
     fun getHB(f: Form?, talent: Boolean, lvs: Level): String {
         if (f == null)
             return ""
-
-        val du: MaskUnit = if (f.du.pCoin != null)
-            if (talent)
-                f.du.pCoin.improve(lvs.talents)
-            else
-                f.du
-        else
-            f.du
+        val du: MaskUnit = if (talent && f.du.pCoin != null) f.du.pCoin.improve(lvs.talents) else f.du
 
         return du.hb.toString()
     }
@@ -495,20 +373,12 @@ class GetStrings(private val c: Context) {
     fun getHP(f: Form?, t: Treasure?, talent: Boolean, lvs: Level): String {
         if (f == null || t == null)
             return ""
-
-        val du: MaskUnit = if (f.du.pCoin != null)
-            if (talent)
-                f.du.pCoin.improve(lvs.talents)
-            else
-                f.du
-        else
-            f.du
+        val du: MaskUnit = if (talent && f.du.pCoin != null) f.du.pCoin.improve(lvs.talents) else f.du
 
         val result = if(f.du.pCoin != null && talent) {
             (((du.hp * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.defMulti).toInt() * (f.du.pCoin.getStatMultiplication(Data.PC2_HP, lvs.talents))).toInt()
-        } else {
+        } else
             ((du.hp * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.defMulti).toInt()
-        }
 
         return result.toString()
     }
@@ -520,21 +390,15 @@ class GetStrings(private val c: Context) {
         return (em.de.multi(BasisSet.current()) * em.de.hp * multi / 100).toInt().toString()
     }
 
-    fun getTotAtk(f: Form?, t: Treasure?, talent: Boolean, lvs: Level): String {
+    fun getTotAtk(f: Form?, t: Treasure?, talent: Boolean, lvs: Level, index : Int): String {
         if (f == null || t == null)
             return ""
-
-        val du: MaskUnit = if (f.du.pCoin != null)
-            if (talent)
-                f.du.pCoin.improve(lvs.talents)
-            else
-                f.du else f.du
+        val du: MaskUnit = if (talent && f.du.pCoin != null) f.du.pCoin.improve(lvs.talents) else f.du
 
         val result: Int = if(f.du.pCoin != null && talent) {
-            (((du.allAtk(0) * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt() * f.du.pCoin.getStatMultiplication(Data.PC2_ATK, lvs.talents)).toInt()
-        } else {
-            ((du.allAtk(0) * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt()
-        }
+            (((du.allAtk(index) * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt() * f.du.pCoin.getStatMultiplication(Data.PC2_ATK, lvs.talents)).toInt()
+        } else
+            ((du.allAtk(index) * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt()
 
         return result.toString()
     }
@@ -546,13 +410,13 @@ class GetStrings(private val c: Context) {
         return (em.de.multi(BasisSet.current()) * em.de.allAtk(index) * multi / 100).toInt().toString()
     }
 
-    fun getDPS(f: Form?, t: Treasure?, talent: Boolean, lvs: Level): String {
+    fun getDPS(f: Form?, t: Treasure?, talent: Boolean, lvs: Level, index : Int): String {
         return if (f == null || t == null)
             ""
         else {
             val du = if(talent && f.du.pCoin != null) f.du.pCoin.improve(lvs.talents) else f.du
 
-            DecimalFormat("#.##").format(getTotAtk(f, t, talent, lvs).toDouble() / (du.getItv(0) / 30.0)).toString()
+            DecimalFormat("#.##").format(getTotAtk(f, t, talent, lvs, index).toDouble() / (du.getItv(index) / 30.0)).toString()
         }
     }
 
@@ -615,26 +479,17 @@ class GetStrings(private val c: Context) {
     fun getCost(f: Form?, talent: Boolean, lvs: Level): String {
         if (f == null)
             return ""
-
-        val du: MaskUnit = if (f.du.pCoin != null)
-            if (talent)
-                f.du.pCoin.improve(lvs.talents)
-            else
-                f.du
-        else
-            f.du
-
+        val du: MaskUnit = if (talent && f.du.pCoin != null) f.du.pCoin.improve(lvs.talents) else f.du
         return (du.price * 1.5).toInt().toString()
     }
 
     fun getDrop(em: Enemy?, t: Treasure): String {
         if (em == null)
             return ""
-
         return (em.de.drop * t.getDropMulti(0) / 100).toInt().toString()
     }
 
-    private fun getAtks(f: Form?, t: Treasure?, talent: Boolean, lvs: Level): String {
+    private fun getAtks(f: Form?, t: Treasure?, talent: Boolean, lvs: Level, index : Int): String {
         if (f == null || t == null)
             return ""
 
@@ -643,7 +498,7 @@ class GetStrings(private val c: Context) {
             else f.du
         else f.du
 
-        val atks = du.getAtks(0)
+        val atks = Interpret.getAtkModel(du, index)
         val damges = ArrayList<Int>()
 
         for (atk in atks) {
@@ -653,7 +508,6 @@ class GetStrings(private val c: Context) {
                 ((atk.atk * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt()
             damges.add(result)
         }
-
         val result = StringBuilder("(")
         for (i in damges.indices) {
             if (i < damges.size - 1) result.append(damges[i]).append(", ")
@@ -780,16 +634,13 @@ class GetStrings(private val c: Context) {
             data.layer_0.toString() + " ~ " + data.layer_1
     }
 
-    fun getRespawn(data: SCDef.Line, frse: Boolean): String {
+    fun getRespawn(data: SCDef.Line, frame: Boolean): String {
         return if (data.respawn_0 == data.respawn_1)
-            if (frse)
-                data.respawn_0.toString() + "f"
-            else
-                DecimalFormat("#.##").format(data.respawn_0.toFloat() / 30.toDouble()) + "s"
-        else if (frse)
+            if (frame) data.respawn_0.toString() + "f"
+            else DecimalFormat("#.##").format(data.respawn_0.toFloat() / 30.toDouble()) + "s"
+        else if (frame)
             data.respawn_0.toString() + "f ~ " + data.respawn_1 + "f"
-        else
-            DecimalFormat("#.##").format(data.respawn_0.toFloat() / 30.toDouble()) + "s ~ " + DecimalFormat("#.##").format(data.respawn_1.toFloat() / 30.toDouble()) + "s"
+        else DecimalFormat("#.##").format(data.respawn_0.toFloat() / 30.toDouble()) + "s ~ " + DecimalFormat("#.##").format(data.respawn_1.toFloat() / 30.toDouble()) + "s"
     }
 
     fun getBaseHealth(data: SCDef.Line): String {
@@ -818,22 +669,22 @@ class GetStrings(private val c: Context) {
             DecimalFormat("#.##").format(data.spawn_0.toFloat() / 30.toDouble()) + "s"
     }
 
-    fun getLimit(l: Limit?): Array<String> {
+    fun getLimit(l: Limit?): LinkedHashMap<String, String> {
         if (l == null)
-            return arrayOf("")
+            return LinkedHashMap()
 
-        val limits: MutableList<String> = ArrayList()
+        val limits: LinkedHashMap<String, String> = LinkedHashMap()
         if (l.line != 0) {
             val result = c.getString(R.string.limit_line) + " : " + c.getString(R.string.limit_line2)
-            limits.add(result)
+            limits[c.getString(R.string.limit_line)] = result
         }
         if (l.max != 0) {
             val result = c.getString(R.string.limit_max) + " : " + c.getString(R.string.limit_max2).replace("_", l.max.toString())
-            limits.add(result)
+            limits[c.getString(R.string.limit_max)] = result
         }
         if (l.min != 0) {
             val result = c.getString(R.string.limit_min) + " : " + c.getString(R.string.limit_min2).replace("_", l.min.toString())
-            limits.add(result)
+            limits[c.getString(R.string.limit_min)] = result
         }
         if (l.rare != 0) {
             val rid = intArrayOf(R.string.sch_rare_ba, R.string.sch_rare_ex, R.string.sch_rare_ra, R.string.sch_rare_sr, R.string.sch_rare_ur, R.string.sch_rare_lr)
@@ -845,11 +696,11 @@ class GetStrings(private val c: Context) {
             }
 
             val result = c.getString(R.string.limit_rare) + " : " + rare.toString().substring(0, rare.length - 2)
-            limits.add(result)
+            limits[c.getString(R.string.limit_rare)] = result
         }
         if (l.num != 0) {
             val result = c.getString(R.string.limit_deploy) + " : " + l.num
-            limits.add(result)
+            limits[c.getString(R.string.limit_deploy)] = result
         }
         if (l.group != null && l.group.fset.size != 0) {
             val units = StringBuilder()
@@ -871,10 +722,44 @@ class GetStrings(private val c: Context) {
                 c.getString(R.string.limit_chra) + " : " + c.getString(R.string.limit_chra1).replace("_", units.toString())
             else
                 c.getString(R.string.limit_chra) + " : " + c.getString(R.string.limit_chra2).replace("_", units.toString())
-
-            limits.add(result)
+            val key = c.getString(R.string.limit_chra) + " : " + l.group.toString()
+            limits[key] = result
         }
-        return limits.toTypedArray()
+        if (l.stageLimit?.isBlank == false) {
+            if (l.stageLimit.maxMoney != 0)
+                limits[c.getString(R.string.limit_bank)] = c.getString(R.string.limit_bank) + " : " + l.stageLimit.maxMoney
+            if (l.stageLimit.globalCooldown != 0)
+                limits[c.getString(R.string.limit_uvcd)] = c.getString(R.string.limit_uvcd) + " : " + l.stageLimit.globalCooldown
+            if (l.stageLimit.coolStart)
+                limits[c.getString(R.string.limit_inicd)] = c.getString(R.string.limit_inicd)//lol, lmao even
+            if (l.stageLimit.bannedCatCombo.isNotEmpty()) {
+                val str = StringBuilder(c.getString(R.string.limit_banco)).append(" : ")
+                for (i in l.stageLimit.bannedCatCombo.indices) {
+                    str.append(c.getString(StaticStore.comnames[i]))
+                    if (i < l.stageLimit.bannedCatCombo.size - 1)
+                        str.append(", ")
+                }
+                limits[c.getString(R.string.limit_banco)] = str.toString()
+            }
+            if (!l.stageLimit.defCD() || !l.stageLimit.defMoney()) {
+                val rid = intArrayOf(R.string.sch_rare_ba, R.string.sch_rare_ex, R.string.sch_rare_ra, R.string.sch_rare_sr, R.string.sch_rare_ur, R.string.sch_rare_lr)
+                if (!l.stageLimit.defMoney()) {
+                    val str = StringBuilder(c.getString(R.string.limit_rcos)).append(": [")
+                    for (i in rid.indices)
+                        if (l.stageLimit.costMultiplier[i] != 100)
+                            str.append(c.getString(rid[i])).append(" : ").append(l.stageLimit.costMultiplier[i]).append("%, ")
+                    limits[c.getString(R.string.limit_rcos)] = str.substring(0, str.length - 2) + "]"
+                }
+                if (!l.stageLimit.defCD()) {
+                    val str = StringBuilder(c.getString(R.string.limit_rcoo)).append(" : [")
+                    for (i in rid.indices)
+                        if (l.stageLimit.cooldownMultiplier[i] != 100)
+                            str.append(c.getString(rid[i])).append(": ").append(l.stageLimit.cooldownMultiplier[i]).append("%, ")
+                    limits[c.getString(R.string.limit_rcoo)] = str.substring(0, str.length - 2) + "]"
+                }
+            }
+        }
+        return limits
     }
 
     fun getXP(xp: Int, t: Treasure?, legend: Boolean): String {

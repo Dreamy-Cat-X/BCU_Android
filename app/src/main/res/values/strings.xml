@@ -1047,4 +1047,10 @@
     <string name="info_prev_hit">Previous Atk</string>
     <string name="info_next_hit">Next Atk</string>
     <string name="info_current_hit">Attack Pattern #_</string>
+    <string name="limit_bank">Total Bank</string>
+    <string name="limit_uvcd">Cat Cooldown</string>
+    <string name="limit_inicd">Start on Cooldown</string>
+    <string name="limit_banco">Banned CatCombos</string>
+    <string name="limit_rcos">Cost Multipliers</string>
+    <string name="limit_rcoo">CD Multipliers</string>
 </resources>

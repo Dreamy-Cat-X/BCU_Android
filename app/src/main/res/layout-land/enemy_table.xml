@@ -634,7 +634,7 @@
                 android:background="@drawable/button_shape"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
-                android:text="@string/info_prev_hit"
+                android:text="@string/info_next_hit"
                 android:textAllCaps="false"
                 android:textColor="?attr/TextPrimary"
                 android:textStyle="bold" />

@@ -193,9 +193,9 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         viewHolder.enematktime.text = s.getAtkTime(em, fs == 0, catk)
         viewHolder.enemabilt.text = s.getAbilT(em, catk)
         viewHolder.enempre.text = s.getPre(em, fs, catk)
-        viewHolder.enempost.text = s.getPost(em, fs, catk)
+        viewHolder.enempost.text = s.getPost(em, fs == 0, catk)
 
-        viewHolder.enemtba.text = s.getTBA(em, fs)
+        viewHolder.enemtba.text = s.getTBA(em, fs == 0)
         viewHolder.enemdrop.text = s.getDrop(em, t)
 
         aclevt.setText(t.tech[1].toString())
@@ -324,17 +324,11 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         }
 
         viewHolder.enempostb.setOnClickListener {
-            if (viewHolder.enempost.text.toString().endsWith("f"))
-                viewHolder.enempost.text = s.getPost(em, 1, catk)
-            else
-                viewHolder.enempost.text = s.getPost(em, 0, catk)
+            viewHolder.enempost.text = s.getPost(em, !viewHolder.enempost.text.toString().endsWith("f"), catk)
         }
 
         viewHolder.enemtbab.setOnClickListener {
-            if (viewHolder.enemtba.text.toString().endsWith("f"))
-                viewHolder.enemtba.text = s.getTBA(em, 1)
-            else
-                viewHolder.enemtba.text = s.getTBA(em, 0)
+            viewHolder.enemtba.text = s.getTBA(em, !viewHolder.enemtba.text.toString().endsWith("f"))
         }
 
         aclevt.setSelection(aclevt.text?.length ?: 0)
@@ -637,7 +631,7 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
             s.getDPS(em, attackMultiplication, catk) else s.getAtk(em, attackMultiplication, catk)
         viewHolder.enematkt.text = s.getSimu(em, catk)
 
-        viewHolder.curatk.text = activity.getString(R.string.info_current_hit).replace("_", (catk+1).toString())
+        viewHolder.curatk.text = activity.getString(R.string.info_current_hit).replace("_", (catk-em.de.firstAtk()+1).toString())
         viewHolder.nextatk.isEnabled = catk < em.de.realAtkCount() - 1
         viewHolder.prevatk.isEnabled = catk > em.de.firstAtk()
 
@@ -656,8 +650,8 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
     private fun retime(viewHolder: ViewHolder, em: Enemy) {
         viewHolder.enematktime.text = s.getAtkTime(em, fs == 0, catk)
         viewHolder.enempre.text = s.getPre(em, fs, catk)
-        viewHolder.enempost.text = s.getPost(em, fs, catk)
-        viewHolder.enemtba.text = s.getTBA(em, fs)
+        viewHolder.enempost.text = s.getPost(em, fs == 0, catk)
+        viewHolder.enemtba.text = s.getTBA(em, fs == 0)
 
         setAbi(viewHolder, em)
     }

@@ -118,35 +118,28 @@ class LUUnitSetting : Fragment() {
                 val max = f.du.pCoin.max
 
                 for(i in f.du.pCoin.info.indices) {
-                    if(f.du.pCoin.getReqLv(i) > 0)
-                        superTalentIndex.add(i)
-                    else
-                        talentIndex.add(i)
+                    if(f.du.pCoin.getReqLv(i) > 0) superTalentIndex.add(i)
+                    else talentIndex.add(i)
                 }
 
                 talent = Array(talentIndex.size) {
                     val spin = Spinner(context)
-
                     val param = TableRow.LayoutParams(0, StaticStore.dptopx(56f, context), (1.0 / (talentIndex.size)).toFloat())
 
                     spin.layoutParams = param
                     spin.setPopupBackgroundResource(R.drawable.spinner_popup)
                     spin.setBackgroundResource(androidx.appcompat.R.drawable.abc_spinner_mtrl_am_alpha)
-
                     tal.addView(spin)
 
                     spin
                 }
-
                 superTalent = Array(superTalentIndex.size) {
                     val spin = Spinner(context)
-
                     val param = TableRow.LayoutParams(0, StaticStore.dptopx(56f, context), (1.0 / (superTalentIndex.size)).toFloat())
 
                     spin.layoutParams = param
                     spin.setPopupBackgroundResource(R.drawable.spinner_popup)
                     spin.setBackgroundResource(androidx.appcompat.R.drawable.abc_spinner_mtrl_am_alpha)
-
                     supernprow.addView(spin)
 
                     spin
@@ -157,37 +150,18 @@ class LUUnitSetting : Fragment() {
                         talent[i].isEnabled = false
                         continue
                     }
-
                     val talentLevels = ArrayList<Int>()
-
                     for(j in 0 until max[talentIndex[i]] + 1)
                         talentLevels.add(j)
 
                     val adapter = ArrayAdapter(requireContext(), R.layout.spinneradapter, talentLevels)
-
                     talent[i].adapter = adapter
                     talent[i].setSelection(getIndex(talent[i], level.talents[talentIndex[i]]))
 
                     talent[i].onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                         override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
-                            level.talents[talentIndex[i]] = position
-
-                            if (t.isChecked) {
-                                hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                                atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                            } else {
-                                removePCoin()
-                                hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                                atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                            }
-
-                            BasisSet.current().sele.lu.setLv(f.unit, level)
-
-                            if(this@LUUnitSetting::line.isInitialized) {
-                                line.updateUnitOrb()
-                            }
+                            setTalents(talentIndex[i], position, t, hp, atk, s)
                         }
-
                         override fun onNothingSelected(parent: AdapterView<*>) {}
                     }
                 }
@@ -197,35 +171,17 @@ class LUUnitSetting : Fragment() {
                         superTalent[i].isEnabled = false
                         continue
                     }
-
                     val superTalentLevels = java.util.ArrayList<Int>()
-
                     for(j in 0 until max[superTalentIndex[i]] + 1)
                         superTalentLevels.add(j)
 
                     val adapter = ArrayAdapter(requireContext(), R.layout.spinneradapter, superTalentLevels)
-
                     superTalent[i].adapter = adapter
                     superTalent[i].setSelection(getIndex(superTalent[i], level.talents[superTalentIndex[i]]))
 
                     superTalent[i].onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                         override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
-                            level.talents[superTalentIndex[i]] = position
-
-                            if (t.isChecked) {
-                                hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                                atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                            } else {
-                                removePCoin()
-                                hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                                atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                            }
-
-                            BasisSet.current().sele.lu.setLv(f.unit, level)
-
-                            if(this@LUUnitSetting::line.isInitialized) {
-                                line.updateUnitOrb()
-                            }
+                            setTalents(superTalentIndex[i], position, t, hp, atk, s)
                         }
 
                         override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -258,133 +214,66 @@ class LUUnitSetting : Fragment() {
             })
 
             val levels = ArrayList<Int>()
-            val plusLevels = ArrayList<Int>()
-
             for (i in 1 until (f.unit.max) + 1)
                 levels.add(i)
 
-            for (i in 0 until (f.unit.maxp) + 1)
-                plusLevels.add(i)
-
             val adapter = ArrayAdapter(requireContext(), R.layout.spinneradapter, levels)
-            val adapter1 = ArrayAdapter(requireContext(), R.layout.spinneradapter, plusLevels)
-
             spinners[0].adapter = adapter
-            spinners[1].adapter = adapter1
-
             spinners[0].setSelection(getIndex(spinners[0], BasisSet.current().sele.lu.getLv(f).lv))
-            spinners[1].setSelection(getIndex(spinners[1], BasisSet.current().sele.lu.getLv(f).plusLv))
-
             spinners[0].onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
                     val lev = (spinners[0].selectedItem ?: 1) as Int
                     val levp = (spinners[1].selectedItem ?: 0) as Int
-
                     level.setLevel(lev)
 
-                    if (t.isChecked) {
-                        hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                        atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                    } else {
-                        removePCoin()
-                        hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                        atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                    }
-
-                    BasisSet.current().sele.lu.setLv(f.unit, level)
-
-                    if(this@LUUnitSetting::line.isInitialized) {
-                        line.updateUnitOrb()
-                    }
-
-                    if(CommonStatic.getConfig().realLevel) {
-                        for(i in superTalent.indices) {
+                    if(CommonStatic.getConfig().realLevel)
+                        for(i in superTalent.indices)
                             changeSpinner(superTalent[i], lev + levp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
-                        }
-                    }
+                    setAtkText(t, hp, atk, s)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>) {}
             }
+            val plusLevels = ArrayList<Int>()
+            for (i in 0 until (f.unit.maxp) + 1)
+                plusLevels.add(i)
 
+            val adapter1 = ArrayAdapter(requireContext(), R.layout.spinneradapter, plusLevels)
+            spinners[1].adapter = adapter1
+            spinners[1].setSelection(getIndex(spinners[1], BasisSet.current().sele.lu.getLv(f).plusLv))
             spinners[1].onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
                     val lev = (spinners[0].selectedItem ?: 1) as Int
                     val levp = (spinners[1].selectedItem ?: 0) as Int
-
                     level.setPlusLevel(levp)
 
-                    if (t.isChecked) {
-                        hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                        atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                    } else {
-                        removePCoin()
-                        hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                        atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                    }
-
-                    if(CommonStatic.getConfig().realLevel) {
-                        for(i in superTalent.indices) {
+                    if(CommonStatic.getConfig().realLevel)
+                        for(i in superTalent.indices)
                             changeSpinner(superTalent[i], lev + levp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
-                        }
-                    }
-
-                    BasisSet.current().sele.lu.setLv(f.unit, level)
+                    setAtkText(t, hp, atk, s)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>) {}
             }
-
             hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-            atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
+            atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level, f.du.firstAtk())
 
             t.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    val anim = ScaleAnimator(tal, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, 0, StaticStore.dptopx(64f, requireContext()))
-                    anim.start()
+                val siz = StaticStore.dptopx(64f, requireContext())
+                val from = if (isChecked) 0 else siz
+                val to = siz - from
 
-                    if(superTalentIndex.isNotEmpty()) {
-                        val anim2 = ScaleAnimator(supernprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, 0, StaticStore.dptopx(64f, requireContext()))
-                        anim2.start()
-                    }
-
-                    val lev = (spinners[0].selectedItem ?: 1) as Int
-                    val levp1 = (spinners[1].selectedItem ?: 0) as Int
-
-                    level.setLevel(lev)
-                    level.setPlusLevel(levp1)
-
-                    BasisSet.current().sele.lu.setLv(f.unit, level)
-
-                    if(this::line.isInitialized) {
-                        line.updateUnitOrb()
-                    }
-
-                    hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                    atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                } else {
-                    val anim = ScaleAnimator(tal, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, StaticStore.dptopx(64f, requireContext()), 0)
-                    anim.start()
-
-                    if(superTalentIndex.isNotEmpty()) {
-                        val anim2 = ScaleAnimator(supernprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, StaticStore.dptopx(64f, requireContext()), 0)
-                        anim2.start()
-                    }
-
-                    val lev = (spinners[0].selectedItem ?: 1) as Int
-                    val levp1 = (spinners[1].selectedItem ?: 0) as Int
-
-                    level.setLevel(lev)
-                    level.setPlusLevel(levp1)
-
-                    removePCoin()
-
-                    BasisSet.current().sele.lu.setLv(f.unit, level)
-                    line.updateUnitOrb()
-
-                    hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                    atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
+                val anim = ScaleAnimator(tal, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, from, to)
+                anim.start()
+                if(superTalentIndex.isNotEmpty()) {
+                    val anim2 = ScaleAnimator(supernprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, from, to)
+                    anim2.start()
                 }
+                val lev = (spinners[0].selectedItem ?: 1) as Int
+                val levp1 = (spinners[1].selectedItem ?: 0) as Int
+                level.setLevel(lev)
+                level.setPlusLevel(levp1)
+                setAtkText(t, hp, atk, s)
             }
 
             if (f.du.pCoin != null) {
@@ -435,7 +324,7 @@ class LUUnitSetting : Fragment() {
                 f = this.f ?: return@setOnClickListener
 
                 hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
+                atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level, f.du.firstAtk())
 
                 if (f.du.pCoin == null) {
                     setDisappear(t, tal, supernprow)
@@ -446,92 +335,47 @@ class LUUnitSetting : Fragment() {
                         setAppear(supernprow)
 
                     val max = f.du.pCoin.max
-
                     for(i in talentIndex.indices) {
                         if (talentIndex[i] >= max.size)
                             println("Max : ${max.contentToString()} | Talent Index : $talentIndex | Super Talent Index : $superTalentIndex\nUnit : $f - ${f.uid}")
 
                         val list = ArrayList<Int>()
-
                         for (j in 0 until max[talentIndex[i]] + 1)
                             list.add(j)
 
                         val adapter2 = ArrayAdapter(requireContext(), R.layout.spinneradapter, list)
-
                         talent[i].adapter = adapter2
-
                         talent[i].setSelection(getIndex(talent[i], level.talents[talentIndex[i]]))
-
                         talent[i].setOnLongClickListener {
                             talent[i].isClickable = false
                             StaticStore.showShortMessage(context, s.getTalentName(talentIndex[i], f, requireActivity()))
-
                             true
                         }
-
                         talent[i].onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                             override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
-                                level.talents[talentIndex[i]] = position
-
-                                if (t.isChecked) {
-                                    hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                                    atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                                } else {
-                                    removePCoin()
-                                    hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                                    atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                                }
-
-                                BasisSet.current().sele.lu.setLv(f.unit, level)
-
-                                if(this@LUUnitSetting::line.isInitialized) {
-                                    line.updateUnitOrb()
-                                }
+                                setTalents(talentIndex[i], position, t, hp, atk, s)
                             }
-
                             override fun onNothingSelected(parent: AdapterView<*>) {}
                         }
                     }
 
                     for(i in superTalent.indices) {
                         val list = ArrayList<Int>()
-
                         for (j in 0 until max[superTalentIndex[i]] + 1)
                             list.add(j)
 
                         val adapter2 = ArrayAdapter(requireContext(), R.layout.spinneradapter, list)
-
                         superTalent[i].adapter = adapter2
-
                         superTalent[i].setSelection(getIndex(superTalent[i], level.talents[superTalentIndex[i]]))
-
                         superTalent[i].setOnLongClickListener {
                             superTalent[i].isClickable = false
                             StaticStore.showShortMessage(context, s.getTalentName(superTalentIndex[i], f, requireActivity()))
-
                             true
                         }
-
                         superTalent[i].onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                             override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
-                                level.talents[superTalentIndex[i]] = position
-
-                                if (t.isChecked) {
-                                    hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                                    atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                                } else {
-                                    removePCoin()
-                                    hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                                    atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                                }
-
-                                BasisSet.current().sele.lu.setLv(f.unit, level)
-
-                                if(this@LUUnitSetting::line.isInitialized) {
-                                    line.updateUnitOrb()
-                                }
+                                setTalents(superTalentIndex[i], position, t, hp, atk, s)
                             }
-
                             override fun onNothingSelected(parent: AdapterView<*>) {}
                         }
 
@@ -542,25 +386,19 @@ class LUUnitSetting : Fragment() {
 
                     if (allZero(level.talents)) {
                         t.isChecked = false
-
                         val params = tal.layoutParams
                         params.height = 0
-
                         tal.layoutParams = params
 
                         if(supernprow.visibility == View.VISIBLE) {
                             val superParams = supernprow.layoutParams
                             superParams.height = 0
-
                             supernprow.layoutParams = superParams
                         }
-                    } else {
+                    } else
                         t.isChecked = true
-                    }
                 }
-
                 line.invalidate()
-
                 line.updateUnitOrb()
             }
         }
@@ -613,6 +451,26 @@ class LUUnitSetting : Fragment() {
 
         if(spinner.childCount >= 1 && spinner.getChildAt(0) is AutoMarquee) {
             (spinner.getChildAt(0) as AutoMarquee).setTextColor((spinner.getChildAt(0) as AutoMarquee).textColors.withAlpha(if(enable) 255 else 64))
+        }
+    }
+
+    private fun setTalents(position : Int, value : Int, t : CheckBox, hp : TextView, atk : TextView, s : GetStrings) {
+        level.talents[position] = value
+        setAtkText(t, hp, atk, s)
+    }
+
+    private fun setAtkText(t : CheckBox, hp : TextView, atk : TextView, s : GetStrings) {
+        BasisSet.current().sele.lu.setLv(f?.unit, level)
+        if(this@LUUnitSetting::line.isInitialized)
+            line.updateUnitOrb()
+
+        if (t.isChecked) {
+            hp.text = s.getHP(f, BasisSet.current().t(), f?.du?.pCoin != null && t.isChecked, level)
+            atk.text = s.getAtk(f, BasisSet.current().t(), f?.du?.pCoin != null && t.isChecked, level, f?.du?.firstAtk() ?: 0)
+        } else {
+            removePCoin()
+            hp.text = s.getHP(f, BasisSet.current().t(), f?.du?.pCoin != null && t.isChecked, level)
+            atk.text = s.getAtk(f, BasisSet.current().t(), f?.du?.pCoin != null && t.isChecked, level, f?.du?.firstAtk() ?: 0)
         }
     }
 }

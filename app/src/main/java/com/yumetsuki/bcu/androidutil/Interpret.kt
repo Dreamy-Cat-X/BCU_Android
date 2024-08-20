@@ -38,7 +38,7 @@ object Interpret : Data() {
     /**
      * ability name
      */
-    val ABIS = intArrayOf(R.string.sch_abi_ao, R.string.sch_abi_me, R.string.abi_isnk, R.string.abi_istt, R.string.abi_gh, R.string.sch_abi_zk, R.string.sch_abi_wk, R.string.abi_sui, R.string.abi_ithch, R.string.sch_abi_eva, R.string.abi_iboswv, R.string.sch_abi_bk, R.string.sch_abi_ck, R.string.sch_abi_cs, R.string.sch_abi_sh)
+    val ABIS = intArrayOf(R.string.sch_abi_ao, R.string.sch_abi_me, R.string.abi_isnk, R.string.abi_istt, R.string.abi_gh, R.string.sch_abi_zk, R.string.sch_abi_wk, R.string.abi_sui, R.string.abi_ithch, R.string.sch_abi_eva, R.string.abi_iboswv, R.string.sch_abi_bk, R.string.sch_abi_ck, R.string.sch_abi_sh)
 
     /**
      * Additional ability description

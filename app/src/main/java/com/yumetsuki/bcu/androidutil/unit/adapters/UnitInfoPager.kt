@@ -213,18 +213,18 @@ class UnitInfoPager : Fragment() {
         unitid.text = s.getID(form, StaticStore.trio(u.id.id))
         unithp.text = s.getHP(f, t, false, level)
         unithb.text = s.getHB(f, false, level)
-        unitatk.text = s.getTotAtk(f, t, false, level)
+        unitatk.text = s.getTotAtk(f, t, false, level, catk)
         unittrait.text = s.getTrait(f, false, level, activity)
         unitcost.text = s.getCost(f, false, level)
         unitsimu.text = s.getSimu(f, catk)
         unitspd.text = s.getSpd(f, false, level)
         unitcd.text = s.getCD(f, t, fs, false, level)
         unitrang.text = s.getRange(f, catk, false, level)
-        unitpreatk.text = s.getPre(f, fs)
-        unitpost.text = s.getPost(f, fs)
+        unitpreatk.text = s.getPre(f, fs, catk)
+        unitpost.text = s.getPost(f, fs == 0, catk)
         unittba.text = s.getTBA(f, talents, fs, level)
-        unitatkt.text = s.getAtkTime(f, talents, fs, level)
-        unitabilt.text = s.getAbilT(f)
+        unitatkt.text = s.getAtkTime(f, talents, fs, level, catk)
+        unitabilt.text = s.getAbilT(f, catk)
 
         if (ability.isNotEmpty() || proc.isNotEmpty()) {
             none.visibility = View.GONE
@@ -452,10 +452,10 @@ class UnitInfoPager : Fragment() {
                 fs = 1
 
                 unitcd.text = s.getCD(f, t, fs, talents, level)
-                unitpreatk.text = s.getPre(f, fs)
-                unitpost.text = s.getPost(f, fs)
+                unitpreatk.text = s.getPre(f, fs, catk)
+                unitpost.text = s.getPost(f, fs == 0, catk)
                 unittba.text = s.getTBA(f, talents, fs, level)
-                unitatkt.text = s.getAtkTime(f, talents, fs, level)
+                unitatkt.text = s.getAtkTime(f, talents, fs, level, catk)
                 frse.text = activity.getString(R.string.unit_info_sec)
 
                 if (unitabil.visibility != View.GONE) {
@@ -487,10 +487,10 @@ class UnitInfoPager : Fragment() {
                 fs = 0
 
                 unitcd.text = s.getCD(f, t, fs, talents, level)
-                unitpreatk.text = s.getPre(f, fs)
-                unitpost.text = s.getPost(f, fs)
+                unitpreatk.text = s.getPre(f, fs, catk)
+                unitpost.text = s.getPost(f, fs == 0, catk)
                 unittba.text = s.getTBA(f, talents, fs, level)
-                unitatkt.text = s.getAtkTime(f, talents, fs, level)
+                unitatkt.text = s.getAtkTime(f, talents, fs, level, catk)
                 frse.text = activity.getString(R.string.unit_info_fr)
 
                 if (unitabil.visibility != View.GONE) {
@@ -532,16 +532,13 @@ class UnitInfoPager : Fragment() {
 
         unitpreatkb.setOnClickListener {
             if (unitpreatk.text.toString().endsWith("f"))
-                unitpreatk.text = s.getPre(f, 1)
+                unitpreatk.text = s.getPre(f, 1, catk)
             else
-                unitpreatk.text = s.getPre(f, 0)
+                unitpreatk.text = s.getPre(f, 0, catk)
         }
 
         unitpostb.setOnClickListener {
-            if (unitpost.text.toString().endsWith("f"))
-                unitpost.text = s.getPost(f, 1)
-            else
-                unitpost.text = s.getPost(f, 0)
+            unitpost.text = s.getPost(f, !unitpost.text.toString().endsWith("f"), catk)
         }
 
         unittbab.setOnClickListener {
@@ -554,18 +551,18 @@ class UnitInfoPager : Fragment() {
         unitatkb.setOnClickListener {
             if (unitatkb.text == activity.getString(R.string.unit_info_atk)) {
                 unitatkb.text = activity.getString(R.string.unit_info_dps)
-                unitatk.text = s.getDPS(f, t, talents, level)
+                unitatk.text = s.getDPS(f, t, talents, level, catk)
             } else {
                 unitatkb.text = activity.getString(R.string.unit_info_atk)
-                unitatk.text = s.getAtk(f, t, talents, level)
+                unitatk.text = s.getAtk(f, t, talents, level, catk)
             }
         }
 
         unitatktb.setOnClickListener {
             if (unitatkt.text.toString().endsWith("f"))
-                unitatkt.text = s.getAtkTime(f, talents, 1, level)
+                unitatkt.text = s.getAtkTime(f, talents, 1, level, catk)
             else
-                unitatkt.text = s.getAtkTime(f, talents, 0, level)
+                unitatkt.text = s.getAtkTime(f, talents, 0, level, catk)
         }
 
         unitlevel.onItemSelectedListener = object : OnItemSelectedListener {
@@ -579,14 +576,14 @@ class UnitInfoPager : Fragment() {
 
                 if (f.du.getAtks(0).size > 1) {//TODO - Atks
                     if (unitatkb.text == activity.getString(R.string.unit_info_atk))
-                        unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level)
+                        unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level, catk)
                     else
-                        unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level)
+                        unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level, catk)
                 } else {
                     if (unitatkb.text == activity.getString(R.string.unit_info_atk))
-                        unitatk.text = s.getTotAtk(f, t, talents, this@UnitInfoPager.level)
+                        unitatk.text = s.getTotAtk(f, t, talents, this@UnitInfoPager.level, catk)
                     else
-                        unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level)
+                        unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level, catk)
                 }
 
                 if(CommonStatic.getConfig().realLevel) {
@@ -612,14 +609,14 @@ class UnitInfoPager : Fragment() {
 
                 if (f.du.getAtks(0).size > 1) {//TODO - Multi-Atks
                     if (unitatkb.text == activity.getString(R.string.unit_info_atk))
-                        unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level)
+                        unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level, catk)
                     else
-                        unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level)
+                        unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level, catk)
                 } else {
                     if (unitatkb.text == activity.getString(R.string.unit_info_atk))
-                        unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level)
+                        unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level, catk)
                     else
-                        unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level)
+                        unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level, catk)
                 }
 
                 if(CommonStatic.getConfig().realLevel) {
@@ -782,18 +779,18 @@ class UnitInfoPager : Fragment() {
                         t.trea[0] = text.toString().toInt()
 
                         if (unitatkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                            unitatk.text = s.getDPS(f, t, talents, level)
+                            unitatk.text = s.getDPS(f, t, talents, level, catk)
                         } else {
-                            unitatk.text = s.getAtk(f, t, talents, level)
+                            unitatk.text = s.getAtk(f, t, talents, level, catk)
                         }
                     }
                 } else {
                     t.trea[0] = 0
 
                     if (unitatkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                        unitatk.text = s.getDPS(f, t, talents, level)
+                        unitatk.text = s.getDPS(f, t, talents, level, catk)
                     } else {
-                        unitatk.text = s.getAtk(f, t, talents, level)
+                        unitatk.text = s.getAtk(f, t, talents, level, catk)
                     }
                 }
             }
@@ -862,9 +859,9 @@ class UnitInfoPager : Fragment() {
             }
 
             if (unitatkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                unitatk.text = s.getDPS(f, t, talents, level)
+                unitatk.text = s.getDPS(f, t, talents, level, catk)
             } else {
-                unitatk.text = s.getAtk(f, t, talents, level)
+                unitatk.text = s.getAtk(f, t, talents, level, catk)
             }
 
             unithp.text = s.getHP(f, t, talents, level)
@@ -987,9 +984,9 @@ class UnitInfoPager : Fragment() {
         unithb.text = s.getHB(f, talents, this.level)
 
         if (unitatkb.text.toString() == "DPS")
-            unitatk.text = s.getDPS(f, t, talents, this.level)
+            unitatk.text = s.getDPS(f, t, talents, this.level, catk)
         else
-            unitatk.text = s.getAtk(f, t, talents, this.level)
+            unitatk.text = s.getAtk(f, t, talents, this.level, catk)
 
         unitcost.text = s.getCost(f, talents, this.level)
 
@@ -1001,7 +998,7 @@ class UnitInfoPager : Fragment() {
         unittrait.text = s.getTrait(f, talents, this.level, activity)
         unitspd.text = s.getSpd(f, talents, this.level)
         unittba.text = s.getTBA(f, talents, fs, this.level)
-        unitatkt.text = s.getAtkTime(f, talents, fs, this.level)
+        unitatkt.text = s.getAtkTime(f, talents, fs, this.level, catk)
 
         val du: MaskUnit = if (f.du.pCoin != null && talents)
             f.du.pCoin.improve(this.level.talents)

@@ -65,50 +65,41 @@ class AnimationCView(
     init {
         when(type) {
             AnimationType.ENEMY -> {
-                if(data !is Identifier<*> || !AbEnemy::class.java.isAssignableFrom(data.cls)) {
+                if(data !is Identifier<*> || !AbEnemy::class.java.isAssignableFrom(data.cls))
                     throw IllegalStateException("Invalid data type : ${data::class.java.name} in AnimationCView with type $type")
-                }
-
                 this.data = data
             }
             AnimationType.UNIT -> {
-                if(data !is Identifier<*> || !Unit::class.java.isAssignableFrom(data.cls)) {
+                if(data !is Identifier<*> || !Unit::class.java.isAssignableFrom(data.cls))
                     throw IllegalStateException("Invalid data type : ${data::class.java.name} in AnimationCView with type $type")
-                }
-
                 this.data = data
             }
             AnimationType.EFFECT -> {
                 if(data !is EffAnim<*>)
                     throw IllegalStateException("Invalid data type : ${data::class.java.name} in AnimationCView with type $type")
-
                 this.data = data
             }
             AnimationType.SOUL -> {
                 if(data !is Soul)
                     throw IllegalStateException("Invalid data type : ${data::class.java.name} in AnimationCView with type $type")
-
                 this.data = data
             }
             AnimationType.CANNON -> {
                 if(data !is NyCastle)
                     throw IllegalStateException("Invalid data type : ${data::class.java.name} in AnimationCView with type $type")
-
                 this.data = data
             }
             AnimationType.DEMON_SOUL -> {
                 if(data !is DemonSoul)
                     throw IllegalStateException("Invalid data type : ${data::class.java.name} in AnimationCView with type $type")
-
                 this.data = data
             }
         }
 
         this.anim = if (type == AnimationType.UNIT) {
             StaticJava.generateEAnimD(data, dataId, 0)
-        } else {
+        } else
             StaticJava.generateEAnimD(data , 0, 0)
-        }
 
         CommonStatic.getConfig().ref = axis
 

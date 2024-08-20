@@ -459,9 +459,7 @@ class ImageViewer : AppCompatActivity() {
                     })
 
                     val name = generateNames(content)
-
                     val adapter = ArrayAdapter(this@ImageViewer, R.layout.spinneradapter, name)
-
                     anims.adapter = adapter
 
                     cView.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
@@ -478,10 +476,8 @@ class ImageViewer : AppCompatActivity() {
                         u.forms.forEach { f -> f.anim.load() }
 
                         val formAdapter = ArrayAdapter(this@ImageViewer, R.layout.spinneradapter, u.forms.map {
-                            f -> if (content.pack == Identifier.DEF)
-                                "Default-${content.id}-${f.fid}"
-                            else
-                                "${content.pack}-${content.id}-${f.fid}"
+                            f -> if (content.pack == Identifier.DEF) "${getString(R.string.pack_default)}-${content.id}-${f.fid}"
+                            else "${content.pack}-${content.id}-${f.fid}"
                         })
 
                         forms.adapter = formAdapter
@@ -496,9 +492,9 @@ class ImageViewer : AppCompatActivity() {
 
                                     controller.max = if (CommonStatic.getConfig().fps60) {
                                         (max - 1) * 2
-                                    } else {
+                                    } else
                                         max - 1
-                                    }
+
                                     controller.progress = 0
                                     StaticStore.frame = 0f
                                 }
@@ -516,14 +512,12 @@ class ImageViewer : AppCompatActivity() {
                                 StaticStore.animposition = position
 
                                 cView.anim = StaticJava.generateEAnimD(content, StaticStore.formposition, position)
-
                                 controller.max = if (CommonStatic.getConfig().fps60) {
                                     cView.anim.len() * 2
-                                } else {
+                                } else
                                     cView.anim.len()
-                                }
-                                controller.progress = 0
 
+                                controller.progress = 0
                                 StaticStore.frame = 0f
                             }
                         }
@@ -1038,15 +1032,9 @@ class ImageViewer : AppCompatActivity() {
                 val entity = content.get() ?: return res
 
                 val animationTypes = when (entity) {
-                    is Unit -> {
-                        entity.forms[0].anim.names()
-                    }
-                    is Enemy -> {
-                        entity.anim.names()
-                    }
-                    else -> {
-                        null
-                    }
+                    is Unit -> entity.forms[0].anim.names()
+                    is Enemy -> entity.anim.names()
+                    else -> null
                 } ?: return res
 
                 animationTypes.forEach { str ->
@@ -1054,25 +1042,21 @@ class ImageViewer : AppCompatActivity() {
                 }
             }
             is EffAnim<*> -> {
-                for(t in content.names()) {
+                for(t in content.names())
                     res.add(seekName(t))
-                }
             }
             is Soul -> {
                 res.add(seekName("default"))
             }
             is NyCastle -> {
-                for(t in content.names()) {
+                for(t in content.names())
                     res.add(seekName(t))
-                }
             }
             is DemonSoul -> {
-                for(t in content.anim.names()) {
+                for(t in content.anim.names())
                     res.add(seekName(t))
-                }
             }
         }
-
         return res
     }
 

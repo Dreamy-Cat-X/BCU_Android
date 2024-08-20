@@ -128,7 +128,6 @@ class EnemyInfo : AppCompatActivity() {
                         intent.putExtra("Data", JsonEncoder.encode(data).toString())
 
                         CommonStatic.getConfig().fps60 = shared.getBoolean("fps60", false)
-
                         startActivity(intent)
                     }
                 })
@@ -168,8 +167,7 @@ class EnemyInfo : AppCompatActivity() {
                     }
                 }
 
-                treasureLayout.setOnTouchListener { _, _ ->
-                    main.isClickable = false
+                treasureLayout.setOnTouchListener { _, _ -> main.isClickable = false
                     true
                 }
 
@@ -194,10 +192,8 @@ class EnemyInfo : AppCompatActivity() {
                     treasureLayout.translationX = -treasureLayout.width.toFloat()
                     treasureLayout.requestLayout()
                 }
-
-                if (MultiLangCont.getStatic().EEXP.getCont(e) != null || (e.id.pack != Identifier.DEF && e.description.toString().isNotBlank())) {
+                if (e.explanation.toString().isNotBlank())
                     StaticStore.setAppear(view1, view2, explanationTitle, viewPager)
-                }
 
                 StaticStore.setAppear(scrollView, enemyAnimation, treasure, back)
                 StaticStore.setDisappear(progression, st)

@@ -52,7 +52,7 @@ open class EnemySearchFilter : AppCompatActivity() {
         intArrayOf(R.string.sch_abi_ws, 1, Data.P_IMUWAVE.toInt(), 1), intArrayOf(R.string.sch_abi_impoi, 1, Data.P_IMUPOIATK.toInt()),intArrayOf(R.string.abi_bu, 1, Data.P_BURROW.toInt()), intArrayOf(R.string.abi_rev, 1, Data.P_REVIVE.toInt()),
         intArrayOf(R.string.sch_abi_sb, 1, Data.P_SATK.toInt()), intArrayOf(R.string.sch_abi_poi, 1, Data.P_POIATK.toInt()), intArrayOf(R.string.enem_info_barrier, 1, Data.P_BARRIER.toInt()),
         intArrayOf(R.string.sch_abi_ds, 1, Data.P_DEMONSHIELD.toInt()), intArrayOf(R.string.sch_abi_sd, 1, Data.P_DEATHSURGE.toInt()), intArrayOf(R.string.abi_sui, 0, Data.AB_GLASS.toInt()),
-        intArrayOf(R.string.abi_gh, 0, Data.AB_GHOST.toInt()), intArrayOf(R.string.abi_snk, 0, Data.P_SNIPER.toInt()), intArrayOf(R.string.abi_seal, 1, Data.P_SEAL.toInt()),
+        intArrayOf(R.string.abi_gh, 0, Data.AB_GHOST.toInt()), intArrayOf(R.string.abi_snk, 1, Data.P_SNIPER.toInt()), intArrayOf(R.string.abi_seal, 1, Data.P_SEAL.toInt()),
         intArrayOf(R.string.abi_stt, 1, Data.P_TIME.toInt()), intArrayOf(R.string.abi_sum, 1, Data.P_SUMMON.toInt()), intArrayOf(R.string.abi_mvatk, 1, Data.P_MOVEWAVE.toInt()),
         intArrayOf(R.string.abi_thch, 1, Data.P_THEME.toInt()), intArrayOf(R.string.abi_poi, 1, Data.P_POISON.toInt()), intArrayOf(R.string.abi_boswv, 1, Data.P_BOSS.toInt()),
         intArrayOf(R.string.abi_armbr, 1, Data.P_ARMOR.toInt()), intArrayOf(R.string.abi_hast, 1, Data.P_SPEED.toInt()), intArrayOf(R.string.sch_abi_ltg, 1, Data.P_LETHARGY.toInt()),

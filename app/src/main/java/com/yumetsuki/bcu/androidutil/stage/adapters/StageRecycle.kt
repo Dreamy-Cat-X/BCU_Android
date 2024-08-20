@@ -359,9 +359,8 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
                 viewHolder.scorerow.visibility = View.GONE
                 viewHolder.scorescroll.visibility = View.GONE
             }
-            if (st.info is DefStageInfo && (st.info as DefStageInfo).drop.isEmpty() && (st.info as DefStageInfo).time.isEmpty()) {
+            if ((st.info is DefStageInfo && (st.info as DefStageInfo).drop.isEmpty() && (st.info as DefStageInfo).time.isEmpty()) || (st.info is CustomStageInfo && (st.info as CustomStageInfo).rewards.isEmpty()))
                 viewHolder.droptitle.visibility = View.GONE
-            }
         } else {
             viewHolder.exrow.visibility = View.GONE
             viewHolder.exscroll.visibility = View.GONE

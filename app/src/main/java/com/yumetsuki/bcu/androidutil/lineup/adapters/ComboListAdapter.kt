@@ -24,10 +24,7 @@ class ComboListAdapter internal constructor(activity: Activity, private val name
         var comboocc: TextView = view.findViewById(R.id.comboocc)
         var comimglayout: LinearLayout = view.findViewById(R.id.iconlayout)
         var icons: MutableList<ImageView> = ArrayList()
-
     }
-
-    private val comnames = intArrayOf(R.string.combo_atk, R.string.combo_hp, R.string.combo_spd, R.string.combo_caninch, R.string.combo_work, R.string.combo_initmon, R.string.combo_canatk, R.string.combo_canchtime, R.string.combo_efficiency, R.string.combo_wal, R.string.combo_bsh, R.string.combo_cd, R.string.combo_ac, R.string.combo_xp, R.string.combo_strag, R.string.combo_md, R.string.combo_res, R.string.combo_kbdis, R.string.combo_sl, R.string.combo_st, R.string.combo_wea, R.string.combo_inc, R.string.combo_wit, R.string.combo_eva, R.string.combo_crit)
 
     override fun getView(position: Int, view: View?, group: ViewGroup): View {
         val holder: ViewHolder
@@ -87,7 +84,7 @@ class ComboListAdapter internal constructor(activity: Activity, private val name
             1, 20, 19, 18, 17, 16, 15, 14, 13, 12, 9 -> multi = " ( +" + (10 + 10 * c.lv) + "% )"
             3 -> multi = " ( +" + (20 + 20 * c.lv) + "% )"
             4 -> multi = " ( + Lv. " + (1 + c.lv) + " )"
-            5 -> multi = if (c.lv == 0) " ( +" + 300 + " )" else if (c.lv == 1) " ( +" + 500 + " )" else " ( +" + 1000 + " )"
+            5 -> multi = if (c.lv == 0) " ( +" + 300 + " )" else if (c.lv == 1) " ( +" + 500 + " )" else " ( +" + 1000 + " )"//TODO DOWN combo
             6, 10 -> multi = " ( +" + (20 + 30 * c.lv) + "% )"
             7 -> multi = " ( -" + (150 + 150 * c.lv) + "f / -" + (5 + 5 * c.lv) + "s )"
             11 -> multi = " ( -" + (26 + 26 * c.lv) + "f / -" + DecimalFormat("#.##").format((26 + 26 * c.lv).toDouble() / 30) + "s )"
@@ -96,6 +93,6 @@ class ComboListAdapter internal constructor(activity: Activity, private val name
             24 -> multi = " ( +" + (1 + c.lv) + "% )"
         }
 
-        return context.getString(comnames[c.type]) + " Lv. " + (c.lv + 1) + multi
+        return context.getString(StaticStore.comnames[c.type]) + " Lv. " + (c.lv + 1) + multi
     }
 }
