@@ -74,13 +74,10 @@ object Interpret : Data() {
 
         for(trait in traits) {
             if(trait.BCTrait()) {
-                if(trait.id.id == 6 && star == 1) {
-                    ans.append(c.getString(TRAIT[6]))
-                        .append(" (").append(c.getString(STAR[1])).append("), ")
-                } else
-                    ans.append(c.getString(TRAIT[trait.id.id])).append(", ")
-            } else
-                ans.append(trait.name).append(", ")
+                if(trait.id.id == 6 && star == 1)
+                    ans.append(c.getString(TRAIT[6])).append(" (").append(c.getString(STAR[1])).append("), ")
+                else ans.append(c.getString(TRAIT[trait.id.id])).append(", ")
+            } else ans.append(trait.name).append(", ")
         }
 
         return ans.toString()

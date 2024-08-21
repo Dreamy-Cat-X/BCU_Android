@@ -154,21 +154,17 @@ class UnitInfoPager : Fragment() {
         healtrea.setHelperTextColor(ColorStateList(states, color))
 
         val shared = activity.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
-
         frames = shared.getBoolean("frame", true)
         frse.text = if (frames) activity.getString(R.string.unit_info_fr) else activity.getString(R.string.unit_info_sec)
 
         val t = BasisSet.current().t()
-
         val au = Identifier.get(StaticStore.transformIdentifier<AbUnit>(arg.getString("Data")))
 
         if(au == null) {
             Log.e("UnitinfPager", "Identifier is null\nArgument : ${arg.getString("Data")}")
-
             return view
         }
         val u = au as Unit
-
         val f = u.forms[form]
 
         level.setLevel(f.unit.preferredLevel)

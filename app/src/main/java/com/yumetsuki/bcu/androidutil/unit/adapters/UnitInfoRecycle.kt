@@ -29,6 +29,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.GetStrings
 import com.yumetsuki.bcu.androidutil.Interpret
+import com.yumetsuki.bcu.androidutil.StaticJava
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.supports.AnimatorConst
 import com.yumetsuki.bcu.androidutil.supports.AutoMarquee
@@ -44,7 +45,7 @@ import common.util.unit.Form
 import common.util.unit.Level
 
 class UnitInfoRecycle(private val context: Activity, private val names: ArrayList<String>, private val forms: Array<Form>, private val data: Identifier<AbUnit>) : RecyclerView.Adapter<UnitInfoRecycle.ViewHolder>() {
-    private var fs = 0//TODO: This is literally just a boolean. Change it to so, rename it to frame
+    private var frame = true
     private val s: GetStrings = GetStrings(this.context)
     private val fragment = arrayOf(arrayOf("Immune to "), arrayOf(""))
     private val states = arrayOf(intArrayOf(android.R.attr.state_enabled))
@@ -63,41 +64,43 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val pack = itemView.findViewById<Button>(R.id.unitinfpack)!!
         val unitpack = itemView.findViewById<TextView>(R.id.unitinfpackr)!!
-        var frse = itemView.findViewById<Button>(R.id.unitinffrse)!!
-        var unitname: TextView = itemView.findViewById(R.id.unitinfname)
-        var unitid: TextView = itemView.findViewById(R.id.unitinfidr)
-        var unithp: TextView = itemView.findViewById(R.id.unitinfhpr)
-        var unithb: TextView = itemView.findViewById(R.id.unitinfhbr)
-        var unitlevel: Spinner = itemView.findViewById(R.id.unitinflevr)
-        var unitlevelp: Spinner = itemView.findViewById(R.id.unitinflevpr)
-        var unitplus: TextView = itemView.findViewById(R.id.unitinfplus)
-        var uniticon: ImageView = itemView.findViewById(R.id.unitinficon)
-        var unitatkb: Button = itemView.findViewById(R.id.unitinfatk)
-        var unitatk: TextView = itemView.findViewById(R.id.unitinfatkr)
-        var unittrait: TextView = itemView.findViewById(R.id.unitinftraitr)
-        var unitcost: TextView = itemView.findViewById(R.id.unitinfcostr)
-        var unitsimu: TextView = itemView.findViewById(R.id.unitinfsimur)
-        var unitspd: TextView = itemView.findViewById(R.id.unitinfspdr)
-        var unitcdb: Button = itemView.findViewById(R.id.unitinfcd)
-        var unitcd: TextView = itemView.findViewById(R.id.unitinfcdr)
-        var unitrang: TextView = itemView.findViewById(R.id.unitinfrangr)
-        var unitpreatkb: Button = itemView.findViewById(R.id.unitinfpreatk)
-        var unitpreatk: TextView = itemView.findViewById(R.id.unitinfpreatkr)
-        var unitpostb: Button = itemView.findViewById(R.id.unitinfpost)
-        var unitpost: TextView = itemView.findViewById(R.id.unitinfpostr)
-        var unittbab: Button = itemView.findViewById(R.id.unitinftba)
-        var unittba: TextView = itemView.findViewById(R.id.unitinftbar)
-        var unitatktb: Button = itemView.findViewById(R.id.unitinfatktime)
-        var unitatkt: TextView = itemView.findViewById(R.id.unitinfatktimer)
-        var unitabilt: TextView = itemView.findViewById(R.id.unitinfabiltr)
-        var none: TextView = itemView.findViewById(R.id.unitabilnone)
-        var unitabil: RecyclerView = itemView.findViewById(R.id.unitinfabilr)
-        var unittalen: CheckBox = itemView.findViewById(R.id.unitinftalen)
-        var npresetrow: TableRow = itemView.findViewById(R.id.talresetrow)
-        var npreset: Button = itemView.findViewById(R.id.unitinftalreset)
-        var nprow: TableRow = itemView.findViewById(R.id.talenrow)
-        var supernprow: TableRow = itemView.findViewById(R.id.supertalenrow)
-
+        val frse = itemView.findViewById<Button>(R.id.unitinffrse)!!
+        val unitname: TextView = itemView.findViewById(R.id.unitinfname)
+        val unitid: TextView = itemView.findViewById(R.id.unitinfidr)
+        val unithp: TextView = itemView.findViewById(R.id.unitinfhpr)
+        val unithb: TextView = itemView.findViewById(R.id.unitinfhbr)
+        val unitlevel: Spinner = itemView.findViewById(R.id.unitinflevr)
+        val unitlevelp: Spinner = itemView.findViewById(R.id.unitinflevpr)
+        val unitplus: TextView = itemView.findViewById(R.id.unitinfplus)
+        val uniticon: ImageView = itemView.findViewById(R.id.unitinficon)
+        val unitatkb: Button = itemView.findViewById(R.id.unitinfatk)
+        val unitatk: TextView = itemView.findViewById(R.id.unitinfatkr)
+        val unittrait: TextView = itemView.findViewById(R.id.unitinftraitr)
+        val unitcost: TextView = itemView.findViewById(R.id.unitinfcostr)
+        val unitsimu: TextView = itemView.findViewById(R.id.unitinfsimur)
+        val unitspd: TextView = itemView.findViewById(R.id.unitinfspdr)
+        val unitcdb: Button = itemView.findViewById(R.id.unitinfcd)
+        val unitcd: TextView = itemView.findViewById(R.id.unitinfcdr)
+        val unitrang: TextView = itemView.findViewById(R.id.unitinfrangr)
+        val unitpreatkb: Button = itemView.findViewById(R.id.unitinfpreatk)
+        val unitpreatk: TextView = itemView.findViewById(R.id.unitinfpreatkr)
+        val unitpostb: Button = itemView.findViewById(R.id.unitinfpost)
+        val unitpost: TextView = itemView.findViewById(R.id.unitinfpostr)
+        val unittbab: Button = itemView.findViewById(R.id.unitinftba)
+        val unittba: TextView = itemView.findViewById(R.id.unitinftbar)
+        val unitatktb: Button = itemView.findViewById(R.id.unitinfatktime)
+        val unitatkt: TextView = itemView.findViewById(R.id.unitinfatktimer)
+        val unitabilt: TextView = itemView.findViewById(R.id.unitinfabiltr)
+        val none: TextView = itemView.findViewById(R.id.unitabilnone)
+        val unitabil: RecyclerView = itemView.findViewById(R.id.unitinfabilr)
+        val unittalen: CheckBox = itemView.findViewById(R.id.unitinftalen)
+        val npresetrow: TableRow = itemView.findViewById(R.id.talresetrow)
+        val npreset: Button = itemView.findViewById(R.id.unitinftalreset)
+        val nprow: TableRow = itemView.findViewById(R.id.talenrow)
+        val supernprow: TableRow = itemView.findViewById(R.id.supertalenrow)
+        val prevatk = itemView.findViewById<Button>(R.id.btn_prevatk)
+        val curatk = itemView.findViewById<TextView>(R.id.atk_index)
+        val nextatk = itemView.findViewById<Button>(R.id.btn_nextatk)
         init {
             unitplus.text = " + "
         }
@@ -131,25 +134,15 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         healtrea.setHelperTextColor(ColorStateList(states, color))
 
         val shared = context.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
-        
-        if (shared.getBoolean("frame", true)) {
-            fs = 0
-            viewHolder.frse.text = context.getString(R.string.unit_info_fr)
-        } else {
-            fs = 1
-            viewHolder.frse.text = context.getString(R.string.unit_info_sec)
-        }
+
+        frame = shared.getBoolean("frame", true)
+        viewHolder.frse.text = if (frame) context.getString(R.string.unit_info_fr) else context.getString(R.string.unit_info_sec)
 
         val t = BasisSet.current().t()
-        
         val f = forms[viewHolder.bindingAdapterPosition]
 
         level.setLevel(f.unit.preferredLevel)
         level.setPlusLevel(f.unit.preferredPlusLevel)
-
-        val ability = Interpret.getAbi(f.du, fragment, 0, context)
-
-        val abilityicon = Interpret.getAbiid(f.du)
 
         val cdlevt = context.findViewById<TextInputEditText>(R.id.cdlevt)
         val cdtreat = context.findViewById<TextInputEditText>(R.id.cdtreat)
@@ -161,15 +154,9 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         atktreat.setText(t.trea[0].toString())
         healtreat.setText(t.trea[1].toString())
 
-        val proc = Interpret.getProc(f.du, fs == 1, true, arrayOf(1.0, 1.0).toDoubleArray(), context)
-
         val icon = f.anim?.uni?.img?.bimg()
-
-        if(icon == null) {
-            viewHolder.uniticon.setImageBitmap(StaticStore.makeIcon(context, null, 48f))
-        } else {
-            viewHolder.uniticon.setImageBitmap(StaticStore.makeIcon(context, icon as Bitmap, 48f))
-        }
+        if(icon == null) viewHolder.uniticon.setImageBitmap(StaticStore.makeIcon(context, null, 48f))
+        else viewHolder.uniticon.setImageBitmap(StaticStore.makeIcon(context, icon as Bitmap, 48f))
 
         catk = f.du.firstAtk()
         viewHolder.unitname.text = names[position]
@@ -182,25 +169,15 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         viewHolder.unitcost.text = s.getCost(f, false, level)
         viewHolder.unitsimu.text = s.getSimu(f, catk)
         viewHolder.unitspd.text = s.getSpd(f, false, level)
-        viewHolder.unitcd.text = s.getCD(f, t, fs == 0, false, level)
+        viewHolder.unitcd.text = s.getCD(f, t, frame, false, level)
         viewHolder.unitrang.text = s.getRange(f, catk, false, level)
-        viewHolder.unitpreatk.text = s.getPre(f, fs == 0, catk)
-        viewHolder.unitpost.text = s.getPost(f, fs == 0, catk)
-        viewHolder.unittba.text = s.getTBA(f, false, fs == 0, level)
-        viewHolder.unitatkt.text = s.getAtkTime(f, false, fs == 0, level, catk)
+        viewHolder.unitpreatk.text = s.getPre(f, frame, catk)
+        viewHolder.unitpost.text = s.getPost(f, frame, catk)
+        viewHolder.unittba.text = s.getTBA(f, false, frame, level)
+        viewHolder.unitatkt.text = s.getAtkTime(f, false, frame, level, catk)
         viewHolder.unitabilt.text = s.getAbilT(f, catk)
 
-        if (ability.isNotEmpty() || proc.isNotEmpty()) {
-            viewHolder.none.visibility = View.GONE
-            val linearLayoutManager = LinearLayoutManager(context)
-            linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-            viewHolder.unitabil.layoutManager = linearLayoutManager
-            val adapterAbil = AdapterAbil(ability, proc, abilityicon, context)
-            viewHolder.unitabil.adapter = adapterAbil
-            ViewCompat.setNestedScrollingEnabled(viewHolder.unitabil, false)
-        } else {
-            viewHolder.unitabil.visibility = View.GONE
-        }
+        setAbis(viewHolder, f)
 
         if (f.du.pCoin == null) {
             viewHolder.unittalen.visibility = View.GONE
@@ -249,7 +226,6 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
             }
 
             val max = f.du.pCoin.max
-
             for(i in max.indices)
                 level.talents[i] = max[i]
 
@@ -314,16 +290,12 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         val reset = context.findViewById<Button>(R.id.treasurereset)
 
         val t = BasisSet.current().t()
-        
         val f = forms[viewHolder.bindingAdapterPosition]
 
         val levels: MutableList<Int> = ArrayList()
-
         for (j in 1 until f.unit.max + 1)
             levels.add(j)
-
         val levelsp = ArrayList<Int>()
-
         for (j in 0 until f.unit.maxp + 1)
             levelsp.add(j)
 
@@ -339,7 +311,6 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         }
 
         val shared = context.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
-
         level.setLevel(
             when {
                 shared.getInt("default_level", 50) > f.unit.max -> f.unit.max
@@ -360,87 +331,34 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
             viewHolder.unitlevelp.visibility = View.GONE
             viewHolder.unitplus.visibility = View.GONE
         }
-
         viewHolder.pack.setOnClickListener {
             isRaw = !isRaw
             viewHolder.unitpack.text = s.getPackName(f.unit.id, isRaw)
         }
 
         viewHolder.frse.setOnClickListener {
-            if (fs == 0) {
-                fs = 1
+            frame = !frame
+            viewHolder.frse.text = if (frame) context.getString(R.string.unit_info_fr) else context.getString(R.string.unit_info_sec)
 
-                viewHolder.unitcd.text = s.getCD(f, t, fs == 0, talents, level)
-                viewHolder.unitpreatk.text = s.getPre(f, fs == 0, catk)
-                viewHolder.unitpost.text = s.getPost(f, fs == 0, catk)
-                viewHolder.unittba.text = s.getTBA(f, talents, fs == 0, level)
-                viewHolder.unitatkt.text = s.getAtkTime(f, talents, fs == 0, level, catk)
-                viewHolder.frse.text = context.getString(R.string.unit_info_sec)
+            viewHolder.unitcd.text = s.getCD(f, t, frame, talents, level)
+            viewHolder.unitpreatk.text = s.getPre(f, frame, catk)
+            viewHolder.unitpost.text = s.getPost(f, frame, catk)
+            viewHolder.unittba.text = s.getTBA(f, talents, frame, level)
+            viewHolder.unitatkt.text = s.getAtkTime(f, talents, frame, level, catk)
 
-                if (viewHolder.unitabil.visibility != View.GONE) {
-                    var du = f.du
+            if (viewHolder.unitabil.visibility != View.GONE) {
+                val du = if (f.du.pCoin != null && talents) f.du.pCoin.improve(level.talents) else f.du
 
-                    if (f.du.pCoin != null)
-                        du = if (talents)
-                            f.du.pCoin.improve(level.talents)
-                        else
-                            f.du
+                val ability = Interpret.getAbi(du, fragment, 0, context)
+                val abilityicon = Interpret.getAbiid(du)
+                val proc = Interpret.getProc(du, !frame, false, arrayOf(1.0, 1.0).toDoubleArray(), context, catk)
 
-                    val ability = Interpret.getAbi(du, fragment, 0, context)
-
-                    val abilityicon = Interpret.getAbiid(du)
-
-                    val proc = Interpret.getProc(du, fs == 1, true, arrayOf(1.0, 1.0).toDoubleArray(), context)
-
-                    val linearLayoutManager = LinearLayoutManager(context)
-
-                    linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
-                    viewHolder.unitabil.layoutManager = linearLayoutManager
-
-                    val adapterAbil = AdapterAbil(ability, proc, abilityicon, context)
-
-                    viewHolder.unitabil.adapter = adapterAbil
-
-                    ViewCompat.setNestedScrollingEnabled(viewHolder.unitabil, false)
-                }
-            } else {
-                fs = 0
-
-                viewHolder.unitcd.text = s.getCD(f, t, fs == 0, talents, level)
-                viewHolder.unitpreatk.text = s.getPre(f, fs == 0, catk)
-                viewHolder.unitpost.text = s.getPost(f, fs == 0, catk)
-                viewHolder.unittba.text = s.getTBA(f, talents, fs == 0, level)
-                viewHolder.unitatkt.text = s.getAtkTime(f, talents, fs == 0, level, catk)
-                viewHolder.frse.text = context.getString(R.string.unit_info_fr)
-
-                if (viewHolder.unitabil.visibility != View.GONE) {
-                    var du = f.du
-
-                    if (f.du.pCoin != null)
-                        du = if (talents)
-                            f.du.pCoin.improve(level.talents)
-                        else
-                            f.du
-
-                    val ability = Interpret.getAbi(du, fragment, 0, context)
-
-                    val abilityicon = Interpret.getAbiid(du)
-
-                    val proc = Interpret.getProc(du, fs == 1, true, arrayOf(1.0, 1.0).toDoubleArray(), context)
-
-                    val linearLayoutManager = LinearLayoutManager(context)
-
-                    linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
-                    viewHolder.unitabil.layoutManager = linearLayoutManager
-
-                    val adapterAbil = AdapterAbil(ability, proc, abilityicon, context)
-
-                    viewHolder.unitabil.adapter = adapterAbil
-
-                    ViewCompat.setNestedScrollingEnabled(viewHolder.unitabil, false)
-                }
+                val linearLayoutManager = LinearLayoutManager(context)
+                linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
+                viewHolder.unitabil.layoutManager = linearLayoutManager
+                val adapterAbil = AdapterAbil(ability, proc, abilityicon, context)
+                viewHolder.unitabil.adapter = adapterAbil
+                ViewCompat.setNestedScrollingEnabled(viewHolder.unitabil, false)
             }
         }
 
@@ -457,85 +375,47 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
             viewHolder.unittba.text = s.getTBA(f, talents, !viewHolder.unittba.text.toString().endsWith("f"), level)
         }
         viewHolder.unitatkb.setOnClickListener {
-            if (viewHolder.unitatkb.text == context.getString(R.string.unit_info_atk)) {
-                viewHolder.unitatkb.text = context.getString(R.string.unit_info_dps)
-
-                viewHolder.unitatk.text = s.getDPS(f, t, talents, level, catk)
-            } else {
-                viewHolder.unitatkb.text = context.getString(R.string.unit_info_atk)
-                viewHolder.unitatk.text = s.getAtk(f, t, talents, level, catk)
-            }
+            viewHolder.unitatkb.text = if (viewHolder.unitatkb.text == context.getString(R.string.unit_info_atk)) context.getString(R.string.unit_info_dps) else context.getString(R.string.unit_info_atk)
+            setAtk(viewHolder, f, t)
         }
-
         viewHolder.unitatktb.setOnClickListener {
-            if (viewHolder.unitatkt.text.toString().endsWith("f"))
-                viewHolder.unitatkt.text = s.getAtkTime(f, talents, false, level, catk)
-            else
-                viewHolder.unitatkt.text = s.getAtkTime(f, talents, true, level, catk)
+            viewHolder.unitatkt.text = s.getAtkTime(f, talents, !viewHolder.unitatkt.text.toString().endsWith("f"), level, catk)
+        }
+        viewHolder.prevatk.setOnClickListener {
+            if (--catk >= f.du.atkTypeCount) {
+                while (catk >= f.du.atkTypeCount && f.du.getSpAtks(true,catk - f.du.atkTypeCount).isEmpty()) catk--
+                if (catk < f.du.atkTypeCount)
+                    while (f.du.getShare(catk) == 0) catk--
+            } else while (f.du.getShare(catk) == 0) catk--
+            changeAtk(viewHolder, f, t)
+        }
+        viewHolder.nextatk.setOnClickListener {
+            if (++catk < f.du.atkTypeCount) {
+                while (catk < f.du.atkTypeCount && f.du.getShare(catk) == 0) catk++
+                if (catk >= f.du.atkTypeCount)
+                    while (f.du.getSpAtks(true, catk - f.du.atkTypeCount).isEmpty()) catk++
+            } else while (f.du.getSpAtks(true, catk - f.du.atkTypeCount).isEmpty()) catk++
+            changeAtk(viewHolder, f, t)
         }
 
         viewHolder.unitlevel.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val level = (viewHolder.unitlevel.selectedItem ?: 1) as Int
                 val levelp = (viewHolder.unitlevelp.selectedItem ?: 0) as Int
-
                 this@UnitInfoRecycle.level.setLevel(level)
 
-                viewHolder.unithp.text = s.getHP(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level)
-
-                if (f.du.getAtks(0).size > 1) {//TODO - Multi-Atk
-                    if (viewHolder.unitatkb.text == context.getString(R.string.unit_info_atk))
-                        viewHolder.unitatk.text = s.getAtk(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level, catk)
-                    else
-                        viewHolder.unitatk.text = s.getDPS(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level, catk)
-                } else {
-                    if (viewHolder.unitatkb.text == context.getString(R.string.unit_info_atk))
-                        viewHolder.unitatk.text = s.getTotAtk(f, t, this@UnitInfoRecycle.talents,
-                            this@UnitInfoRecycle.level, catk
-                        )
-                    else
-                        viewHolder.unitatk.text = s.getDPS(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level, catk)
-                }
-
-                if(CommonStatic.getConfig().realLevel) {
-                    for(i in superTalent.indices)
-                        changeSpinner(superTalent[i], level + levelp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
-                    validate(viewHolder, f, t)
-                }
+                changeLv(viewHolder, superTalent, level + levelp, f, t)
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
-
         viewHolder.unitlevelp.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val level = (viewHolder.unitlevel.selectedItem ?: 1) as Int
                 val levelp = (viewHolder.unitlevelp.selectedItem ?: 0) as Int
-
                 this@UnitInfoRecycle.level.setPlusLevel(levelp)
 
-                viewHolder.unithp.text = s.getHP(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level)
-                if (f.du.getAtks(0).size > 1) {//TODO - Multi-Atk
-                    if (viewHolder.unitatkb.text == context.getString(R.string.unit_info_atk))
-                        viewHolder.unitatk.text = s.getAtk(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level, catk)
-                    else
-                        viewHolder.unitatk.text = s.getDPS(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level, catk)
-                } else {
-                    if (viewHolder.unitatkb.text == context.getString(R.string.unit_info_atk))
-                        viewHolder.unitatk.text = s.getAtk(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level, catk)
-                    else
-                        viewHolder.unitatk.text = s.getDPS(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level, catk)
-                }
-
-                if(CommonStatic.getConfig().realLevel) {
-                    for(i in superTalent.indices) {
-                        changeSpinner(superTalent[i], level + levelp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
-                    }
-
-                    validate(viewHolder, f, t)
-                }
+                changeLv(viewHolder, superTalent, level + levelp, f, t)
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -546,214 +426,102 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
 
         cdlevt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.toString().isNotEmpty()) {
-                    if (s.toString().toInt() > 30 || s.toString().toInt() <= 0) {
-                        if (cdlev.isHelperTextEnabled) {
-                            cdlev.isHelperTextEnabled = false
-                            cdlev.isErrorEnabled = true
-                            cdlev.error = context.getString(R.string.treasure_invalid)
-                        }
-                    } else {
-                        if (cdlev.isErrorEnabled) {
-                            cdlev.error = null
-                            cdlev.isErrorEnabled = false
-                            cdlev.isHelperTextEnabled = true
-                            cdlev.setHelperTextColor(ColorStateList(states, color))
-                            cdlev.helperText = "1~30 Lv."
-                        }
+                if (s.toString().isNotEmpty() && s.toString().toInt() !in 1..30) {
+                    if (cdlev.isHelperTextEnabled) {
+                        cdlev.isHelperTextEnabled = false
+                        cdlev.isErrorEnabled = true
+                        cdlev.error = context.getString(R.string.treasure_invalid)
                     }
-                } else {
-                    if (cdlev.isErrorEnabled) {
-                        cdlev.error = null
-                        cdlev.isErrorEnabled = false
-                        cdlev.isHelperTextEnabled = true
-                        cdlev.setHelperTextColor(ColorStateList(states, color))
-                        cdlev.helperText = "1~30 Lv."
-                    }
+                } else if (cdlev.isErrorEnabled) {
+                    cdlev.error = null
+                    cdlev.isErrorEnabled = false
+                    cdlev.isHelperTextEnabled = true
+                    cdlev.setHelperTextColor(ColorStateList(states, color))
+                    cdlev.helperText = "1~30 Lv."
                 }
             }
-
             override fun afterTextChanged(text: Editable) {
-                if (text.toString().isNotEmpty()) {
-                    if (text.toString().toInt() in 1..30) {
-                        val lev = text.toString().toInt()
-
-                        t.tech[0] = lev
-
-                        if (viewHolder.unitcd.text.toString().endsWith("s")) {
-                            viewHolder.unitcd.text = s.getCD(f, t, false,
-                                this@UnitInfoRecycle.talents, level)
-                        } else {
-                            viewHolder.unitcd.text = s.getCD(f, t, true,
-                                this@UnitInfoRecycle.talents, level)
-                        }
-                    }
-                } else {
+                if (text.toString().isNotEmpty() && text.toString().toInt() in 1..30)
+                    t.tech[0] = text.toString().toInt()
+                else
                     t.tech[0] = 1
-
-                    if (viewHolder.unitcd.text.toString().endsWith("s")) {
-                        viewHolder.unitcd.text = s.getCD(f, t, false, this@UnitInfoRecycle.talents, level)
-                    } else {
-                        viewHolder.unitcd.text = s.getCD(f, t, true, this@UnitInfoRecycle.talents, level)
-                    }
-                }
+                viewHolder.unitcd.text = s.getCD(f, t, viewHolder.unitcd.text.toString().endsWith("f"), this@UnitInfoRecycle.talents, level)
             }
         })
         cdtreat.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.toString().isNotEmpty()) {
-                    if (s.toString().toInt() > 300) {
-                        if (cdtrea.isHelperTextEnabled) {
-                            cdtrea.isHelperTextEnabled = false
-                            cdtrea.isErrorEnabled = true
-                            cdtrea.error = context.getString(R.string.treasure_invalid)
-                        }
-                    } else {
-                        if (cdtrea.isErrorEnabled) {
-                            cdtrea.error = null
-                            cdtrea.isErrorEnabled = false
-                            cdtrea.isHelperTextEnabled = true
-                            cdtrea.setHelperTextColor(ColorStateList(states, color))
-                            cdtrea.helperText = "0~300"
-                        }
+                if (s.toString().isNotEmpty() && s.toString().toInt() !in 0..300) {
+                    if (cdtrea.isHelperTextEnabled) {
+                        cdtrea.isHelperTextEnabled = false
+                        cdtrea.isErrorEnabled = true
+                        cdtrea.error = context.getString(R.string.treasure_invalid)
                     }
-                } else {
-                    if (cdtrea.isErrorEnabled) {
-                        cdtrea.error = null
-                        cdtrea.isErrorEnabled = false
-                        cdtrea.isHelperTextEnabled = true
-                        cdtrea.setHelperTextColor(ColorStateList(states, color))
-                        cdtrea.helperText = "0~300"
-                    }
+                } else if (cdtrea.isErrorEnabled) {
+                    cdtrea.error = null
+                    cdtrea.isErrorEnabled = false
+                    cdtrea.isHelperTextEnabled = true
+                    cdtrea.setHelperTextColor(ColorStateList(states, color))
+                    cdtrea.helperText = "0~300"
                 }
             }
-
             override fun afterTextChanged(text: Editable) {
-                if (text.toString().isNotEmpty()) {
-                    if (text.toString().toInt() <= 300) {
-                        val trea = text.toString().toInt()
-
-                        t.trea[2] = trea
-
-                        if (viewHolder.unitcd.text.toString().endsWith("s")) {
-                            viewHolder.unitcd.text = s.getCD(f, t, false,
-                                this@UnitInfoRecycle.talents, level)
-                        } else {
-                            viewHolder.unitcd.text = s.getCD(f, t, true,
-                                this@UnitInfoRecycle.talents, level)
-                        }
-                    }
-                } else {
+                if (text.toString().isNotEmpty() && text.toString().toInt() in 0..300) {
+                    t.trea[2] = text.toString().toInt()
+                } else
                     t.trea[2] = 0
-
-                    if (viewHolder.unitcd.text.toString().endsWith("s")) {
-                        viewHolder.unitcd.text = s.getCD(f, t, false, this@UnitInfoRecycle.talents, level)
-                    } else {
-                        viewHolder.unitcd.text = s.getCD(f, t, true, this@UnitInfoRecycle.talents, level)
-                    }
-                }
+                viewHolder.unitcd.text = s.getCD(f, t, viewHolder.unitcd.text.toString().endsWith("f"), this@UnitInfoRecycle.talents, level)
             }
         })
         atktreat.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.toString().isNotEmpty()) {
-                    if (s.toString().toInt() > 300) {
-                        if (atktrea.isHelperTextEnabled) {
-                            atktrea.isHelperTextEnabled = false
-                            atktrea.isErrorEnabled = true
-                            atktrea.error = context.getString(R.string.treasure_invalid)
-                        }
-                    } else {
-                        if (atktrea.isErrorEnabled) {
-                            atktrea.error = null
-                            atktrea.isErrorEnabled = false
-                            atktrea.isHelperTextEnabled = true
-                            atktrea.setHelperTextColor(ColorStateList(states, color))
-                            atktrea.helperText = "0~300"
-                        }
+                if (s.toString().isNotEmpty() && s.toString().toInt() !in 0..300) {
+                    if (atktrea.isHelperTextEnabled) {
+                        atktrea.isHelperTextEnabled = false
+                        atktrea.isErrorEnabled = true
+                        atktrea.error = context.getString(R.string.treasure_invalid)
                     }
-                } else {
-                    if (atktrea.isErrorEnabled) {
-                        atktrea.error = null
-                        atktrea.isErrorEnabled = false
-                        atktrea.isHelperTextEnabled = true
-                        atktrea.setHelperTextColor(ColorStateList(states, color))
-                        atktrea.helperText = "0~300"
-                    }
+                } else if (atktrea.isErrorEnabled) {
+                    atktrea.error = null
+                    atktrea.isErrorEnabled = false
+                    atktrea.isHelperTextEnabled = true
+                    atktrea.setHelperTextColor(ColorStateList(states, color))
+                    atktrea.helperText = "0~300"
                 }
             }
-
             override fun afterTextChanged(text: Editable) {
-                if (text.toString().isNotEmpty()) {
-                    if (text.toString().toInt() <= 300) {
-                        t.trea[0] = text.toString().toInt()
-
-                        if (viewHolder.unitatkb.text.toString() == context.getString(R.string.unit_info_dps)) {
-                            viewHolder.unitatk.text = s.getDPS(f, t,
-                                this@UnitInfoRecycle.talents, level, catk)
-                        } else {
-                            viewHolder.unitatk.text = s.getAtk(f, t,
-                                this@UnitInfoRecycle.talents, level, catk)
-                        }
-                    }
-                } else {
+                if (text.toString().isNotEmpty() && text.toString().toInt() in 0..300) {
+                    t.trea[0] = text.toString().toInt()
+                } else
                     t.trea[0] = 0
-
-                    if (viewHolder.unitatkb.text.toString() == context.getString(R.string.unit_info_dps)) {
-                        viewHolder.unitatk.text = s.getDPS(f, t, this@UnitInfoRecycle.talents, level, catk)
-                    } else {
-                        viewHolder.unitatk.text = s.getAtk(f, t, this@UnitInfoRecycle.talents, level, catk)
-                    }
-                }
+                setAtk(viewHolder, f, t)
             }
         })
         healtreat.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.toString().isNotEmpty()) {
-                    if (s.toString().toInt() > 300) {
-                        if (healtrea.isHelperTextEnabled) {
-                            healtrea.isHelperTextEnabled = false
-                            healtrea.isErrorEnabled = true
-                            healtrea.error = context.getString(R.string.treasure_invalid)
-                        }
-                    } else {
-                        if (healtrea.isErrorEnabled) {
-                            healtrea.error = null
-                            healtrea.isErrorEnabled = false
-                            healtrea.isHelperTextEnabled = true
-                            healtrea.setHelperTextColor(ColorStateList(states, color))
-                            healtrea.helperText = "0~300"
-                        }
+                if (s.toString().isNotEmpty() && s.toString().toInt() !in 0..300) {
+                    if (healtrea.isHelperTextEnabled) {
+                        healtrea.isHelperTextEnabled = false
+                        healtrea.isErrorEnabled = true
+                        healtrea.error = context.getString(R.string.treasure_invalid)
                     }
-                } else {
-                    if (healtrea.isErrorEnabled) {
-                        healtrea.error = null
-                        healtrea.isErrorEnabled = false
-                        healtrea.isHelperTextEnabled = true
-                        healtrea.setHelperTextColor(ColorStateList(states, color))
-                        healtrea.helperText = "0~300"
-                    }
+                } else if (healtrea.isErrorEnabled) {
+                    healtrea.error = null
+                    healtrea.isErrorEnabled = false
+                    healtrea.isHelperTextEnabled = true
+                    healtrea.setHelperTextColor(ColorStateList(states, color))
+                    healtrea.helperText = "0~300"
                 }
             }
-
             override fun afterTextChanged(text: Editable) {
-                if (text.toString().isNotEmpty()) {
-                    if (text.toString().toInt() <= 300) {
-                        t.trea[1] = text.toString().toInt()
-                        viewHolder.unithp.text = s.getHP(f, t, this@UnitInfoRecycle.talents, level)
-                    }
-                } else {
+                if (text.toString().isNotEmpty() && text.toString().toInt() in 0..300) {
+                    t.trea[1] = text.toString().toInt()
+                } else
                     t.trea[1] = 0
-                    viewHolder.unithp.text = s.getHP(f, t, this@UnitInfoRecycle.talents, level)
-                }
+                viewHolder.unithp.text = s.getHP(f, t, this@UnitInfoRecycle.talents, level)
             }
         })
 
@@ -768,67 +536,42 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
             atktreat.setText(t.trea[1].toString())
             healtreat.setText(t.trea[2].toString())
 
-            if (viewHolder.unitcd.text.toString().endsWith("s")) {
-                viewHolder.unitcd.text = s.getCD(f, t, false, talents, level)
-            } else {
-                viewHolder.unitcd.text = s.getCD(f, t, true, talents, level)
-            }
-
-            if (viewHolder.unitatkb.text.toString() == context.getString(R.string.unit_info_dps)) {
-                viewHolder.unitatk.text = s.getDPS(f, t, talents, level, catk)
-            } else {
-                viewHolder.unitatk.text = s.getAtk(f, t, talents, level, catk)
-            }
-
+            viewHolder.unitcd.text = s.getCD(f, t, viewHolder.unitcd.text.toString().endsWith("f"), talents, level)
+            setAtk(viewHolder, f, t)
             viewHolder.unithp.text = s.getHP(f, t, talents, level)
         }
 
         viewHolder.unittalen.setOnCheckedChangeListener { _, isChecked ->
             talents = true
-
             validate(viewHolder, f, t)
 
-            if (isChecked) {
-                val anim = ScaleAnimator(viewHolder.npresetrow, AnimatorConst.Dimension.WIDTH, 300, AnimatorConst.Accelerator.DECELERATE, 0, StaticStore.dptopx(100f, context))
-                anim.start()
+            val from1 = if (isChecked) 0 else StaticStore.dptopx(100f, context)
+            val from2 = if (isChecked) 0 else StaticStore.dptopx(48f, context)
+            val from3 = if (isChecked) 0 else StaticStore.dptopx(16f, context)
+            val to1 = StaticStore.dptopx(100f, context) - from1
+            val to2 = StaticStore.dptopx(48f, context) - from2
+            val to3 = StaticStore.dptopx(16f, context) - from3
 
-                val anim2 = ScaleAnimator(viewHolder.nprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, 0, StaticStore.dptopx(48f, context))
-                anim2.start()
-
-                val anim3 = ScaleAnimator(viewHolder.nprow, AnimatorConst.Dimension.TOP_MARGIN, 300, AnimatorConst.Accelerator.DECELERATE, 0, StaticStore.dptopx(16f, context))
-                anim3.start()
-
-                val anim4 = ScaleAnimator(viewHolder.supernprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, 0, StaticStore.dptopx(48f, context))
-                anim4.start()
-            } else {
-                val anim = ScaleAnimator(viewHolder.npresetrow, AnimatorConst.Dimension.WIDTH, 300, AnimatorConst.Accelerator.DECELERATE, StaticStore.dptopx(100f, context), 0)
-                anim.start()
-
-                val anim2 = ScaleAnimator(viewHolder.nprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, StaticStore.dptopx(48f, context), 0)
-                anim2.start()
-
-                val anim3 = ScaleAnimator(viewHolder.nprow, AnimatorConst.Dimension.TOP_MARGIN, 300, AnimatorConst.Accelerator.DECELERATE, StaticStore.dptopx(16f, context), 0)
-                anim3.start()
-
-                val anim4 = ScaleAnimator(viewHolder.supernprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, StaticStore.dptopx(48f, context), 0)
-                anim4.start()
-            }
+            val anim = ScaleAnimator(viewHolder.npresetrow, AnimatorConst.Dimension.WIDTH, 300, AnimatorConst.Accelerator.DECELERATE, from1, to1)
+            anim.start()
+            val anim2 = ScaleAnimator(viewHolder.nprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, from2, to2)
+            anim2.start()
+            val anim3 = ScaleAnimator(viewHolder.nprow, AnimatorConst.Dimension.TOP_MARGIN, 300, AnimatorConst.Accelerator.DECELERATE, from3, to3)
+            anim3.start()
+            val anim4 = ScaleAnimator(viewHolder.supernprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, from2, to2)
+            anim4.start()
         }
 
         for (i in talent.indices) {
             talent[i].onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, views: View?, position: Int, id: Long) {
                     level.talents[talentIndex[i]] = talent[i].selectedItem as Int
-
                     validate(viewHolder, f, t)
                 }
-
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
-
             talent[i].setOnLongClickListener {
                 talent[i].isClickable = false
-
                 StaticStore.showShortMessage(context, s.getTalentName(talentIndex[i], f, context))
                 true
             }
@@ -838,16 +581,12 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
             superTalent[i].onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, views: View?, position: Int, id: Long) {
                     level.talents[superTalentIndex[i]] = superTalent[i].selectedItem as Int
-
                     validate(viewHolder, f, t)
                 }
-
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
-
             superTalent[i].setOnLongClickListener {
                 superTalent[i].isClickable = false
-
                 StaticStore.showShortMessage(context, s.getTalentName(superTalentIndex[i], f, context))
                 true
             }
@@ -856,25 +595,18 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         viewHolder.npreset.setOnClickListener {
             val max = f.du.pCoin.max
 
-            for(i in max.indices) {
+            for(i in max.indices)
                 level.talents[i] = max[i]
-            }
-
-            for (i in talent.indices) {
+            for (i in talent.indices)
                 talent[i].setSelection(getIndex(talent[i], max[talentIndex[i]]))
-            }
-
-            for (i in superTalent.indices) {
+            for (i in superTalent.indices)
                 superTalent[i].setSelection(getIndex(superTalent[i], max[superTalentIndex[i]]))
-            }
-
             validate(viewHolder, f, t)
         }
     }
 
     private fun getIndex(spinner: Spinner?, lev: Int): Int {
         var index = 0
-
         for (i in 0 until spinner!!.count)
             if (lev == spinner.getItemAtPosition(i) as Int)
                 index = i
@@ -888,72 +620,80 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
 
     private fun validate(viewHolder: ViewHolder, f: Form, t: Treasure) {
         viewHolder.unithp.text = s.getHP(f, t, talents, level)
-
         viewHolder.unithb.text = s.getHB(f, talents, level)
-
-        if (viewHolder.unitatkb.text.toString() == "DPS")
-            viewHolder.unitatk.text = s.getDPS(f, t, talents, level, catk)
-        else
-            viewHolder.unitatk.text = s.getAtk(f, t, talents, level, catk)
-
+        setAtk(viewHolder, f, t)
         viewHolder.unitcost.text = s.getCost(f, talents, level)
-
-        if (viewHolder.unitcd.text.toString().endsWith("s"))
-            viewHolder.unitcd.text = s.getCD(f, t, false, talents, level)
-        else
-            viewHolder.unitcd.text = s.getCD(f, t, true, talents, level)
-
+        viewHolder.unitcd.text = s.getCD(f, t, viewHolder.unitcd.text.toString().endsWith("f"), talents, level)
         viewHolder.unittrait.text = s.getTrait(f, talents, level, context)
-
         viewHolder.unitspd.text = s.getSpd(f, talents, level)
-        viewHolder.unittba.text = s.getTBA(f, talents, fs == 0, level)
-        viewHolder.unitatkt.text = s.getAtkTime(f, talents, fs == 0, level, catk)
+        viewHolder.unittba.text = s.getTBA(f, talents, frame, level)
+        viewHolder.unitatkt.text = s.getAtkTime(f, talents, frame, level, catk)
 
-        val du: MaskUnit = if (f.du.pCoin != null && talents)
-            f.du.pCoin.improve(level.talents)
-        else
-            f.du
+        val lv = viewHolder.unitlevel.selectedItem as Int
+        val lvp = viewHolder.unitlevelp.selectedItem as Int
+        level.setLevel(lv)
+        level.setPlusLevel(lvp)
+        setAbis(viewHolder, f)
+    }
+    private fun changeAtk(viewHolder: ViewHolder, f: Form, t : Treasure) {
+        setAtk(viewHolder, f, t)
+        viewHolder.unitpreatk.text = s.getPre(f, frame, catk)
+        viewHolder.unitpost.text = s.getPost(f, frame, catk)
+        viewHolder.unitatkt.text = s.getSimu(f, catk)
+        viewHolder.unitrang.text = s.getRange(f, catk, talents, level)
+        viewHolder.unitsimu.text = s.getSimu(f, catk)
 
-        val level = viewHolder.unitlevel.selectedItem as Int
-        val levelp = viewHolder.unitlevelp.selectedItem as Int
+        val fir = f.du.firstAtk()
+        val tex = if (catk < f.du.atkTypeCount)
+            context.getString(R.string.info_current_hit).replace("_", (catk-f.du.firstAtk()+1).toString())
+        else f.du.getSpAtks(true, catk-f.du.atkTypeCount)[0].name
+        viewHolder.curatk.text = tex
+        val ratk = if (StaticJava.spAtkCount(f.du) == 0) f.du.realAtkCount() + fir else f.du.atkTypeCount + StaticJava.spAtkCount(f.du)
+        viewHolder.nextatk.isEnabled = catk < ratk - 1
+        viewHolder.prevatk.isEnabled = catk > fir
 
-        this.level.setLevel(level)
-        this.level.setPlusLevel(levelp)
-
+        setAbis(viewHolder, f)
+    }
+    private fun setAtk(viewHolder: ViewHolder, f : Form, t : Treasure) {
+        if (viewHolder.unitatkb.text == context.getString(R.string.unit_info_atk))
+            viewHolder.unitatk.text = s.getAtk(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level, catk)
+        else viewHolder.unitatk.text = s.getDPS(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level, catk)
+    }
+    private fun setAbis(viewHolder: ViewHolder, f : Form) {
+        val du: MaskUnit = if (f.du.pCoin != null && talents) f.du.pCoin.improve(level.talents) else f.du
         val abil = Interpret.getAbi(du, fragment, 0, context)
-
-        val proc = Interpret.getProc(du, fs == 1, true, arrayOf(1.0, 1.0).toDoubleArray(), context)
-
+        val proc = Interpret.getProc(du, !frame, false, arrayOf(1.0, 1.0).toDoubleArray(), context, catk)
         val abilityicon = Interpret.getAbiid(du)
 
         if (abil.isNotEmpty() || proc.isNotEmpty()) {
             viewHolder.none.visibility = View.GONE
+            viewHolder.unitabil.visibility = View.VISIBLE
 
             val linearLayoutManager = LinearLayoutManager(context)
-
             linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
             viewHolder.unitabil.layoutManager = linearLayoutManager
-
             val adapterAbil = AdapterAbil(abil, proc, abilityicon, context)
-
             viewHolder.unitabil.adapter = adapterAbil
-
             ViewCompat.setNestedScrollingEnabled(viewHolder.unitabil, false)
         } else {
             viewHolder.unitabil.visibility = View.GONE
+            viewHolder.none.visibility = View.VISIBLE
         }
     }
-
+    private fun changeLv(viewHolder: ViewHolder, superTalent: Array<Spinner>, lv : Int, f : Form, t : Treasure) {
+        viewHolder.unithp.text = s.getHP(f, t, this@UnitInfoRecycle.talents, this@UnitInfoRecycle.level)
+        setAtk(viewHolder, f, t)
+        if(CommonStatic.getConfig().realLevel) {
+            for(i in superTalent.indices)
+                changeSpinner(superTalent[i], lv >= f.du.pCoin.getReqLv(superTalentIndex[i]))
+            validate(viewHolder, f, t)
+        }
+    }
     private fun changeSpinner(spinner: Spinner, enable: Boolean) {
         spinner.isEnabled = enable
-        spinner.background.alpha = if(enable)
-            255
-        else
-            64
+        spinner.background.alpha = if(enable) 255 else 64
 
-        if(spinner.childCount >= 1 && spinner.getChildAt(0) is AutoMarquee) {
+        if(spinner.childCount >= 1 && spinner.getChildAt(0) is AutoMarquee)
             (spinner.getChildAt(0) as AutoMarquee).setTextColor((spinner.getChildAt(0) as AutoMarquee).textColors.withAlpha(if(enable) 255 else 64))
-        }
     }
 }
