@@ -23,6 +23,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.GetStrings
 import com.yumetsuki.bcu.androidutil.Interpret
+import com.yumetsuki.bcu.androidutil.StaticJava
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.supports.adapter.AdapterAbil
 import common.battle.BasisSet
@@ -48,9 +49,7 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
     constructor(activity: Activity, data: Identifier<AbEnemy>) {
         this.activity = activity
         s = GetStrings(activity)
-        color = intArrayOf(
-                StaticStore.getAttributeColor(activity, R.attr.TextPrimary)
-        )
+        color = intArrayOf(StaticStore.getAttributeColor(activity, R.attr.TextPrimary))
         this.data = data
     }
 
@@ -59,9 +58,7 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         this.multiplication = multi
         this.attackMultiplication = attackMultiplication
         s = GetStrings(activity)
-        color = intArrayOf(
-                StaticStore.getAttributeColor(activity, R.attr.TextPrimary)
-        )
+        color = intArrayOf(StaticStore.getAttributeColor(activity, R.attr.TextPrimary))
         this.data = data
     }
 
@@ -170,7 +167,7 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
             b = img.bimg() as Bitmap
 
         catk = em.de.firstAtk()
-        if (em.de.realAtkCount() == 1) {
+        if (em.de.realAtkCount() + StaticJava.spAtkCount(em.de) == 1) {
             viewHolder.prevatk.visibility = View.GONE
             viewHolder.curatk.visibility = View.GONE
             viewHolder.nextatk.visibility = View.GONE
@@ -249,11 +246,21 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         val reset = activity.findViewById<Button>(R.id.enemtreareset)
 
         viewHolder.prevatk.setOnClickListener {
-            while (em.de.getShare(--catk) == 0);
+            if (catk >= em.de.atkTypeCount) {
+                while (--catk >= em.de.atkTypeCount && em.de.getSpAtks(true,catk - em.de.atkTypeCount).isEmpty());
+                if (catk < em.de.atkTypeCount)
+                    while (em.de.getShare(catk) == 0)
+                        catk--
+            } else while (em.de.getShare(--catk) == 0);
             changeAtk(viewHolder, em)
         }
         viewHolder.nextatk.setOnClickListener {
-            while (em.de.getShare(++catk) == 0);
+            if (catk < em.de.atkTypeCount) {
+                while (++catk < em.de.atkTypeCount && em.de.getShare(catk) == 0);
+                if (catk >= em.de.atkTypeCount)
+                    while (em.de.getSpAtks(true, catk - em.de.atkTypeCount).isEmpty())
+                        catk++
+            } else while (em.de.getSpAtks(true, ++catk - em.de.atkTypeCount).isEmpty());
             changeAtk(viewHolder, em)
         }
 
@@ -630,10 +637,15 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         viewHolder.enematk.text = if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps))
             s.getDPS(em, attackMultiplication, catk) else s.getAtk(em, attackMultiplication, catk)
         viewHolder.enematkt.text = s.getSimu(em, catk)
+        viewHolder.enemrange.text = s.getRange(em, catk)
 
-        viewHolder.curatk.text = activity.getString(R.string.info_current_hit).replace("_", (catk-em.de.firstAtk()+1).toString())
-        viewHolder.nextatk.isEnabled = catk < em.de.realAtkCount() - 1
-        viewHolder.prevatk.isEnabled = catk > em.de.firstAtk()
+        val fir = em.de.firstAtk()
+        val tex = if (catk < em.de.atkTypeCount)
+            activity.getString(R.string.info_current_hit).replace("_", (catk-em.de.firstAtk()+1).toString())
+            else em.de.getSpAtks(true, catk-em.de.atkTypeCount)[0].name
+        viewHolder.curatk.text = tex
+        viewHolder.nextatk.isEnabled = catk < em.de.realAtkCount() + StaticJava.spAtkCount(em.de) + fir - 1
+        viewHolder.prevatk.isEnabled = catk > fir
 
         retime(viewHolder, em)
     }

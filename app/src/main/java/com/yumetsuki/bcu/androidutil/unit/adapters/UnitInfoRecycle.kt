@@ -183,12 +183,12 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         viewHolder.unitcost.text = s.getCost(f, false, level)
         viewHolder.unitsimu.text = s.getSimu(f, catk)
         viewHolder.unitspd.text = s.getSpd(f, false, level)
-        viewHolder.unitcd.text = s.getCD(f, t, fs, false, level)
+        viewHolder.unitcd.text = s.getCD(f, t, fs == 0, false, level)
         viewHolder.unitrang.text = s.getRange(f, catk, false, level)
         viewHolder.unitpreatk.text = s.getPre(f, fs, catk)
         viewHolder.unitpost.text = s.getPost(f, fs == 0, catk)
-        viewHolder.unittba.text = s.getTBA(f, false, fs, level)
-        viewHolder.unitatkt.text = s.getAtkTime(f, false, fs, level, catk)
+        viewHolder.unittba.text = s.getTBA(f, false, fs == 0, level)
+        viewHolder.unitatkt.text = s.getAtkTime(f, false, fs == 0, level, catk)
         viewHolder.unitabilt.text = s.getAbilT(f, catk)
 
         if (ability.isNotEmpty() || proc.isNotEmpty()) {
@@ -364,7 +364,6 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
 
         viewHolder.pack.setOnClickListener {
             isRaw = !isRaw
-
             viewHolder.unitpack.text = s.getPackName(f.unit.id, isRaw)
         }
 
@@ -372,11 +371,11 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
             if (fs == 0) {
                 fs = 1
 
-                viewHolder.unitcd.text = s.getCD(f, t, fs, talents, level)
+                viewHolder.unitcd.text = s.getCD(f, t, fs == 0, talents, level)
                 viewHolder.unitpreatk.text = s.getPre(f, fs, catk)
                 viewHolder.unitpost.text = s.getPost(f, fs == 0, catk)
-                viewHolder.unittba.text = s.getTBA(f, talents, fs, level)
-                viewHolder.unitatkt.text = s.getAtkTime(f, talents, fs, level, catk)
+                viewHolder.unittba.text = s.getTBA(f, talents, fs == 0, level)
+                viewHolder.unitatkt.text = s.getAtkTime(f, talents, fs == 0, level, catk)
                 viewHolder.frse.text = context.getString(R.string.unit_info_sec)
 
                 if (viewHolder.unitabil.visibility != View.GONE) {
@@ -409,11 +408,11 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
             } else {
                 fs = 0
 
-                viewHolder.unitcd.text = s.getCD(f, t, fs, talents, level)
+                viewHolder.unitcd.text = s.getCD(f, t, fs == 0, talents, level)
                 viewHolder.unitpreatk.text = s.getPre(f, fs, catk)
                 viewHolder.unitpost.text = s.getPost(f, fs == 0, catk)
-                viewHolder.unittba.text = s.getTBA(f, talents, fs, level)
-                viewHolder.unitatkt.text = s.getAtkTime(f, talents, fs, level, catk)
+                viewHolder.unittba.text = s.getTBA(f, talents, fs == 0, level)
+                viewHolder.unitatkt.text = s.getAtkTime(f, talents, fs == 0, level, catk)
                 viewHolder.frse.text = context.getString(R.string.unit_info_fr)
 
                 if (viewHolder.unitabil.visibility != View.GONE) {
@@ -448,9 +447,9 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
 
         viewHolder.unitcdb.setOnClickListener {
             if (viewHolder.unitcd.text.toString().endsWith("f"))
-                viewHolder.unitcd.text = s.getCD(f, t, 1, talents, level)
+                viewHolder.unitcd.text = s.getCD(f, t, true, talents, level)
             else
-                viewHolder.unitcd.text = s.getCD(f, t, 0, talents, level)
+                viewHolder.unitcd.text = s.getCD(f, t, false, talents, level)
         }
 
         viewHolder.unitpreatkb.setOnClickListener {
@@ -466,9 +465,9 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
 
         viewHolder.unittbab.setOnClickListener {
             if (viewHolder.unittba.text.toString().endsWith("f"))
-                viewHolder.unittba.text = s.getTBA(f, talents, 1, level)
+                viewHolder.unittba.text = s.getTBA(f, talents, true, level)
             else
-                viewHolder.unittba.text = s.getTBA(f, talents, 0, level)
+                viewHolder.unittba.text = s.getTBA(f, talents, false, level)
         }
 
         viewHolder.unitatkb.setOnClickListener {
@@ -484,9 +483,9 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
 
         viewHolder.unitatktb.setOnClickListener {
             if (viewHolder.unitatkt.text.toString().endsWith("f"))
-                viewHolder.unitatkt.text = s.getAtkTime(f, talents, 1, level, catk)
+                viewHolder.unitatkt.text = s.getAtkTime(f, talents, false, level, catk)
             else
-                viewHolder.unitatkt.text = s.getAtkTime(f, talents, 0, level, catk)
+                viewHolder.unitatkt.text = s.getAtkTime(f, talents, true, level, catk)
         }
 
         viewHolder.unitlevel.onItemSelectedListener = object : OnItemSelectedListener {
@@ -513,10 +512,8 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
                 }
 
                 if(CommonStatic.getConfig().realLevel) {
-                    for(i in superTalent.indices) {
+                    for(i in superTalent.indices)
                         changeSpinner(superTalent[i], level + levelp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
-                    }
-
                     validate(viewHolder, f, t)
                 }
             }
@@ -600,10 +597,10 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
                         t.tech[0] = lev
 
                         if (viewHolder.unitcd.text.toString().endsWith("s")) {
-                            viewHolder.unitcd.text = s.getCD(f, t, 1,
+                            viewHolder.unitcd.text = s.getCD(f, t, false,
                                 this@UnitInfoRecycle.talents, level)
                         } else {
-                            viewHolder.unitcd.text = s.getCD(f, t, 0,
+                            viewHolder.unitcd.text = s.getCD(f, t, true,
                                 this@UnitInfoRecycle.talents, level)
                         }
                     }
@@ -611,9 +608,9 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
                     t.tech[0] = 1
 
                     if (viewHolder.unitcd.text.toString().endsWith("s")) {
-                        viewHolder.unitcd.text = s.getCD(f, t, 1, this@UnitInfoRecycle.talents, level)
+                        viewHolder.unitcd.text = s.getCD(f, t, false, this@UnitInfoRecycle.talents, level)
                     } else {
-                        viewHolder.unitcd.text = s.getCD(f, t, 0, this@UnitInfoRecycle.talents, level)
+                        viewHolder.unitcd.text = s.getCD(f, t, true, this@UnitInfoRecycle.talents, level)
                     }
                 }
             }
@@ -657,10 +654,10 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
                         t.trea[2] = trea
 
                         if (viewHolder.unitcd.text.toString().endsWith("s")) {
-                            viewHolder.unitcd.text = s.getCD(f, t, 1,
+                            viewHolder.unitcd.text = s.getCD(f, t, false,
                                 this@UnitInfoRecycle.talents, level)
                         } else {
-                            viewHolder.unitcd.text = s.getCD(f, t, 0,
+                            viewHolder.unitcd.text = s.getCD(f, t, true,
                                 this@UnitInfoRecycle.talents, level)
                         }
                     }
@@ -668,9 +665,9 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
                     t.trea[2] = 0
 
                     if (viewHolder.unitcd.text.toString().endsWith("s")) {
-                        viewHolder.unitcd.text = s.getCD(f, t, 1, this@UnitInfoRecycle.talents, level)
+                        viewHolder.unitcd.text = s.getCD(f, t, false, this@UnitInfoRecycle.talents, level)
                     } else {
-                        viewHolder.unitcd.text = s.getCD(f, t, 0, this@UnitInfoRecycle.talents, level)
+                        viewHolder.unitcd.text = s.getCD(f, t, true, this@UnitInfoRecycle.talents, level)
                     }
                 }
             }
@@ -765,12 +762,10 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
                 if (text.toString().isNotEmpty()) {
                     if (text.toString().toInt() <= 300) {
                         t.trea[1] = text.toString().toInt()
-
                         viewHolder.unithp.text = s.getHP(f, t, this@UnitInfoRecycle.talents, level)
                     }
                 } else {
                     t.trea[1] = 0
-
                     viewHolder.unithp.text = s.getHP(f, t, this@UnitInfoRecycle.talents, level)
                 }
             }
@@ -788,9 +783,9 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
             healtreat.setText(t.trea[2].toString())
 
             if (viewHolder.unitcd.text.toString().endsWith("s")) {
-                viewHolder.unitcd.text = s.getCD(f, t, 1, talents, level)
+                viewHolder.unitcd.text = s.getCD(f, t, false, talents, level)
             } else {
-                viewHolder.unitcd.text = s.getCD(f, t, 0, talents, level)
+                viewHolder.unitcd.text = s.getCD(f, t, true, talents, level)
             }
 
             if (viewHolder.unitatkb.text.toString() == context.getString(R.string.unit_info_dps)) {
@@ -918,15 +913,15 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         viewHolder.unitcost.text = s.getCost(f, talents, level)
 
         if (viewHolder.unitcd.text.toString().endsWith("s"))
-            viewHolder.unitcd.text = s.getCD(f, t, 1, talents, level)
+            viewHolder.unitcd.text = s.getCD(f, t, false, talents, level)
         else
-            viewHolder.unitcd.text = s.getCD(f, t, 0, talents, level)
+            viewHolder.unitcd.text = s.getCD(f, t, true, talents, level)
 
         viewHolder.unittrait.text = s.getTrait(f, talents, level, context)
 
         viewHolder.unitspd.text = s.getSpd(f, talents, level)
-        viewHolder.unittba.text = s.getTBA(f, talents, fs, level)
-        viewHolder.unitatkt.text = s.getAtkTime(f, talents, fs, level, catk)
+        viewHolder.unittba.text = s.getTBA(f, talents, fs == 0, level)
+        viewHolder.unitatkt.text = s.getAtkTime(f, talents, fs == 0, level, catk)
 
         val du: MaskUnit = if (f.du.pCoin != null && talents)
             f.du.pCoin.improve(level.talents)

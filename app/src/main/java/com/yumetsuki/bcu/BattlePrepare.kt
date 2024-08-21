@@ -69,7 +69,6 @@ class BattlePrepare : AppCompatActivity() {
                         continue
 
                     line.updateLineUp()
-
                     break
                 }
             }
@@ -164,24 +163,19 @@ class BattlePrepare : AppCompatActivity() {
                         else
                             BasisSet.list().size - 1
 
-                    if (BasisSet.list().isEmpty() && BasisSet.def() != null) {
+                    if (BasisSet.list().isEmpty() && BasisSet.def() != null)
                         BasisSet.list().add(BasisSet.def())
-                    }
-
                     BasisSet.setCurrent(BasisSet.list()[set])
 
                     if (lu >= BasisSet.current().lb.size)
-                        lu = if(BasisSet.current().lb.size == 0)
-                            0
-                        else
-                            BasisSet.current().lb.size - 1
+                        lu = if(BasisSet.current().lb.size == 0) 0
+                        else BasisSet.current().lb.size - 1
 
                     BasisSet.current().sele = BasisSet.current().lb[lu]
                 }
                 
                 //Load UI
                 val line = LineUpView(this@BattlePrepare)
-
                 line.id = R.id.lineupView
 
                 val w: Float = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
@@ -192,7 +186,6 @@ class BattlePrepare : AppCompatActivity() {
                 val h = w / 5.0f * 3
 
                 line.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, h.toInt())
-
                 layout.addView(line)
 
                 prog.isIndeterminate = true
@@ -203,6 +196,15 @@ class BattlePrepare : AppCompatActivity() {
                 val stm = stage.cont ?: return@launch
 
                 stname.text = MultiLangCont.get(stage) ?: stage.names.toString()
+
+                line.attachStageLimit(stage, 0)
+                star.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
+                        line.attachStageLimit(stage, position)
+                        line.syncLineUp()
+                    }
+                    override fun onNothingSelected(p0: AdapterView<*>?) {}
+                }
 
                 if(stname.text.isBlank())
                     stname.text = getStageName(data.id)
@@ -379,7 +381,6 @@ class BattlePrepare : AppCompatActivity() {
                             ed.putInt("levelLimit", position)
                             ed.apply()
                         }
-
                         override fun onNothingSelected(p0: AdapterView<*>?) {}
                     }
 

@@ -217,7 +217,6 @@ class LineUpView : View {
         locked = StaticStore.getResizebp(StaticStore.makeIcon(context, preUnusable, 48f), bw, bw)
 
         syncLineUp()
-
         invalidate()
     }
 
@@ -335,7 +334,6 @@ class LineUpView : View {
         position.forEachIndexed { x, icons ->
             icons.forEachIndexed { y, coordinate ->
                 c.drawBitmap(units[x][y], coordinate[0], coordinate[1], p)
-
                 if (isLocked[x][y])
                     c.drawBitmap(locked, coordinate[0], coordinate[1], p)
                 else if (isUnusable[x][y])
@@ -526,9 +524,8 @@ class LineUpView : View {
     fun syncLineUp() {
         lu.fs.forEachIndexed { row, forms ->
             forms.forEachIndexed { col, form ->
-                if (form is Form && (form.du == null || form.du.proc == null)) {
+                if (form is Form && (form.du == null || form.du.proc == null))
                     lu.fs[row][col] = null
-                }
             }
         }
 
@@ -542,7 +539,6 @@ class LineUpView : View {
                     StaticStore.getResizebp(StaticStore.makeIcon(context, icon, 48f), bw, bw)
                 else
                     empty
-
                 isLocked[x][y] = lu.fs[x][y] is Form && save?.locked(lu.fs[x][y]) == true
                 isUnusable[x][y] = !isLocked[x][y] && limit != null && lu.fs[x][y] is Form && limit?.unusable((lu.fs[x][y] as Form).du, price, x.toByte()) == true
             }

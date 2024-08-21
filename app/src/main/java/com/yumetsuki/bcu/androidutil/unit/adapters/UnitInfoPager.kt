@@ -68,7 +68,7 @@ class UnitInfoPager : Fragment() {
     }
 
     private var form = 0
-    private var fs = 0
+    private var frames = true
     private lateinit var s: GetStrings
     private val fragment = arrayOf(arrayOf("Immune to "), arrayOf(""))
     private val states = arrayOf(intArrayOf(android.R.attr.state_enabled))
@@ -151,13 +151,8 @@ class UnitInfoPager : Fragment() {
 
         val shared = activity.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
 
-        if (shared.getBoolean("frame", true)) {
-            fs = 0
-            frse.text = activity.getString(R.string.unit_info_fr)
-        } else {
-            fs = 1
-            frse.text = activity.getString(R.string.unit_info_sec)
-        }
+        frames = shared.getBoolean("frame", true)
+        frse.text = if (frames) activity.getString(R.string.unit_info_fr) else activity.getString(R.string.unit_info_sec)
 
         val t = BasisSet.current().t()
 
@@ -189,16 +184,11 @@ class UnitInfoPager : Fragment() {
         atktreat.setText(t.trea[0].toString())
         healtreat.setText(t.trea[1].toString())
 
-        val proc = Interpret.getProc(f.du, fs == 1, true, arrayOf(1.0, 1.0).toDoubleArray(), requireContext())
-
+        val proc = Interpret.getProc(f.du, !frames, false, arrayOf(1.0, 1.0).toDoubleArray(), requireContext())
         val name = MultiLangCont.get(f) ?: f.names.toString()
-
         val tempIcon = f.anim?.uni?.img?.bimg()
 
-        var icon = if(tempIcon is Bitmap) {
-            tempIcon
-        } else
-            StaticStore.empty(StaticStore.dptopx(48f, activity),StaticStore.dptopx(48f, activity))
+        var icon = if(tempIcon is Bitmap) tempIcon else StaticStore.empty(StaticStore.dptopx(48f, activity),StaticStore.dptopx(48f, activity))
 
         icon = if (icon.height != icon.width)
             StaticStore.makeIcon(activity, icon, 48f)
@@ -218,12 +208,13 @@ class UnitInfoPager : Fragment() {
         unitcost.text = s.getCost(f, false, level)
         unitsimu.text = s.getSimu(f, catk)
         unitspd.text = s.getSpd(f, false, level)
-        unitcd.text = s.getCD(f, t, fs, false, level)
+        unitcd.text = s.getCD(f, t, frames, false, level)
         unitrang.text = s.getRange(f, catk, false, level)
-        unitpreatk.text = s.getPre(f, fs, catk)
-        unitpost.text = s.getPost(f, fs == 0, catk)
-        unittba.text = s.getTBA(f, talents, fs, level)
-        unitatkt.text = s.getAtkTime(f, talents, fs, level, catk)
+        val temp = if (frames) 0 else 1
+        unitpreatk.text = s.getPre(f, temp, catk)
+        unitpost.text = s.getPost(f, frames, catk)
+        unittba.text = s.getTBA(f, talents, frames, level)
+        unitatkt.text = s.getAtkTime(f, talents, frames, level, catk)
         unitabilt.text = s.getAbilT(f, catk)
 
         if (ability.isNotEmpty() || proc.isNotEmpty()) {
@@ -234,9 +225,8 @@ class UnitInfoPager : Fragment() {
             val adapterAbil = AdapterAbil(ability, proc, abilityicon, activity)
             unitabil.adapter = adapterAbil
             ViewCompat.setNestedScrollingEnabled(unitabil, true)
-        } else {
+        } else
             unitabil.visibility = View.GONE
-        }
 
         if(f.du.pCoin != null) {
             for(i in f.du.pCoin.info.indices) {
@@ -443,91 +433,38 @@ class UnitInfoPager : Fragment() {
 
         pack.setOnClickListener {
             isRaw = !isRaw
-
             unitpack.text = s.getPackName(f.unit.id, isRaw)
         }
 
         frse.setOnClickListener {
-            if (fs == 0) {
-                fs = 1
+            frames = !frames
+            frse.text = if (frames) activity.getString(R.string.unit_info_sec) else activity.getString(R.string.unit_info_fr)
 
-                unitcd.text = s.getCD(f, t, fs, talents, level)
-                unitpreatk.text = s.getPre(f, fs, catk)
-                unitpost.text = s.getPost(f, fs == 0, catk)
-                unittba.text = s.getTBA(f, talents, fs, level)
-                unitatkt.text = s.getAtkTime(f, talents, fs, level, catk)
-                frse.text = activity.getString(R.string.unit_info_sec)
+            unitcd.text = s.getCD(f, t, frames, talents, level)
+            val temp = if (frames) 0 else 1
+            unitpreatk.text = s.getPre(f, temp, catk)
+            unitpost.text = s.getPost(f, frames, catk)
+            unittba.text = s.getTBA(f, talents, frames, level)
+            unitatkt.text = s.getAtkTime(f, talents, frames, level, catk)
 
-                if (unitabil.visibility != View.GONE) {
-                    var du = f.du
+            if (unitabil.visibility != View.GONE) {
+                val du = if (talents && f.du.pCoin != null) f.du.pCoin.improve(level.talents) else f.du
 
-                    if (f.du.pCoin != null)
-                        du = if (talents)
-                            f.du.pCoin.improve(level.talents)
-                        else
-                            f.du
+                val ability = Interpret.getAbi(du, fragment, 0, activity)
+                val abilityicon = Interpret.getAbiid(du)
+                val proc = Interpret.getProc(du, !frames, false, arrayOf(1.0, 1.0).toDoubleArray(), requireContext())
 
-                    val ability = Interpret.getAbi(du, fragment, 0, activity)
-                    val abilityicon = Interpret.getAbiid(du)
-                    val proc = Interpret.getProc(du, fs == 1, true, arrayOf(1.0, 1.0).toDoubleArray(), requireContext())
-
-                    val linearLayoutManager = LinearLayoutManager(activity)
-
-                    linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
-                    unitabil.layoutManager = linearLayoutManager
-
-                    val adapterAbil = AdapterAbil(ability, proc, abilityicon, activity)
-
-                    unitabil.adapter = adapterAbil
-
-                    ViewCompat.setNestedScrollingEnabled(unitabil, false)
-                }
-            } else {
-                fs = 0
-
-                unitcd.text = s.getCD(f, t, fs, talents, level)
-                unitpreatk.text = s.getPre(f, fs, catk)
-                unitpost.text = s.getPost(f, fs == 0, catk)
-                unittba.text = s.getTBA(f, talents, fs, level)
-                unitatkt.text = s.getAtkTime(f, talents, fs, level, catk)
-                frse.text = activity.getString(R.string.unit_info_fr)
-
-                if (unitabil.visibility != View.GONE) {
-                    var du = f.du
-
-                    if (f.du.pCoin != null)
-                        du = if (talents)
-                            f.du.pCoin.improve(level.talents)
-                        else
-                            f.du
-
-                    val ability = Interpret.getAbi(du, fragment, 0, activity)
-
-                    val abilityicon = Interpret.getAbiid(du)
-
-                    val proc = Interpret.getProc(du, fs == 1, true, arrayOf(1.0, 1.0).toDoubleArray(), requireContext())
-
-                    val linearLayoutManager = LinearLayoutManager(activity)
-
-                    linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
-                    unitabil.layoutManager = linearLayoutManager
-
-                    val adapterAbil = AdapterAbil(ability, proc, abilityicon, activity)
-
-                    unitabil.adapter = adapterAbil
-
-                    ViewCompat.setNestedScrollingEnabled(unitabil, false)
-                }
+                val linearLayoutManager = LinearLayoutManager(activity)
+                linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
+                unitabil.layoutManager = linearLayoutManager
+                val adapterAbil = AdapterAbil(ability, proc, abilityicon, activity)
+                unitabil.adapter = adapterAbil
+                ViewCompat.setNestedScrollingEnabled(unitabil, false)
             }
         }
 
         unitcdb.setOnClickListener {
-            if (unitcd.text.toString().endsWith("f"))
-                unitcd.text = s.getCD(f, t, 1, talents, level)
-            else
-                unitcd.text = s.getCD(f, t, 0, talents, level)
+            unitcd.text = s.getCD(f, t, !unitcd.text.toString().endsWith("f"), talents, level)
         }
 
         unitpreatkb.setOnClickListener {
@@ -540,97 +477,36 @@ class UnitInfoPager : Fragment() {
         unitpostb.setOnClickListener {
             unitpost.text = s.getPost(f, !unitpost.text.toString().endsWith("f"), catk)
         }
-
         unittbab.setOnClickListener {
-            if (unittba.text.toString().endsWith("f"))
-                unittba.text = s.getTBA(f, talents, 1, level)
-            else
-                unittba.text = s.getTBA(f, talents, 0, level)
+            unittba.text = s.getTBA(f, talents, !unittba.text.toString().endsWith("f"), level)
         }
 
         unitatkb.setOnClickListener {
-            if (unitatkb.text == activity.getString(R.string.unit_info_atk)) {
-                unitatkb.text = activity.getString(R.string.unit_info_dps)
-                unitatk.text = s.getDPS(f, t, talents, level, catk)
-            } else {
-                unitatkb.text = activity.getString(R.string.unit_info_atk)
-                unitatk.text = s.getAtk(f, t, talents, level, catk)
-            }
+            unitatkb.text = if (unitatkb.text == activity.getString(R.string.unit_info_atk)) activity.getString(R.string.unit_info_dps) else activity.getString(R.string.unit_info_atk)
+            setAtkText(unitatk, unitatkb.text == activity.getString(R.string.unit_info_dps), f, t)
         }
-
         unitatktb.setOnClickListener {
-            if (unitatkt.text.toString().endsWith("f"))
-                unitatkt.text = s.getAtkTime(f, talents, 1, level, catk)
-            else
-                unitatkt.text = s.getAtkTime(f, talents, 0, level, catk)
+            unitatkt.text = s.getAtkTime(f, talents, !unitatkt.text.toString().endsWith("f"), level, catk)
         }
-
         unitlevel.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, v: View?, position: Int, id: Long) {
                 val level = (unitlevel.selectedItem ?: 1) as Int
                 val levelp = (unitlevelp.selectedItem ?: 0) as Int
-
                 this@UnitInfoPager.level.setLevel(level)
-
-                unithp.text = s.getHP(f, t, talents, this@UnitInfoPager.level)
-
-                if (f.du.getAtks(0).size > 1) {//TODO - Atks
-                    if (unitatkb.text == activity.getString(R.string.unit_info_atk))
-                        unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level, catk)
-                    else
-                        unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level, catk)
-                } else {
-                    if (unitatkb.text == activity.getString(R.string.unit_info_atk))
-                        unitatk.text = s.getTotAtk(f, t, talents, this@UnitInfoPager.level, catk)
-                    else
-                        unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level, catk)
-                }
-
-                if(CommonStatic.getConfig().realLevel) {
-                    for(i in superTalent.indices) {
-                        changeSpinner(superTalent[i], level + levelp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
-                    }
-
-                    validate(view, f, t)
-                }
+                setLvStats(level+levelp, superTalent, view, unithp, unitatk, unitatkb.text == "DPS", f, t)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
-
         unitlevelp.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, v: View?, position: Int, id: Long) {
                 val level = (unitlevel.selectedItem ?: 1) as Int
                 val levelp = (unitlevelp.selectedItem ?: 0) as Int
-
                 this@UnitInfoPager.level.setPlusLevel(levelp)
-
-                unithp.text = s.getHP(f, t, talents, this@UnitInfoPager.level)
-
-                if (f.du.getAtks(0).size > 1) {//TODO - Multi-Atks
-                    if (unitatkb.text == activity.getString(R.string.unit_info_atk))
-                        unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level, catk)
-                    else
-                        unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level, catk)
-                } else {
-                    if (unitatkb.text == activity.getString(R.string.unit_info_atk))
-                        unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level, catk)
-                    else
-                        unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level, catk)
-                }
-
-                if(CommonStatic.getConfig().realLevel) {
-                    for(i in superTalent.indices) {
-                        changeSpinner(superTalent[i], level + levelp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
-                    }
-
-                    validate(view, f, t)
-                }
+                setLvStats(level+levelp, superTalent, view, unithp, unitatk, unitatkb.text == "DPS", f, t)
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
-
         cdlevt.setSelection(cdlevt.text?.length ?: 0)
         cdtreat.setSelection(cdtreat.text?.length ?: 0)
         atktreat.setSelection(atktreat.text?.length ?: 0)
@@ -639,205 +515,102 @@ class UnitInfoPager : Fragment() {
         cdlevt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.toString().isNotEmpty()) {
-                    if (s.toString().toInt() > 30 || s.toString().toInt() <= 0) {
-                        if (cdlev.isHelperTextEnabled) {
-                            cdlev.isHelperTextEnabled = false
-                            cdlev.isErrorEnabled = true
-                            cdlev.error = activity.getString(R.string.treasure_invalid)
-                        }
-                    } else {
-                        if (cdlev.isErrorEnabled) {
-                            cdlev.error = null
-                            cdlev.isErrorEnabled = false
-                            cdlev.isHelperTextEnabled = true
-                            cdlev.setHelperTextColor(ColorStateList(states, color))
-                            cdlev.helperText = "1~30 Lv."
-                        }
+                if (s.toString().isNotEmpty() && s.toString().toInt() !in 1..30) {
+                    if (cdlev.isHelperTextEnabled) {
+                        cdlev.isHelperTextEnabled = false
+                        cdlev.isErrorEnabled = true
+                        cdlev.error = activity.getString(R.string.treasure_invalid)
                     }
-                } else {
-                    if (cdlev.isErrorEnabled) {
-                        cdlev.error = null
-                        cdlev.isErrorEnabled = false
-                        cdlev.isHelperTextEnabled = true
-                        cdlev.setHelperTextColor(ColorStateList(states, color))
-                        cdlev.helperText = "1~30 Lv."
-                    }
+                } else if (cdlev.isErrorEnabled) {
+                    cdlev.error = null
+                    cdlev.isErrorEnabled = false
+                    cdlev.isHelperTextEnabled = true
+                    cdlev.setHelperTextColor(ColorStateList(states, color))
+                    cdlev.helperText = "Lv1~30"
                 }
             }
-
             override fun afterTextChanged(text: Editable) {
-                if (text.toString().isNotEmpty()) {
-                    if (text.toString().toInt() in 1..30) {
-                        val lev = text.toString().toInt()
-
-                        t.tech[0] = lev
-
-                        if (unitcd.text.toString().endsWith("s")) {
-                            unitcd.text = s.getCD(f, t, 1, talents, level)
-                        } else {
-                            unitcd.text = s.getCD(f, t, 0, talents, level)
-                        }
-                    }
-                } else {
+                if (text.toString().isNotEmpty() && text.toString().toInt() in 1..30) {
+                    t.tech[0] = text.toString().toInt()
+                } else
                     t.tech[0] = 1
-
-                    if (unitcd.text.toString().endsWith("s")) {
-                        unitcd.text = s.getCD(f, t, 1, talents, level)
-                    } else {
-                        unitcd.text = s.getCD(f, t, 0, talents, level)
-                    }
-                }
+                unitcd.text = s.getCD(f, t, unitcd.text.toString().endsWith("f"), talents, level)
             }
         })
-
         cdtreat.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.toString().isNotEmpty()) {
-                    if (s.toString().toInt() > 300) {
-                        if (cdtrea.isHelperTextEnabled) {
-                            cdtrea.isHelperTextEnabled = false
-                            cdtrea.isErrorEnabled = true
-                            cdtrea.error = activity.getString(R.string.treasure_invalid)
-                        }
-                    } else {
-                        if (cdtrea.isErrorEnabled) {
-                            cdtrea.error = null
-                            cdtrea.isErrorEnabled = false
-                            cdtrea.isHelperTextEnabled = true
-                            cdtrea.setHelperTextColor(ColorStateList(states, color))
-                            cdtrea.helperText = "0~300 %"
-                        }
+                if (s.toString().isNotEmpty() && s.toString().toInt() !in 0..300) {
+                    if (cdtrea.isHelperTextEnabled) {
+                        cdtrea.isHelperTextEnabled = false
+                        cdtrea.isErrorEnabled = true
+                        cdtrea.error = activity.getString(R.string.treasure_invalid)
                     }
-                } else {
-                    if (cdtrea.isErrorEnabled) {
-                        cdtrea.error = null
-                        cdtrea.isErrorEnabled = false
-                        cdtrea.isHelperTextEnabled = true
-                        cdtrea.setHelperTextColor(ColorStateList(states, color))
-                        cdtrea.helperText = "0~300 %"
-                    }
+                } else if (cdtrea.isErrorEnabled) {
+                    cdtrea.error = null
+                    cdtrea.isErrorEnabled = false
+                    cdtrea.isHelperTextEnabled = true
+                    cdtrea.setHelperTextColor(ColorStateList(states, color))
+                    cdtrea.helperText = "0~300 %"
                 }
             }
-
             override fun afterTextChanged(text: Editable) {
-                if (text.toString().isNotEmpty()) {
-                    if (text.toString().toInt() <= 300) {
-                        val trea = text.toString().toInt()
-                        t.trea[2] = trea
-                        if (unitcd.text.toString().endsWith("s")) {
-                            unitcd.text = s.getCD(f, t, 1, talents, level)
-                        } else {
-                            unitcd.text = s.getCD(f, t, 0, talents, level)
-                        }
-                    }
-                } else {
+                if (text.toString().isNotEmpty() && text.toString().toInt() in 0..300) {
+                    val trea = text.toString().toInt()
+                    t.trea[2] = trea
+                } else
                     t.trea[2] = 0
-                    if (unitcd.text.toString().endsWith("s")) {
-                        unitcd.text = s.getCD(f, t, 1, talents, level)
-                    } else {
-                        unitcd.text = s.getCD(f, t, 0, talents, level)
-                    }
-                }
+                unitcd.text = s.getCD(f, t, unitcd.text.toString().endsWith("f"), talents, level)
             }
         })
-
         atktreat.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.toString().isNotEmpty()) {
-                    if (s.toString().toInt() > 300) {
-                        if (atktrea.isHelperTextEnabled) {
-                            atktrea.isHelperTextEnabled = false
-                            atktrea.isErrorEnabled = true
-                            atktrea.error = activity.getString(R.string.treasure_invalid)
-                        }
-                    } else {
-                        if (atktrea.isErrorEnabled) {
-                            atktrea.error = null
-                            atktrea.isErrorEnabled = false
-                            atktrea.isHelperTextEnabled = true
-                            atktrea.setHelperTextColor(ColorStateList(states, color))
-                            atktrea.helperText = "0~300 %"
-                        }
+                if (s.toString().isNotEmpty() && s.toString().toInt() !in 0..300) {
+                    if (atktrea.isHelperTextEnabled) {
+                        atktrea.isHelperTextEnabled = false
+                        atktrea.isErrorEnabled = true
+                        atktrea.error = activity.getString(R.string.treasure_invalid)
                     }
-                } else {
-                    if (atktrea.isErrorEnabled) {
-                        atktrea.error = null
-                        atktrea.isErrorEnabled = false
-                        atktrea.isHelperTextEnabled = true
-                        atktrea.setHelperTextColor(ColorStateList(states, color))
-                        atktrea.helperText = "0~300 %"
-                    }
+                } else if (atktrea.isErrorEnabled) {
+                    atktrea.error = null
+                    atktrea.isErrorEnabled = false
+                    atktrea.isHelperTextEnabled = true
+                    atktrea.setHelperTextColor(ColorStateList(states, color))
+                    atktrea.helperText = "0~300 %"
                 }
             }
-
             override fun afterTextChanged(text: Editable) {
-                if (text.toString().isNotEmpty()) {
-                    if (text.toString().toInt() <= 300) {
-                        t.trea[0] = text.toString().toInt()
-
-                        if (unitatkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                            unitatk.text = s.getDPS(f, t, talents, level, catk)
-                        } else {
-                            unitatk.text = s.getAtk(f, t, talents, level, catk)
-                        }
-                    }
-                } else {
+                if (text.toString().isNotEmpty() && text.toString().toInt() in 0..300) {
+                    t.trea[0] = text.toString().toInt()
+                } else
                     t.trea[0] = 0
-
-                    if (unitatkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                        unitatk.text = s.getDPS(f, t, talents, level, catk)
-                    } else {
-                        unitatk.text = s.getAtk(f, t, talents, level, catk)
-                    }
-                }
+                setAtkText(unitatk, unitatkb.text.toString() == activity.getString(R.string.unit_info_dps), f, t)
             }
         })
-
         healtreat.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.toString().isNotEmpty()) {
-                    if (s.toString().toInt() > 300) {
-                        if (healtrea.isHelperTextEnabled) {
-                            healtrea.isHelperTextEnabled = false
-                            healtrea.isErrorEnabled = true
-                            healtrea.error = activity.getString(R.string.treasure_invalid)
-                        }
-                    } else {
-                        if (healtrea.isErrorEnabled) {
-                            healtrea.error = null
-                            healtrea.isErrorEnabled = false
-                            healtrea.isHelperTextEnabled = true
-                            healtrea.setHelperTextColor(ColorStateList(states, color))
-                            healtrea.helperText = "0~300 %"
-                        }
+                if (s.toString().isNotEmpty() && s.toString().toInt() !in 0..300) {
+                    if (healtrea.isHelperTextEnabled) {
+                        healtrea.isHelperTextEnabled = false
+                        healtrea.isErrorEnabled = true
+                        healtrea.error = activity.getString(R.string.treasure_invalid)
                     }
-                } else {
-                    if (healtrea.isErrorEnabled) {
-                        healtrea.error = null
-                        healtrea.isErrorEnabled = false
-                        healtrea.isHelperTextEnabled = true
-                        healtrea.setHelperTextColor(ColorStateList(states, color))
-                        healtrea.helperText = "0~300 %"
-                    }
+                } else if (healtrea.isErrorEnabled) {
+                    healtrea.error = null
+                    healtrea.isErrorEnabled = false
+                    healtrea.isHelperTextEnabled = true
+                    healtrea.setHelperTextColor(ColorStateList(states, color))
+                    healtrea.helperText = "0~300 %"
                 }
             }
-
             override fun afterTextChanged(text: Editable) {
-                if (text.toString().isNotEmpty()) {
-                    if (text.toString().toInt() <= 300) {
-                        t.trea[1] = text.toString().toInt()
-
-                        unithp.text = s.getHP(f, t, talents, level)
-                    }
-                } else {
+                if (text.toString().isNotEmpty() && text.toString().toInt() in 0..300) {
+                    t.trea[1] = text.toString().toInt()
+                } else
                     t.trea[1] = 0
-
-                    unithp.text = s.getHP(f, t, talents, level)
-                }
+                unithp.text = s.getHP(f, t, talents, level)
             }
         })
 
@@ -852,18 +625,8 @@ class UnitInfoPager : Fragment() {
             atktreat.setText(t.trea[1].toString())
             healtreat.setText(t.trea[2].toString())
 
-            if (unitcd.text.toString().endsWith("s")) {
-                unitcd.text = s.getCD(f, t, 1, talents, level)
-            } else {
-                unitcd.text = s.getCD(f, t, 0, talents, level)
-            }
-
-            if (unitatkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                unitatk.text = s.getDPS(f, t, talents, level, catk)
-            } else {
-                unitatk.text = s.getAtk(f, t, talents, level, catk)
-            }
-
+            unitcd.text = s.getCD(f, t, unitcd.text.toString().endsWith("f"), talents, level)
+            setAtkText(unitatk, unitatkb.text.toString() == activity.getString(R.string.unit_info_dps), f, t)
             unithp.text = s.getHP(f, t, talents, level)
         }
 
@@ -990,15 +753,12 @@ class UnitInfoPager : Fragment() {
 
         unitcost.text = s.getCost(f, talents, this.level)
 
-        if (unitcd.text.toString().endsWith("s"))
-            unitcd.text = s.getCD(f, t, 1, talents, this.level)
-        else
-            unitcd.text = s.getCD(f, t, 0, talents, this.level)
+        unitcd.text = s.getCD(f, t, unitcd.text.toString().endsWith("f"), talents, this.level)
 
         unittrait.text = s.getTrait(f, talents, this.level, activity)
         unitspd.text = s.getSpd(f, talents, this.level)
-        unittba.text = s.getTBA(f, talents, fs, this.level)
-        unitatkt.text = s.getAtkTime(f, talents, fs, this.level, catk)
+        unittba.text = s.getTBA(f, talents, frames, this.level)
+        unitatkt.text = s.getAtkTime(f, talents, frames, this.level, catk)
 
         val du: MaskUnit = if (f.du.pCoin != null && talents)
             f.du.pCoin.improve(this.level.talents)
@@ -1007,7 +767,7 @@ class UnitInfoPager : Fragment() {
 
         val abil = Interpret.getAbi(du, fragment, 0, activity)
 
-        val proc = Interpret.getProc(du, fs == 1, true, arrayOf(1.0, 1.0).toDoubleArray(), requireContext())
+        val proc = Interpret.getProc(du, !frames, false, arrayOf(1.0, 1.0).toDoubleArray(), requireContext())
 
         val abilityicon = Interpret.getAbiid(du)
 
@@ -1041,13 +801,24 @@ class UnitInfoPager : Fragment() {
 
     private fun changeSpinner(spinner: Spinner, enable: Boolean) {
         spinner.isEnabled = enable
-        spinner.background.alpha = if(enable)
-            255
-        else
-            64
+        spinner.background.alpha = if(enable) 255 else 64
 
-        if(spinner.childCount >= 1 && spinner.getChildAt(0) is AutoMarquee) {
-            (spinner.getChildAt(0) as AutoMarquee).setTextColor((spinner.getChildAt(0) as AutoMarquee).textColors.withAlpha(if(enable) 255 else 64))
+        if(spinner.childCount >= 1 && spinner.getChildAt(0) is AutoMarquee)
+            (spinner.getChildAt(0) as AutoMarquee).setTextColor((spinner.getChildAt(0) as AutoMarquee).textColors.withAlpha(spinner.background.alpha))
+    }
+
+    private fun setLvStats(lvt : Int, superTalent: Array<Spinner>, view: View, unithp : TextView, unitatk : TextView, showDPS : Boolean, f : Form, t : Treasure) {
+        unithp.text = s.getHP(f, t, talents, this@UnitInfoPager.level)
+        setAtkText(unitatk, showDPS, f, t)
+
+        if(CommonStatic.getConfig().realLevel) {
+            for(i in superTalent.indices)
+                changeSpinner(superTalent[i], lvt >= f.du.pCoin.getReqLv(superTalentIndex[i]))
+            validate(view, f, t)
         }
+    }
+    private fun setAtkText(unitatk : TextView, showDPS : Boolean, f : Form, t : Treasure) {
+        if (showDPS) unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level, catk)
+        else unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level, catk)
     }
 }

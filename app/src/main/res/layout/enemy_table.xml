@@ -668,8 +668,8 @@
 
             <Button
                 android:id="@+id/btn_prevatk"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:background="@drawable/button_shape"
                 android:enabled="true"
                 android:paddingStart="4dp"
@@ -681,7 +681,7 @@
 
             <TextView
                 android:id="@+id/atk_index"
-                android:layout_width="270dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_span="2"
                 android:background="@drawable/cell_shape"
@@ -696,9 +696,11 @@
 
             <Button
                 android:id="@+id/btn_nextatk"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_span="1"
                 android:background="@drawable/button_shape"
+                android:gravity="center"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
                 android:text="@string/info_next_hit"

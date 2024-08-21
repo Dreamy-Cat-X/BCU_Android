@@ -129,12 +129,10 @@ class LUUnitListAdapter(context: Context, private val numbers: ArrayList<Identif
 
     private fun isUnusableInStage(position: Int): Int {
         stage ?: return 0
-
         limit ?: return 0
+
         val container = stage.cont ?: return 0
-
         val u = Identifier.get(numbers[position]) ?: return 0
-
-        return u.forms.count { f -> limit.unusable(f.du, container.price, (position/5).toByte()) }
+        return u.forms.count { f -> limit.unusable(f.du, container.price, (limit.line-1).toByte()) }
     }
 }

@@ -9,6 +9,7 @@ import common.battle.Treasure
 import common.battle.data.MaskEntity
 import common.battle.data.MaskUnit
 import common.pack.Identifier
+import common.pack.SortedPackSet
 import common.util.Data
 import common.util.lang.MultiLangCont
 import common.util.stage.Limit
@@ -19,6 +20,7 @@ import common.util.unit.Character
 import common.util.unit.Enemy
 import common.util.unit.Form
 import common.util.unit.Level
+import common.util.unit.Trait
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
 
@@ -95,36 +97,31 @@ class GetStrings(private val c: Context) {
         )//TODO - Custom proc talents
         private lateinit var talTool: Array<String>
         private val mapcolcid = arrayOf("N", "S", "C", "CH", "E", "T", "V", "R", "M", "A", "B", "RA", "H", "CA", "Q", "L", "ND", "SR")
-        private val allColor: String
-        private val allTrait: String
-
-        init {
-            val ac = StringBuilder()
-            val at = StringBuilder()
-
-            for (i in Interpret.traitMask.indices) {
-                if(Interpret.traitMask[i] == Data.TRAIT_EVA || Interpret.traitMask[i] == Data.TRAIT_WITCH)
-                    continue
-
-                if (Interpret.traitMask[i] != Data.TRAIT_WHITE)
-                    ac.append(Interpret.TRAIT[i]).append(", ")
-
-                at.append(Interpret.TRAIT[i]).append(", ")
-            }
-
-
-            allColor = ac.toString()
-            allTrait = at.toString()
-        }
+        private lateinit var allColor: String
+        private lateinit var nonMetal: String
+        private lateinit var allTrait: String
     }
 
     init {
         talTool = Array(talData.size) { i ->
             if(talData[i] == -1)
                 return@Array "Invalid"
-
             c.getString(talData[i])
         }
+
+        val ac = StringBuilder()
+        val am = StringBuilder()
+        val at = StringBuilder()
+        for (i in 0 .. Data.TRAIT_WHITE) {
+            if (Interpret.traitMask[i] != Data.TRAIT_WHITE)
+                ac.append(c.getString(Interpret.TRAIT[i])).append(", ")
+            if (Interpret.traitMask[i] != Data.TRAIT_METAL)
+                am.append(c.getString(Interpret.TRAIT[i])).append(", ")
+            at.append(c.getString(Interpret.TRAIT[i])).append(", ")
+        }
+        allColor = ac.toString()
+        nonMetal = am.toString()
+        allTrait = at.toString()
     }
 
     fun getTitle(f: Form?): String {
@@ -147,23 +144,19 @@ class GetStrings(private val c: Context) {
         return if (name == "") rarity else result.append(rarity).append(" - ").append(name).toString()
     }
 
-    fun getAtkTime(f: Form?, talent: Boolean, frse: Int, lvs: Level, index : Int): String {
-        if (f == null)
-            return ""
+    fun getAtkTime(f: Form?, talent: Boolean, frame: Boolean, lvs: Level, index : Int): String {
+        if (f == null || index >= f.du.atkTypeCount) return ""
         val du = if(f.du.pCoin != null && talent) f.du.pCoin.improve(lvs.talents) else f.du
-
-        return if (frse == 0) du.getItv(index).toString() + "f"
-        else DecimalFormat("#.##").format(du.getItv(0).toDouble() / 30) + "s"
+        return if (frame) du.getItv(index).toString() + "f" else DecimalFormat("#.##").format(du.getItv(0).toDouble() / 30) + "s"
     }
-
     fun getAtkTime(em: Enemy?, frse: Boolean, index : Int): String {
-        if (em == null || index > em.de.atkTypeCount) return ""
+        if (em == null || index >= em.de.atkTypeCount) return ""
         return if (frse) em.de.getItv(index).toString() + "f" else DecimalFormat("#.##").format(em.de.getItv(index).toDouble() / 30) + "s"
     }
 
     fun getAbilT(ch: Character?, index: Int): String {
         if (ch == null) return ""
-        val atks = Interpret.getAtkModel(ch.mask, index)
+        val atks = StaticJava.getAtkModel(ch.mask, index)
         val result = StringBuilder()
         for (i in atks.indices) {
             if (i < atks.size - 1) {
@@ -175,20 +168,16 @@ class GetStrings(private val c: Context) {
         return result.toString()
     }
 
-    fun getPost(c: Character?, frse: Boolean, index : Int): String {
+    fun getPost(c: Character?, frame: Boolean, index : Int): String {
         if (c == null || index >= c.mask.atkTypeCount) return ""
-        return if (frse) c.mask.getPost(false, index).toString() + "f" else DecimalFormat("#.##").format(c.mask.getPost(false, index).toDouble() / 30) + "s"
+        return if (frame) c.mask.getPost(false, index).toString() + "f" else DecimalFormat("#.##").format(c.mask.getPost(false, index).toDouble() / 30) + "s"
     }
 
-    fun getTBA(f: Form?, talent: Boolean, frse: Int, lvs: Level): String {
-        if (f == null)
-            return ""
+    fun getTBA(f: Form?, talent: Boolean, frame: Boolean, lvs: Level): String {
+        if (f == null) return ""
         val du = if(f.du.pCoin != null && talent) f.du.pCoin.improve(lvs.talents) else f.du
-
-        return if (frse == 0) du.tba.toString() + "f"
-        else DecimalFormat("#.##").format(du.tba.toDouble() / 30) + "s"
+        return getTBA(du, frame)
     }
-
     fun getTBA(em: Enemy?, frame: Boolean): String {
         return if (em == null) "" else getTBA(em.de, frame)
     }
@@ -199,8 +188,7 @@ class GetStrings(private val c: Context) {
     fun getPre(c: Character?, frse: Int, index : Int): String {
         if (c == null)
             return ""
-
-        val atkdat = Interpret.getAtkModel(c.mask, index)
+        val atkdat = StaticJava.getAtkModel(c.mask, index)
         return if (frse == 0) {
             if (atkdat.size > 1) {
                 val result = StringBuilder()
@@ -225,20 +213,14 @@ class GetStrings(private val c: Context) {
     }
 
     fun getPackName(id: Identifier<*>, isRaw: Boolean) : String {
-        return if(isRaw) {
-            id.pack
-        } else if (id.pack == Identifier.DEF) {
-            c.getString(R.string.pack_default)
-        } else
-            StaticStore.getPackName(id.pack)
+        return if (isRaw) id.pack
+        else if (id.pack == Identifier.DEF) c.getString(R.string.pack_default)
+        else StaticStore.getPackName(id.pack)
     }
     fun getPackName(pack: String, isRaw: Boolean) : String {
-        return if(isRaw) {
-            pack
-        } else if(StaticStore.BCMapCodes.contains(pack)) {
-            c.getString(R.string.pack_default) + "(" + c.getString(StaticStore.bcMapNames[StaticStore.BCMapCodes.indexOf(pack)]) + ")"
-        } else
-            StaticStore.getPackName(pack)
+        return if(isRaw) pack
+        else if(StaticStore.BCMapCodes.contains(pack)) c.getString(R.string.pack_default) + "(" + c.getString(StaticStore.bcMapNames[StaticStore.BCMapCodes.indexOf(pack)]) + ")"
+        else StaticStore.getPackName(pack)
     }
 
     fun getID(viewHolder: RecyclerView.ViewHolder?, id: String): String {
@@ -255,20 +237,18 @@ class GetStrings(private val c: Context) {
         val du = if(f.du.pCoin != null && talent) f.du.pCoin.improve(lvs.talents) else f.du//Custom range talents exist in this fork
         return getRange(f, index, du.range)
     }
-
     fun getRange(e: Enemy?, index : Int): String {
         if (e == null)
             return ""
         return getRange(e, index, e.de.range)
     }
-
-    fun getRange(c: Character, index : Int, tb : Int): String {
+    private fun getRange(c: Character, index : Int, tb : Int): String {
         if(!c.mask.isLD && !c.mask.isOmni)
             return tb.toString()
 
-        val model = Interpret.getAtkModel(c.mask, index)
+        val model = StaticJava.getAtkModel(c.mask, index)
         if(model.isEmpty() || allRangeSame(c.mask, index)) {
-            val ma = Interpret.getAtkModel(c.mask, index)[0]
+            val ma = StaticJava.getAtkModel(c.mask, index)[0]
             val lds = ma.shortPoint
             val ldr = ma.longPoint - ma.shortPoint
 
@@ -298,7 +278,7 @@ class GetStrings(private val c: Context) {
         val near = ArrayList<Int>()
         val far = ArrayList<Int>()
 
-        for(atk in Interpret.getAtkModel(de, index)) {
+        for(atk in StaticJava.getAtkModel(de, index)) {
             near.add(atk.shortPoint)
             far.add(atk.longPoint)
         }
@@ -314,26 +294,25 @@ class GetStrings(private val c: Context) {
         return true
     }
 
-    fun getCD(f: Form?, t: Treasure?, frse: Int, talent: Boolean, lvs: Level): String {
+    fun getCD(f: Form?, t: Treasure?, frame: Boolean, talent: Boolean, lvs: Level): String {
         if (f == null || t == null)
             return ""
         val du: MaskUnit = if (talent && f.du.pCoin != null) f.du.pCoin.improve(lvs.talents) else f.du
 
-        return if (frse == 0) t.getFinRes(du.respawn, 0).toString() + "f"
+        return if (frame) t.getFinRes(du.respawn, 0).toString() + "f"
         else DecimalFormat("#.##").format(t.getFinRes(du.respawn, 0).toDouble() / 30) + "s"
     }
 
     fun getAtk(f: Form?, t: Treasure?, talent: Boolean, lvs: Level, index : Int): String {
         if (f == null || t == null)
             return ""
-        return if (Interpret.getAtkModel(f.du, index).size > 1) getTotAtk(f, t, talent, lvs, index) + " " + getAtks(f, t, talent, lvs, index)
+        return if (StaticJava.getAtkModel(f.du, index).size > 1) getTotAtk(f, t, talent, lvs, index) + " " + getAtks(f, t, talent, lvs, index)
         else getTotAtk(f, t, talent, lvs, index)
     }
-
     fun getAtk(em: Enemy?, multi: Int, index: Int): String {
         if (em == null)
             return ""
-        return if (Interpret.getAtkModel(em.de, index).size > 1) getTotAtk(em, multi, index) + " " + getAtks(em, multi, index)
+        return if (StaticJava.getAtkModel(em.de, index).size > 1) getTotAtk(em, multi, index) + " " + getAtks(em, multi, index)
         else getTotAtk(em, multi, index)
     }
 
@@ -396,84 +375,55 @@ class GetStrings(private val c: Context) {
         val du: MaskUnit = if (talent && f.du.pCoin != null) f.du.pCoin.improve(lvs.talents) else f.du
 
         val result: Int = if(f.du.pCoin != null && talent) {
-            (((du.allAtk(index) * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt() * f.du.pCoin.getStatMultiplication(Data.PC2_ATK, lvs.talents)).toInt()
-        } else
-            ((du.allAtk(index) * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt()
+            (((StaticJava.allAtk(du, index) * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt() * f.du.pCoin.getStatMultiplication(Data.PC2_ATK, lvs.talents)).toInt()
+        } else ((StaticJava.allAtk(du, index) * f.unit.lv.getMult(lvs.lv + lvs.plusLv)).roundToInt() * t.atkMulti).toInt()
 
         return result.toString()
     }
-
     private fun getTotAtk(em: Enemy?, multi: Int, index : Int): String {
         if (em == null)
             return ""
-
-        return (em.de.multi(BasisSet.current()) * em.de.allAtk(index) * multi / 100).toInt().toString()
+        return (em.de.multi(BasisSet.current()) * StaticJava.allAtk(em.de, index) * multi / 100).toInt().toString()
     }
 
     fun getDPS(f: Form?, t: Treasure?, talent: Boolean, lvs: Level, index : Int): String {
-        return if (f == null || t == null)
-            ""
+        return if (f == null || t == null || index >= f.du.atkTypeCount) ""
         else {
             val du = if(talent && f.du.pCoin != null) f.du.pCoin.improve(lvs.talents) else f.du
-
             DecimalFormat("#.##").format(getTotAtk(f, t, talent, lvs, index).toDouble() / (du.getItv(index) / 30.0)).toString()
         }
     }
-
     fun getDPS(em: Enemy?, multi: Int, index : Int): String {
-        return if (em == null) ""
+        return if (em == null || index >= em.de.atkTypeCount) ""
         else DecimalFormat("#.##").format(getTotAtk(em, multi, index).toDouble() / (em.de.getItv(index).toDouble() / 30)).toString()
     }
 
     fun getTrait(ef: Form?, talent: Boolean, lvs: Level, c: Context): String {
         if (ef == null) return ""
-
-        val du: MaskUnit = if (ef.du.pCoin != null && talent) ef.du.pCoin.improve(lvs.talents)
-        else ef.du
-
-        var result = Interpret.getTrait(du.traits, 0, c)
-        if (result == "")
-            result = c.getString(R.string.unit_info_t_none)
-        if (result == allColor)
-            result = c.getString(R.string.unit_info_t_allc)
-        if (result == allTrait)
-            result = c.getString(R.string.unit_info_t_allt)
-
-        if (result.endsWith(", "))
-            result = result.substring(0, result.length - 2)
-        return result
+        val du: MaskUnit = if (ef.du.pCoin != null && talent) ef.du.pCoin.improve(lvs.talents) else ef.du
+        return getTraitList(du.traits, 0, c)
     }
-
     fun getTrait(em: Enemy, c: Context): String {
-        val de = em.de
-
-        val allcolor = StringBuilder()
-        val alltrait = StringBuilder()
-        for (i in 0..8) {
-            if (i != 0)
-                allcolor.append(Interpret.TRAIT[i]).append(", ")
-            alltrait.append(Interpret.TRAIT[i]).append(", ")
-        }
-
+        return getTraitList(em.de.traits, em.de.star, c)
+    }
+    private fun getTraitList(traits : SortedPackSet<Trait>, star : Int, c : Context): String {
         var result: String
-
-        val star = de.star
-
-        result = Interpret.getTrait(de.traits, star, c)
-
+        result = Interpret.getTrait(traits, star, c)
         if (result == "")
-            result = c.getString(R.string.unit_info_t_none)
+            return c.getString(R.string.unit_info_t_none)
 
-        if (result == allcolor.toString())
-            result = c.getString(R.string.unit_info_t_allc)
+        if (result.startsWith(allColor) || result.startsWith(nonMetal) || result.startsWith(allTrait)) {
+            val ts = result.split(", ")
+            for (i in Data.TRAIT_RELIC until traits.size)
+                if (!traits[i].BCTrait() && traits[i].targetType)
+                    result = result.replace(ts[i] + ", ", "")
 
-        if (result == alltrait.toString())
-            result = c.getString(R.string.unit_info_t_allt)
-
-        if (result.endsWith(", "))
-            result = result.substring(0, result.length - 2)
-
-        return result
+            result = if (result.startsWith(allColor))
+                result.replace(allColor, c.getString(R.string.unit_info_t_allc) + ", ")
+            else if (result.startsWith(nonMetal)) result.replace(nonMetal, "Non-Metal, ")
+            else result.replace(allTrait, c.getString(R.string.unit_info_t_allt) + ", ")
+        }
+        return result.substring(0, result.length - 2)
     }
 
     fun getCost(f: Form?, talent: Boolean, lvs: Level): String {
@@ -482,7 +432,6 @@ class GetStrings(private val c: Context) {
         val du: MaskUnit = if (talent && f.du.pCoin != null) f.du.pCoin.improve(lvs.talents) else f.du
         return (du.price * 1.5).toInt().toString()
     }
-
     fun getDrop(em: Enemy?, t: Treasure): String {
         if (em == null)
             return ""
@@ -498,7 +447,7 @@ class GetStrings(private val c: Context) {
             else f.du
         else f.du
 
-        val atks = Interpret.getAtkModel(du, index)
+        val atks = StaticJava.getAtkModel(du, index)
         val damges = ArrayList<Int>()
 
         for (atk in atks) {
@@ -515,12 +464,11 @@ class GetStrings(private val c: Context) {
         }
         return result.toString()
     }
-
     private fun getAtks(em: Enemy?, multi: Int, index : Int): String {
         if (em == null)
             return ""
 
-        val atks = Interpret.getAtkModel(em.de, index)
+        val atks = StaticJava.getAtkModel(em.de, index)
         val damages = ArrayList<Int>()
 
         for (atk in atks)
@@ -534,15 +482,11 @@ class GetStrings(private val c: Context) {
         return result.toString()
     }
 
-    fun getSimu(ch: Character?, index: Int = 0): String {
-        if (ch == null)
-            return ""
-        return if (Interpret.isType(ch.mask, 1, index))
-            c.getString(R.string.sch_atk_ra)
-        else
-            c.getString(R.string.sch_atk_si)
+    fun getSimu(ch: Character?, index: Int): String {
+        if (ch == null || index >= ch.mask.atkTypeCount) return ""
+        return if (Interpret.isType(ch.mask, 1, index)) c.getString(R.string.sch_atk_ra)
+        else c.getString(R.string.sch_atk_si)
     }
-
     fun getTalentName(index: Int, f: Form, c: Context): String {
         val ans: String?
 
@@ -560,15 +504,12 @@ class GetStrings(private val c: Context) {
             basic.contains(info[index][0]) -> talTool[info[index][0]]
             f.du.pCoin.trait.isNotEmpty() && index == 0 -> {
                 val tr = Interpret.getTrait(f.du.pCoin.trait, 0, c)
-
                 if(tr.endsWith(", "))
                     c.getString(R.string.talen_abil) + tr.substring(0, tr.length - 2) + " " + talTool[info[index][0]]
-                else
-                    c.getString(R.string.talen_abil) + tr + " " + talTool[info[index][0]]
+                else c.getString(R.string.talen_abil) + tr + " " + talTool[info[index][0]]
             }
             else -> c.getString(R.string.talen_abil) + " " + talTool[info[index][0]]
         }
-
         return ans
     }
 

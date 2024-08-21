@@ -1,5 +1,7 @@
 package com.yumetsuki.bcu.androidutil;
 
+import common.battle.data.MaskAtk;
+import common.battle.data.MaskEntity;
 import common.pack.Identifier;
 import common.pack.UserProfile;
 import common.util.anim.AnimU;
@@ -60,7 +62,28 @@ public class StaticJava {
         } catch (Exception e) {
             System.out.println("Try to generate EAnimD, but failed : \n\ndata = " + data + "\nform = " + form + "\ndataId = " + dataId);
         }
-
         return UserProfile.getBCData().units.get(0).forms[0].getEAnim(AnimU.TYPEDEF[AnimU.WALK]);
+    }
+    public static MaskAtk[] getAtkModel(MaskEntity ent, int index) {
+        if (index < ent.getAtkTypeCount())
+            return ent.getAtks(index);
+        return ent.getSpAtks(true, index-ent.getAtkTypeCount());
+    }
+    public static int spAtkCount(MaskEntity ent) {
+        MaskAtk[][] stks = ent.getSpAtks(true);
+        for (int i = stks.length - 1; i >= 0; i--)
+            if (stks[i].length > 0)
+                return i+1;
+        return 0;
+    }
+    public static int allAtk(MaskEntity ent, int index) {
+        if (index < ent.getAtkTypeCount())
+            return ent.allAtk(index);
+        MaskAtk[] atks = ent.getSpAtks(true, index-ent.getAtkTypeCount());
+        int dmg = 0;
+        for (MaskAtk at : atks)
+            if (at.getDire() == 1)
+                dmg += at.getAtk();
+        return dmg;
     }
 }

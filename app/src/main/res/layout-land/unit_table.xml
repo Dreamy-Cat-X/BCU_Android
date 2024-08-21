@@ -627,6 +627,52 @@
             </TableRow>
 
         </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/btn_prevatk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_shape"
+                android:enabled="true"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="@string/info_prev_hit"
+                android:textAllCaps="false"
+                android:textColor="?attr/TextPrimary"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/atk_index"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_span="4"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:paddingStart="4dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="4dp"
+                android:paddingBottom="12dp"
+                android:text="@string/info_current_hit"
+                android:textColor="?attr/TextPrimary"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btn_nextatk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_shape"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="@string/info_next_hit"
+                android:textAllCaps="false"
+                android:textColor="?attr/TextPrimary"
+                android:textStyle="bold" />
+        </TableRow>
+
     </TableLayout>
 
     <Button

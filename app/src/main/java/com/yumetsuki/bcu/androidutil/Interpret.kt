@@ -4,12 +4,8 @@ import android.content.Context
 import android.util.Log
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore.isEnglish
-import common.battle.data.CustomEntity
 import common.battle.data.MaskAtk
-import common.battle.data.MaskEnemy
 import common.battle.data.MaskEntity
-import common.battle.data.MaskUnit
-import common.pack.Identifier
 import common.pack.SortedPackSet
 import common.util.Data
 import common.util.lang.Formatter
@@ -78,20 +74,14 @@ object Interpret : Data() {
         val ans = StringBuilder()
 
         for(trait in traits) {
-            if(trait.id.pack == Identifier.DEF) {
+            if(trait.BCTrait()) {
                 if(trait.id.id == 6 && star == 1) {
-                    ans.append(c.getString(TRAIT[trait.id.id]))
-                        .append(" (")
-                        .append(c.getString(STAR[star]))
-                        .append("), ")
-                } else {
-                    ans.append(c.getString(TRAIT[trait.id.id]))
-                        .append(", ")
-                }
-            } else {
-                ans.append(trait.name)
-                    .append(", ")
-            }
+                    ans.append(c.getString(TRAIT[6]))
+                        .append(" (").append(c.getString(STAR[1])).append("), ")
+                } else
+                    ans.append(c.getString(TRAIT[trait.id.id])).append(", ")
+            } else
+                ans.append(trait.name).append(", ")
         }
 
         return ans.toString()
@@ -120,7 +110,7 @@ object Interpret : Data() {
                 val item = mr.proc.get(PROCIND[i])
                 val ans = if ((P_INDEX[i] == P_DMGINC || P_INDEX[i] == P_DEFINC)) {
                     "${-(StaticStore.dmgType(P_INDEX[i] == P_DMGINC, item[0])+1)}\\" + Formatter.format(f, item, c)
-                } else if (immune.contains(P_INDEX[i]) && item[0] != 100) {//item[0] will always be mult, which calculates resistances
+                } else if (immune.contains(P_INDEX[i]) && item[0] != 100 && (P_INDEX[i] == P_IMUWAVE || item[1] < 100)) {//item[0] will always be mult, which calculates resistances
                     if (P_INDEX[i] == P_IMUWAVE && item[1] != 0) "-6\\" + Formatter.format(f, item, c)
                     else "${-(StaticStore.siinds.size - immune.size + immune.indexOf(P_INDEX[i])+1)}\\" + Formatter.format(f, item, c)
                 } else
@@ -131,8 +121,8 @@ object Interpret : Data() {
         }
         if (!common) {
             val atkMap = HashMap<String, ArrayList<Int>>()
-            for (k in 0 until getAtkModel(du, atk).size) {
-                val ma = getAtkModel(du, atk)[k]
+            for (k in 0 until StaticJava.getAtkModel(du, atk).size) {
+                val ma = StaticJava.getAtkModel(du, atk)[k]
                 for (i in PROCIND.indices) {
                     if (isValidProc(i, ma) && !ma.proc.sharable(P_INDEX[i].toInt())) {
                         val mf = ProcLang.get().get(PROCIND[i]).format
@@ -154,7 +144,7 @@ object Interpret : Data() {
             for(key in atkMap.keys) {
                 val inds = atkMap[key] ?: ArrayList()
                 when {
-                    inds.isEmpty() || inds.size == getAtkModel(du, atk).size -> {
+                    inds.isEmpty() || inds.size == StaticJava.getAtkModel(du, atk).size -> {
                         l.add(key)
                     }
                     else -> {
@@ -204,21 +194,6 @@ object Interpret : Data() {
         }
     }
 
-    private fun isResist(i: Byte, atk: MaskAtk): Boolean {
-        return when (i) {
-            P_IMUWEAK -> atk.proc.IMUWEAK.mult != 100.0
-            P_IMUSTOP -> atk.proc.IMUSTOP.mult != 100.0
-            P_IMUSLOW -> atk.proc.IMUSLOW.mult != 100.0
-            P_IMUKB -> atk.proc.IMUKB.mult != 100.0
-            P_IMUWAVE -> atk.proc.IMUWAVE.mult != 100.0
-            P_IMUWARP -> atk.proc.IMUWARP.mult != 100.0
-            P_IMUCURSE -> atk.proc.IMUCURSE.mult != 100.0
-            P_IMUPOIATK -> atk.proc.IMUPOIATK.mult != 100.0
-            P_IMUVOLC -> atk.proc.IMUVOLC.mult != 100.0
-            else -> false
-        }
-    }
-
     fun getAbiid(me: MaskEntity): List<Int> {
         val l: MutableList<Int> = ArrayList()
         for (i in ABIS.indices)
@@ -251,7 +226,7 @@ object Interpret : Data() {
     }
 
     fun isType(de: MaskEntity, type: Int, index : Int): Boolean {
-        val raw = getAtkModel(de, index)
+        val raw = StaticJava.getAtkModel(de, index)
 
         return when (type) {
             0 -> !de.isRange(index)
