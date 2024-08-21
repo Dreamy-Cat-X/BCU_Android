@@ -42,10 +42,9 @@ import common.pack.Identifier
 import common.util.unit.AbUnit
 import common.util.unit.Form
 import common.util.unit.Level
-import common.util.unit.Unit
 
 class UnitInfoRecycle(private val context: Activity, private val names: ArrayList<String>, private val forms: Array<Form>, private val data: Identifier<AbUnit>) : RecyclerView.Adapter<UnitInfoRecycle.ViewHolder>() {
-    private var fs = 0
+    private var fs = 0//TODO: This is literally just a boolean. Change it to so, rename it to frame
     private val s: GetStrings = GetStrings(this.context)
     private val fragment = arrayOf(arrayOf("Immune to "), arrayOf(""))
     private val states = arrayOf(intArrayOf(android.R.attr.state_enabled))
@@ -185,7 +184,7 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         viewHolder.unitspd.text = s.getSpd(f, false, level)
         viewHolder.unitcd.text = s.getCD(f, t, fs == 0, false, level)
         viewHolder.unitrang.text = s.getRange(f, catk, false, level)
-        viewHolder.unitpreatk.text = s.getPre(f, fs, catk)
+        viewHolder.unitpreatk.text = s.getPre(f, fs == 0, catk)
         viewHolder.unitpost.text = s.getPost(f, fs == 0, catk)
         viewHolder.unittba.text = s.getTBA(f, false, fs == 0, level)
         viewHolder.unitatkt.text = s.getAtkTime(f, false, fs == 0, level, catk)
@@ -372,7 +371,7 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
                 fs = 1
 
                 viewHolder.unitcd.text = s.getCD(f, t, fs == 0, talents, level)
-                viewHolder.unitpreatk.text = s.getPre(f, fs, catk)
+                viewHolder.unitpreatk.text = s.getPre(f, fs == 0, catk)
                 viewHolder.unitpost.text = s.getPost(f, fs == 0, catk)
                 viewHolder.unittba.text = s.getTBA(f, talents, fs == 0, level)
                 viewHolder.unitatkt.text = s.getAtkTime(f, talents, fs == 0, level, catk)
@@ -409,7 +408,7 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
                 fs = 0
 
                 viewHolder.unitcd.text = s.getCD(f, t, fs == 0, talents, level)
-                viewHolder.unitpreatk.text = s.getPre(f, fs, catk)
+                viewHolder.unitpreatk.text = s.getPre(f, fs == 0, catk)
                 viewHolder.unitpost.text = s.getPost(f, fs == 0, catk)
                 viewHolder.unittba.text = s.getTBA(f, talents, fs == 0, level)
                 viewHolder.unitatkt.text = s.getAtkTime(f, talents, fs == 0, level, catk)
@@ -446,30 +445,17 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         }
 
         viewHolder.unitcdb.setOnClickListener {
-            if (viewHolder.unitcd.text.toString().endsWith("f"))
-                viewHolder.unitcd.text = s.getCD(f, t, true, talents, level)
-            else
-                viewHolder.unitcd.text = s.getCD(f, t, false, talents, level)
+            viewHolder.unitcd.text = s.getCD(f, t, !viewHolder.unitcd.text.toString().endsWith("f"), talents, level)
         }
-
         viewHolder.unitpreatkb.setOnClickListener {
-            if (viewHolder.unitpreatk.text.toString().endsWith("f"))
-                viewHolder.unitpreatk.text = s.getPre(f, 1, catk)
-            else
-                viewHolder.unitpreatk.text = s.getPre(f, 0, catk)
+            viewHolder.unitpreatk.text = s.getPre(f, !viewHolder.unitpreatk.text.toString().endsWith("f"), catk)
         }
-
         viewHolder.unitpostb.setOnClickListener {
-            viewHolder.unitpost.text = s.getPost(f, viewHolder.unitpost.text.toString().endsWith("f"), catk)
+            viewHolder.unitpost.text = s.getPost(f, !viewHolder.unitpost.text.toString().endsWith("f"), catk)
         }
-
         viewHolder.unittbab.setOnClickListener {
-            if (viewHolder.unittba.text.toString().endsWith("f"))
-                viewHolder.unittba.text = s.getTBA(f, talents, true, level)
-            else
-                viewHolder.unittba.text = s.getTBA(f, talents, false, level)
+            viewHolder.unittba.text = s.getTBA(f, talents, !viewHolder.unittba.text.toString().endsWith("f"), level)
         }
-
         viewHolder.unitatkb.setOnClickListener {
             if (viewHolder.unitatkb.text == context.getString(R.string.unit_info_atk)) {
                 viewHolder.unitatkb.text = context.getString(R.string.unit_info_dps)

@@ -10,6 +10,7 @@
         <item name="backgroundPrimary">@color/backgroundPrimaryN</item>
         <item name="stageSelect">@color/stageSelectN</item>
         <item name="unitinfButton">@color/unitinfButtonN</item>
+        <item name="unitinfButtonDisabled">@color/unitinfButtonDisabledN</item>
         <item name="ButtonPrimary">@color/ButtonPrimaryN</item>
         <item name="TextPrimary">@color/TextPrimaryN</item>
         <item name="TableBorder">@color/TableBorderN</item>
@@ -41,6 +42,7 @@
         <item name="backgroundPrimary">@color/backgroundPrimaryN</item>
         <item name="stageSelect">@color/stageSelectN</item>
         <item name="unitinfButton">@color/unitinfButtonN</item>
+        <item name="unitinfButtonDisabled">@color/unitinfButtonDisabledN</item>
         <item name="ButtonPrimary">@color/ButtonPrimaryN</item>
         <item name="TextPrimary">@color/TextPrimaryN</item>
         <item name="TableBorder">@color/TableBorderN</item>
@@ -72,6 +74,7 @@
         <item name="backgroundPrimary">@color/backgroundPrimaryN</item>
         <item name="stageSelect">@color/stageSelectN</item>
         <item name="unitinfButton">@color/unitinfButtonN</item>
+        <item name="unitinfButtonDisabled">@color/unitinfButtonDisabledN</item>
         <item name="ButtonPrimary">@color/ButtonPrimaryN</item>
         <item name="TextPrimary">@color/TextPrimaryN</item>
         <item name="TableBorder">@color/TableBorderN</item>
@@ -103,6 +106,7 @@
         <item name="backgroundPrimary">@color/backgroundPrimary</item>
         <item name="stageSelect">@color/stageSelect</item>
         <item name="unitinfButton">@color/unitinfButton</item>
+        <item name="unitinfButtonDisabled">@color/unitinfButtonDisabled</item>
         <item name="ButtonPrimary">@color/ButtonPrimary</item>
         <item name="TextPrimary">@color/TextPrimary</item>
         <item name="TableBorder">@color/TableBorder</item>
@@ -134,6 +138,7 @@
         <item name="backgroundPrimary">@color/backgroundPrimary</item>
         <item name="stageSelect">@color/stageSelect</item>
         <item name="unitinfButton">@color/unitinfButton</item>
+        <item name="unitinfButtonDisabled">@color/unitinfButtonDisabled</item>
         <item name="ButtonPrimary">@color/ButtonPrimary</item>
         <item name="TextPrimary">@color/TextPrimary</item>
         <item name="TableBorder">@color/TableBorder</item>

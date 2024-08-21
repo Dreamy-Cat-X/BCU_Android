@@ -32,6 +32,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.GetStrings
 import com.yumetsuki.bcu.androidutil.Interpret
+import com.yumetsuki.bcu.androidutil.StaticJava
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.supports.AnimatorConst
 import com.yumetsuki.bcu.androidutil.supports.AutoMarquee
@@ -108,6 +109,9 @@ class UnitInfoPager : Fragment() {
         val npreset = view.findViewById<Button>(R.id.unitinftalreset)
         val nprow = view.findViewById<TableRow>(R.id.talenrow)
         val supernprow = view.findViewById<TableRow>(R.id.supertalenrow)
+        val prevatk = view.findViewById<Button>(R.id.btn_prevatk)
+        val curatk = view.findViewById<TextView>(R.id.atk_index)
+        val nextatk = view.findViewById<Button>(R.id.btn_nextatk)
 
         val activity = requireActivity()
 
@@ -170,10 +174,6 @@ class UnitInfoPager : Fragment() {
         level.setLevel(f.unit.preferredLevel)
         level.setPlusLevel(f.unit.preferredPlusLevel)
 
-        val ability = Interpret.getAbi(f.du, fragment, 0, activity)
-
-        val abilityicon = Interpret.getAbiid(f.du)
-
         val cdlevt = activity.findViewById<TextInputEditText>(R.id.cdlevt)
         val cdtreat = activity.findViewById<TextInputEditText>(R.id.cdtreat)
         val atktreat = activity.findViewById<TextInputEditText>(R.id.atktreat)
@@ -184,49 +184,33 @@ class UnitInfoPager : Fragment() {
         atktreat.setText(t.trea[0].toString())
         healtreat.setText(t.trea[1].toString())
 
-        val proc = Interpret.getProc(f.du, !frames, false, arrayOf(1.0, 1.0).toDoubleArray(), requireContext())
         val name = MultiLangCont.get(f) ?: f.names.toString()
         val tempIcon = f.anim?.uni?.img?.bimg()
 
         var icon = if(tempIcon is Bitmap) tempIcon else StaticStore.empty(StaticStore.dptopx(48f, activity),StaticStore.dptopx(48f, activity))
-
-        icon = if (icon.height != icon.width)
-            StaticStore.makeIcon(activity, icon, 48f)
-        else
-            StaticStore.getResizeb(icon, activity, 48f)
+        icon = if (icon.height != icon.width) StaticStore.makeIcon(activity, icon, 48f)
+        else StaticStore.getResizeb(icon, activity, 48f)
 
         uniticon.setImageBitmap(icon)
         unitname.text = name
 
-        catk = f.du.firstAtk()
         unitpack.text = s.getPackName(f.unit.id, isRaw)
         unitid.text = s.getID(form, StaticStore.trio(u.id.id))
         unithp.text = s.getHP(f, t, false, level)
         unithb.text = s.getHB(f, false, level)
-        unitatk.text = s.getTotAtk(f, t, false, level, catk)
         unittrait.text = s.getTrait(f, false, level, activity)
         unitcost.text = s.getCost(f, false, level)
-        unitsimu.text = s.getSimu(f, catk)
         unitspd.text = s.getSpd(f, false, level)
         unitcd.text = s.getCD(f, t, frames, false, level)
-        unitrang.text = s.getRange(f, catk, false, level)
-        val temp = if (frames) 0 else 1
-        unitpreatk.text = s.getPre(f, temp, catk)
-        unitpost.text = s.getPost(f, frames, catk)
-        unittba.text = s.getTBA(f, talents, frames, level)
-        unitatkt.text = s.getAtkTime(f, talents, frames, level, catk)
-        unitabilt.text = s.getAbilT(f, catk)
+        unittba.text = s.getTBA(f, false, frames, level)
 
-        if (ability.isNotEmpty() || proc.isNotEmpty()) {
-            none.visibility = View.GONE
-            val linearLayoutManager = LinearLayoutManager(activity)
-            linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-            unitabil.layoutManager = linearLayoutManager
-            val adapterAbil = AdapterAbil(ability, proc, abilityicon, activity)
-            unitabil.adapter = adapterAbil
-            ViewCompat.setNestedScrollingEnabled(unitabil, true)
-        } else
-            unitabil.visibility = View.GONE
+        catk = f.du.firstAtk()
+        if (f.du.realAtkCount() + StaticJava.spAtkCount(f.du) == 1) {
+            prevatk.visibility = View.GONE
+            curatk.visibility = View.GONE
+            nextatk.visibility = View.GONE
+        }
+        changeAtk(none, unitabil, unitatk, false, unitsimu, unitrang, unitpreatk, unitpost, unitatkt, unitabilt, prevatk, curatk, nextatk, f, t)
 
         if(f.du.pCoin != null) {
             for(i in f.du.pCoin.info.indices) {
@@ -295,20 +279,16 @@ class UnitInfoPager : Fragment() {
                 }
 
                 val superTalentLevels = ArrayList<Int>()
-
                 for(j in 0 until max[superTalentIndex[i]] + 1)
                     superTalentLevels.add(j)
 
                 val adapter = ArrayAdapter(activity, R.layout.spinneradapter, superTalentLevels)
-
                 superTalent[i].adapter = adapter
                 superTalent[i].setSelection(getIndex(superTalent[i], max[superTalentIndex[i]]))
-
                 level.talents[superTalentIndex[i]] = max[superTalentIndex[i]]
 
-                if(CommonStatic.getConfig().realLevel) {
+                if(CommonStatic.getConfig().realLevel)
                     changeSpinner(superTalent[i], level.totalLv >= f.du.pCoin.getReqLv(superTalentIndex[i]))
-                }
             }
 
             if(superTalent.isEmpty())
@@ -417,7 +397,6 @@ class UnitInfoPager : Fragment() {
                 else -> f.unit.max
             }
         )
-
         level.setPlusLevel(f.unit.preferredPlusLevel)
 
         unitlevel.adapter = arrayAdapter
@@ -438,11 +417,10 @@ class UnitInfoPager : Fragment() {
 
         frse.setOnClickListener {
             frames = !frames
-            frse.text = if (frames) activity.getString(R.string.unit_info_sec) else activity.getString(R.string.unit_info_fr)
+            frse.text = if (frames) activity.getString(R.string.unit_info_fr) else activity.getString(R.string.unit_info_sec)
 
             unitcd.text = s.getCD(f, t, frames, talents, level)
-            val temp = if (frames) 0 else 1
-            unitpreatk.text = s.getPre(f, temp, catk)
+            unitpreatk.text = s.getPre(f, frames, catk)
             unitpost.text = s.getPost(f, frames, catk)
             unittba.text = s.getTBA(f, talents, frames, level)
             unitatkt.text = s.getAtkTime(f, talents, frames, level, catk)
@@ -463,15 +441,36 @@ class UnitInfoPager : Fragment() {
             }
         }
 
+        val unitsimu = view.findViewById<TextView>(R.id.unitinfsimur)
+        val unitrang = view.findViewById<TextView>(R.id.unitinfrangr)
+        val unitabilt = view.findViewById<TextView>(R.id.unitinfabiltr)
+        val prevatk = view.findViewById<Button>(R.id.btn_prevatk)
+        val curatk = view.findViewById<TextView>(R.id.atk_index)
+        val nextatk = view.findViewById<Button>(R.id.btn_nextatk)
+        val none = view.findViewById<TextView>(R.id.unitabilnone)
+        prevatk.setOnClickListener {
+            if (--catk >= f.du.atkTypeCount) {
+                while (catk >= f.du.atkTypeCount && f.du.getSpAtks(true,catk - f.du.atkTypeCount).isEmpty()) catk--
+                if (catk < f.du.atkTypeCount)
+                    while (f.du.getShare(catk) == 0) catk--
+            } else while (f.du.getShare(catk) == 0) catk--
+            changeAtk(none, unitabil, unitatk, unitatkb.text == activity.getString(R.string.unit_info_dps), unitsimu, unitrang, unitpreatk, unitpost, unitatkt, unitabilt, prevatk, curatk, nextatk, f, t)
+        }
+        nextatk.setOnClickListener {
+            if (++catk < f.du.atkTypeCount) {
+                while (catk < f.du.atkTypeCount && f.du.getShare(catk) == 0) catk++
+                if (catk >= f.du.atkTypeCount)
+                    while (f.du.getSpAtks(true, catk - f.du.atkTypeCount).isEmpty()) catk++
+            } else while (f.du.getSpAtks(true, catk - f.du.atkTypeCount).isEmpty()) catk++
+            changeAtk(none, unitabil, unitatk, unitatkb.text == activity.getString(R.string.unit_info_dps), unitsimu, unitrang, unitpreatk, unitpost, unitatkt, unitabilt, prevatk, curatk, nextatk, f, t)
+        }
+
         unitcdb.setOnClickListener {
             unitcd.text = s.getCD(f, t, !unitcd.text.toString().endsWith("f"), talents, level)
         }
 
         unitpreatkb.setOnClickListener {
-            if (unitpreatk.text.toString().endsWith("f"))
-                unitpreatk.text = s.getPre(f, 1, catk)
-            else
-                unitpreatk.text = s.getPre(f, 0, catk)
+            unitpreatk.text = s.getPre(f, !unitpreatk.text.toString().endsWith("f"), catk)
         }
 
         unitpostb.setOnClickListener {
@@ -632,89 +631,60 @@ class UnitInfoPager : Fragment() {
 
         unittalen.setOnCheckedChangeListener { _, isChecked ->
             talents = isChecked
-
             validate(view, f, t)
 
-            if (isChecked) {
-                val anim = ScaleAnimator(npresetrow, AnimatorConst.Dimension.WIDTH, 300, AnimatorConst.Accelerator.DECELERATE, 0, StaticStore.dptopx(100f, activity))
-                anim.start()
+            val from1 = if (isChecked) 0 else StaticStore.dptopx(100f, activity)
+            val from2 = if (isChecked) 0 else StaticStore.dptopx(48f, activity)
+            val from3 = if (isChecked) 0 else StaticStore.dptopx(16f, activity)
+            val to1 = StaticStore.dptopx(100f, activity) - from1
+            val to2 = StaticStore.dptopx(48f, activity) - from2
+            val to3 = StaticStore.dptopx(16f, activity) - from3
 
-                val anim2 = ScaleAnimator(nprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, 0, StaticStore.dptopx(48f, activity))
-                anim2.start()
-
-                val anim3 = ScaleAnimator(nprow, AnimatorConst.Dimension.TOP_MARGIN, 300, AnimatorConst.Accelerator.DECELERATE, 0, StaticStore.dptopx(16f, activity))
-                anim3.start()
-
-                val anim4 = ScaleAnimator(supernprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, 0, StaticStore.dptopx(48f, activity))
-                anim4.start()
-            } else {
-                val anim = ScaleAnimator(npresetrow, AnimatorConst.Dimension.WIDTH, 300, AnimatorConst.Accelerator.DECELERATE, StaticStore.dptopx(100f, activity), 0)
-                anim.start()
-
-                val anim2 = ScaleAnimator(nprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, StaticStore.dptopx(48f, activity), 0)
-                anim2.start()
-
-                val anim3 = ScaleAnimator(nprow, AnimatorConst.Dimension.TOP_MARGIN, 300, AnimatorConst.Accelerator.DECELERATE, StaticStore.dptopx(16f, activity), 0)
-                anim3.start()
-
-                val anim4 = ScaleAnimator(supernprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, StaticStore.dptopx(48f, activity), 0)
-                anim4.start()
-            }
+            val anim = ScaleAnimator(npresetrow, AnimatorConst.Dimension.WIDTH, 300, AnimatorConst.Accelerator.DECELERATE, from1, to1)
+            anim.start()
+            val anim2 = ScaleAnimator(nprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, from2, to2)
+            anim2.start()
+            val anim3 = ScaleAnimator(nprow, AnimatorConst.Dimension.TOP_MARGIN, 300, AnimatorConst.Accelerator.DECELERATE, from3, to3)
+            anim3.start()
+            val anim4 = ScaleAnimator(supernprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, from2, to2)
+            anim4.start()
         }
-
         for (i in talent.indices) {
             talent[i].onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, views: View?, position: Int, id: Long) {
                     level.talents[talentIndex[i]] = talent[i].selectedItem as Int
-
                     validate(view, f, t)
                 }
-
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
-
             talent[i].setOnLongClickListener {
                 talent[i].isClickable = false
-
                 StaticStore.showShortMessage(activity, s.getTalentName(talentIndex[i], f, activity))
                 true
             }
         }
-
         for(i in superTalent.indices) {
             superTalent[i].onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, views: View?, position: Int, id: Long) {
                     level.talents[superTalentIndex[i]] = superTalent[i].selectedItem as Int
-
                     validate(view, f, t)
                 }
-
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
-
             superTalent[i].setOnLongClickListener {
                 superTalent[i].isClickable = false
-
                 StaticStore.showShortMessage(activity, s.getTalentName(superTalentIndex[i], f, activity))
                 true
             }
         }
-
         npreset.setOnClickListener {
             val max = f.du.pCoin.max
-
-            for(i in max.indices) {
+            for(i in max.indices)
                 level.talents[i] = max[i]
-            }
-
-            for (i in talent.indices) {
+            for (i in talent.indices)
                 talent[i].setSelection(getIndex(talent[i], max[talentIndex[i]]))
-            }
-
-            for (i in superTalent.indices) {
+            for (i in superTalent.indices)
                 superTalent[i].setSelection(getIndex(superTalent[i], max[superTalentIndex[i]]))
-            }
-
             validate(view, f, t)
         }
     }
@@ -739,57 +709,21 @@ class UnitInfoPager : Fragment() {
 
         val level = unitlevel.selectedItem as Int
         val levelp = unitlevelp.selectedItem as Int
-
         this.level.setLevel(level)
         this.level.setPlusLevel(levelp)
 
         unithp.text = s.getHP(f, t, talents, this.level)
         unithb.text = s.getHB(f, talents, this.level)
-
-        if (unitatkb.text.toString() == "DPS")
-            unitatk.text = s.getDPS(f, t, talents, this.level, catk)
-        else
-            unitatk.text = s.getAtk(f, t, talents, this.level, catk)
-
+        setAtkText(unitatk, unitatkb.text.toString() == activity.getString(R.string.unit_info_dps), f, t)
         unitcost.text = s.getCost(f, talents, this.level)
-
         unitcd.text = s.getCD(f, t, unitcd.text.toString().endsWith("f"), talents, this.level)
-
         unittrait.text = s.getTrait(f, talents, this.level, activity)
         unitspd.text = s.getSpd(f, talents, this.level)
         unittba.text = s.getTBA(f, talents, frames, this.level)
         unitatkt.text = s.getAtkTime(f, talents, frames, this.level, catk)
 
-        val du: MaskUnit = if (f.du.pCoin != null && talents)
-            f.du.pCoin.improve(this.level.talents)
-        else
-            f.du
-
-        val abil = Interpret.getAbi(du, fragment, 0, activity)
-
-        val proc = Interpret.getProc(du, !frames, false, arrayOf(1.0, 1.0).toDoubleArray(), requireContext())
-
-        val abilityicon = Interpret.getAbiid(du)
-
-        if (abil.isNotEmpty() || proc.isNotEmpty()) {
-            none.visibility = View.GONE
-            unitabil.visibility = View.VISIBLE
-
-            val linearLayoutManager = LinearLayoutManager(activity)
-
-            linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
-            unitabil.layoutManager = linearLayoutManager
-
-            val adapterAbil = AdapterAbil(abil, proc, abilityicon, activity)
-
-            unitabil.adapter = adapterAbil
-
-            ViewCompat.setNestedScrollingEnabled(unitabil, false)
-        } else {
-            none.visibility = View.VISIBLE
-            unitabil.visibility = View.GONE
-        }
+        val du: MaskUnit = if (f.du.pCoin != null && talents) f.du.pCoin.improve(this.level.talents) else f.du
+        setAbility(none, unitabil, du)
     }
 
     private fun getIndex(spinner: Spinner?, lev: Int): Int {
@@ -820,5 +754,47 @@ class UnitInfoPager : Fragment() {
     private fun setAtkText(unitatk : TextView, showDPS : Boolean, f : Form, t : Treasure) {
         if (showDPS) unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level, catk)
         else unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level, catk)
+    }
+    private fun changeAtk(none:TextView, unitabil:RecyclerView, unitatk:TextView, dps:Boolean, unitsimu:TextView, unitrang:TextView, unitpreatk:TextView,
+                          unitpost:TextView, unitatkt:TextView, unitabilt:TextView, prevatk:TextView, curatk:TextView, nextatk:TextView, f:Form, t:Treasure) {
+        val activity = this.activity ?: return
+        setAtkText(unitatk, dps, f, t)
+        unitsimu.text = s.getSimu(f, catk)
+        unitrang.text = s.getRange(f, catk, talents, level)
+        unitpreatk.text = s.getPre(f, frames, catk)
+        unitpost.text = s.getPost(f, frames, catk)
+        unitatkt.text = s.getAtkTime(f, talents, frames, level, catk)
+        unitabilt.text = s.getAbilT(f, catk)
+
+        val fir = f.du.firstAtk()
+        val tex = if (catk < f.du.atkTypeCount)
+            activity.getString(R.string.info_current_hit).replace("_", (catk-f.du.firstAtk()+1).toString())
+        else f.du.getSpAtks(true, catk-f.du.atkTypeCount)[0].name
+        curatk.text = tex
+        val ratk = if (StaticJava.spAtkCount(f.du) == 0) f.du.realAtkCount() + fir else f.du.atkTypeCount + StaticJava.spAtkCount(f.du)
+        nextatk.isEnabled = catk < ratk - 1
+        prevatk.isEnabled = catk > fir
+        val du: MaskUnit = if (f.du.pCoin != null && talents) f.du.pCoin.improve(this.level.talents) else f.du
+        setAbility(none, unitabil, du)
+    }
+    private fun setAbility(none : TextView, unitabil : RecyclerView, du : MaskUnit) {
+        val activity = this.activity ?: return
+        val ability = Interpret.getAbi(du, fragment, 0, activity)
+        val abilityicon = Interpret.getAbiid(du)
+        val proc = Interpret.getProc(du, !frames, false, arrayOf(1.0, 1.0).toDoubleArray(), requireContext(), catk)
+
+        if (ability.isNotEmpty() || proc.isNotEmpty()) {
+            none.visibility = View.GONE
+            unitabil.visibility = View.VISIBLE
+            val linearLayoutManager = LinearLayoutManager(activity)
+            linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
+            unitabil.layoutManager = linearLayoutManager
+            val adapterAbil = AdapterAbil(ability, proc, abilityicon, activity)
+            unitabil.adapter = adapterAbil
+            ViewCompat.setNestedScrollingEnabled(unitabil, true)
+        } else {
+            unitabil.visibility = View.GONE
+            none.visibility = View.VISIBLE
+        }
     }
 }

@@ -149,9 +149,9 @@ class GetStrings(private val c: Context) {
         val du = if(f.du.pCoin != null && talent) f.du.pCoin.improve(lvs.talents) else f.du
         return if (frame) du.getItv(index).toString() + "f" else DecimalFormat("#.##").format(du.getItv(0).toDouble() / 30) + "s"
     }
-    fun getAtkTime(em: Enemy?, frse: Boolean, index : Int): String {
+    fun getAtkTime(em: Enemy?, frame: Boolean, index : Int): String {
         if (em == null || index >= em.de.atkTypeCount) return ""
-        return if (frse) em.de.getItv(index).toString() + "f" else DecimalFormat("#.##").format(em.de.getItv(index).toDouble() / 30) + "s"
+        return if (frame) em.de.getItv(index).toString() + "f" else DecimalFormat("#.##").format(em.de.getItv(index).toDouble() / 30) + "s"
     }
 
     fun getAbilT(ch: Character?, index: Int): String {
@@ -185,11 +185,11 @@ class GetStrings(private val c: Context) {
         return if (frame) ma.tba.toString() + "f" else DecimalFormat("#.##").format(ma.tba.toDouble() / 30) + "s"
     }
 
-    fun getPre(c: Character?, frse: Int, index : Int): String {
+    fun getPre(c: Character?, frame: Boolean, index : Int): String {
         if (c == null)
             return ""
         val atkdat = StaticJava.getAtkModel(c.mask, index)
-        return if (frse == 0) {
+        return if (frame) {
             if (atkdat.size > 1) {
                 val result = StringBuilder()
 
@@ -200,15 +200,15 @@ class GetStrings(private val c: Context) {
                 result.toString()
             } else atkdat[0].pre.toString() + "f"
         } else {
+            val df = DecimalFormat("#.##")
             if (atkdat.size > 1) {
                 val result = StringBuilder()
-
                 for (i in atkdat.indices) {
-                    if (i != atkdat.size - 1) result.append(DecimalFormat("#.##").format(atkdat[i].pre.toDouble() / 30)).append("s / ")
-                    else result.append(DecimalFormat("#.##").format(atkdat[i].pre.toDouble() / 30)).append("s")
+                    if (i != atkdat.size - 1) result.append(df.format(atkdat[i].pre.toDouble() / 30)).append("s / ")
+                    else result.append(df.format(atkdat[i].pre.toDouble() / 30)).append("s")
                 }
                 result.toString()
-            } else DecimalFormat("#.##").format(atkdat[0].pre.toDouble() / 30) + "s"
+            } else df.format(atkdat[0].pre.toDouble() / 30) + "s"
         }
     }
 
@@ -717,7 +717,6 @@ class GetStrings(private val c: Context) {
         val res = ArrayList<String>()
 
         st.info ?: return res
-
         if(st.info !is DefStageInfo)
             return res
 
@@ -733,17 +732,12 @@ class GetStrings(private val c: Context) {
             }
         }
 
-        if(st.cont.info.waitTime != -1) {
+        if(st.cont.info.waitTime != -1)
             res.add(c.getString(R.string.stg_info_wait).replace("_", st.cont.info.waitTime.toString()))
-        }
-
-        if(st.cont.info.clearLimit != -1) {
+        if(st.cont.info.clearLimit != -1)
             res.add(c.getString(R.string.stg_info_numbplay).replace("_", st.cont.info.clearLimit.toString()))
-        }
-
-        if (st.cont.info.unskippable) {
+        if (st.cont.info.unskippable)
             res.add(c.getString(R.string.stg_info_nocpu))
-        }
 
         return res
     }

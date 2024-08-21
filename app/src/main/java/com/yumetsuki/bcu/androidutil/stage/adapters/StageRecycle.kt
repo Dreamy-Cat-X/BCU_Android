@@ -316,10 +316,7 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
         }
 
         viewHolder.minres.text = toFrame(st.minSpawn, st.maxSpawn)
-        viewHolder.bossGuard.text = if (st.bossGuard)
-            activity.getString(R.string.stg_info_poss)
-        else
-            activity.getString(R.string.stg_info_impo)
+        viewHolder.bossGuard.text = if (st.bossGuard) activity.getString(R.string.stg_info_poss) else activity.getString(R.string.stg_info_impo)
 
         if (st.info != null) {
             if(st.info.exStages?.isNotEmpty() == true) {
@@ -373,7 +370,6 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
         }
 
         val l = st.getLim(viewHolder.star.selectedItemPosition)
-
         if (none(l)) {
             viewHolder.limitscroll.visibility = View.GONE
             viewHolder.limitNone.visibility = View.VISIBLE
@@ -404,9 +400,7 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
             viewHolder.miscnone.visibility = View.GONE
 
             viewHolder.miscrec.layoutManager = LinearLayoutManager(activity)
-
             ViewCompat.setNestedScrollingEnabled(viewHolder.miscrec, false)
-
             val miscRecycle = MiscRecycle(activity, misc)
 
             viewHolder.miscrec.adapter = miscRecycle

@@ -35,7 +35,7 @@ import common.util.unit.Enemy
 class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
     private val fragment = arrayOf(arrayOf("Immune to "), arrayOf(""))
     private var activity: Activity
-    private var fs = 0
+    private var frame = true
     private var multiplication = 100
     private var attackMultiplication = 100
     private var s: GetStrings
@@ -92,7 +92,6 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         val none = itemView.findViewById<TextView>(R.id.eneminfnone)
         val emabil = itemView.findViewById<RecyclerView>(R.id.eneminfabillist)
         val enemamulti = itemView.findViewById<EditText>(R.id.eneminfamultir)
-
         val prevatk = itemView.findViewById<Button>(R.id.btn_prevatk)
         val curatk = itemView.findViewById<TextView>(R.id.atk_index)
         val nextatk = itemView.findViewById<Button>(R.id.btn_nextatk)
@@ -111,13 +110,8 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         val t = BasisSet.current().t()
         val shared = activity.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
 
-        if (shared.getBoolean("frame", true)) {
-            fs = 0
-            viewHolder.unitSwitch.text = activity.getString(R.string.unit_info_fr)
-        } else {
-            fs = 1
-            viewHolder.unitSwitch.text = activity.getString(R.string.unit_info_sec)
-        }
+        frame = shared.getBoolean("frame", true)
+        viewHolder.unitSwitch.text = if (frame) activity.getString(R.string.unit_info_fr) else activity.getString(R.string.unit_info_sec)
 
         val aclev = activity.findViewById<TextInputLayout>(R.id.aclev)
         val actrea = activity.findViewById<TextInputLayout>(R.id.actrea)
@@ -167,12 +161,13 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
             b = img.bimg() as Bitmap
 
         catk = em.de.firstAtk()
+        viewHolder.prevatk.isEnabled = false
         if (em.de.realAtkCount() + StaticJava.spAtkCount(em.de) == 1) {
             viewHolder.prevatk.visibility = View.GONE
             viewHolder.curatk.visibility = View.GONE
             viewHolder.nextatk.visibility = View.GONE
         } else
-            viewHolder.curatk.text = activity.getString(R.string.info_current_hit).replace("_", (catk+1).toString())
+            viewHolder.curatk.text = activity.getString(R.string.info_current_hit).replace("_", (catk + 1).toString())
 
         multiply(viewHolder, em)
 
@@ -187,12 +182,12 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         viewHolder.enembarrier.text = s.getBarrier(em)
         viewHolder.enemspd.text = s.getSpd(em)
 
-        viewHolder.enematktime.text = s.getAtkTime(em, fs == 0, catk)
+        viewHolder.enematktime.text = s.getAtkTime(em, frame, catk)
         viewHolder.enemabilt.text = s.getAbilT(em, catk)
-        viewHolder.enempre.text = s.getPre(em, fs, catk)
-        viewHolder.enempost.text = s.getPost(em, fs == 0, catk)
+        viewHolder.enempre.text = s.getPre(em, frame, catk)
+        viewHolder.enempost.text = s.getPost(em, frame, catk)
 
-        viewHolder.enemtba.text = s.getTBA(em, fs == 0)
+        viewHolder.enemtba.text = s.getTBA(em, frame)
         viewHolder.enemdrop.text = s.getDrop(em, t)
 
         aclevt.setText(t.tech[1].toString())
@@ -242,28 +237,22 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
             StaticStore.showShortMessage(activity, R.string.enem_info_copied)
             true
         }
-
-        val reset = activity.findViewById<Button>(R.id.enemtreareset)
-
         viewHolder.prevatk.setOnClickListener {
-            if (catk >= em.de.atkTypeCount) {
-                while (--catk >= em.de.atkTypeCount && em.de.getSpAtks(true,catk - em.de.atkTypeCount).isEmpty());
+            if (--catk >= em.de.atkTypeCount) {
+                while (catk >= em.de.atkTypeCount && em.de.getSpAtks(true,catk - em.de.atkTypeCount).isEmpty()) catk--
                 if (catk < em.de.atkTypeCount)
-                    while (em.de.getShare(catk) == 0)
-                        catk--
-            } else while (em.de.getShare(--catk) == 0);
+                    while (em.de.getShare(catk) == 0) catk--
+            } else while (em.de.getShare(catk) == 0) catk--
             changeAtk(viewHolder, em)
         }
         viewHolder.nextatk.setOnClickListener {
-            if (catk < em.de.atkTypeCount) {
-                while (++catk < em.de.atkTypeCount && em.de.getShare(catk) == 0);
+            if (++catk < em.de.atkTypeCount) {
+                while (catk < em.de.atkTypeCount && em.de.getShare(catk) == 0) catk++
                 if (catk >= em.de.atkTypeCount)
-                    while (em.de.getSpAtks(true, catk - em.de.atkTypeCount).isEmpty())
-                        catk++
-            } else while (em.de.getSpAtks(true, ++catk - em.de.atkTypeCount).isEmpty());
+                    while (em.de.getSpAtks(true, catk - em.de.atkTypeCount).isEmpty()) catk++
+            } else while (em.de.getSpAtks(true, catk - em.de.atkTypeCount).isEmpty()) catk++
             changeAtk(viewHolder, em)
         }
-
         viewHolder.enemmulti.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
 
@@ -295,54 +284,30 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         })
 
         viewHolder.unitSwitch.setOnClickListener {
-            if (fs == 0) {
-                fs = 1
-                retime(viewHolder, em)
-                viewHolder.unitSwitch.text = activity.getString(R.string.unit_info_sec)
-            } else {
-                fs = 0
-                retime(viewHolder, em)
-                viewHolder.unitSwitch.text = activity.getString(R.string.unit_info_fr)
-            }
+            frame = !frame
+            retime(viewHolder, em)
+            viewHolder.unitSwitch.text = if (frame) activity.getString(R.string.unit_info_fr) else activity.getString(R.string.unit_info_sec)
         }
-
         viewHolder.enematkb.setOnClickListener {
-            if (viewHolder.enematkb.text == activity.getString(R.string.unit_info_atk)) {
-                viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
-                viewHolder.enematkb.text = activity.getString(R.string.unit_info_dps)
-            } else {
-                viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
-                viewHolder.enematkb.text = activity.getString(R.string.unit_info_atk)
-            }
+            viewHolder.enematk.text = if (viewHolder.enematkb.text == activity.getString(R.string.unit_info_atk)) activity.getString(R.string.unit_info_dps) else activity.getString(R.string.unit_info_atk)
+            setAtkText(viewHolder, em)
         }
-
         viewHolder.enempreb.setOnClickListener {
-            if (viewHolder.enempre.text.toString().endsWith("f"))
-                viewHolder.enempre.text = s.getPre(em, 1, catk)
-            else
-                viewHolder.enempre.text = s.getPre(em, 0, catk)
+            viewHolder.enempre.text = s.getPre(em, !viewHolder.enempre.text.toString().endsWith("f"), catk)
         }
-
         viewHolder.enematktimeb.setOnClickListener {
-            if (viewHolder.enematktime.text.toString().endsWith("f"))
-            viewHolder.enematktime.text = s.getAtkTime(em, false, catk)
-            else
-                viewHolder.enematktime.text = s.getAtkTime(em, true, catk)
+            viewHolder.enematktime.text = s.getAtkTime(em, !viewHolder.enematktime.text.toString().endsWith("f"), catk)
         }
-
         viewHolder.enempostb.setOnClickListener {
             viewHolder.enempost.text = s.getPost(em, !viewHolder.enempost.text.toString().endsWith("f"), catk)
         }
-
         viewHolder.enemtbab.setOnClickListener {
             viewHolder.enemtba.text = s.getTBA(em, !viewHolder.enemtba.text.toString().endsWith("f"))
         }
 
         aclevt.setSelection(aclevt.text?.length ?: 0)
         actreat.setSelection(actreat.text?.length ?: 0)
-
         itfcryt.setSelection(itfcryt.text?.length ?: 0)
-
         cotccryt.setSelection(cotccryt.text?.length ?: 0)
 
         for (tiet in godmaskt)
@@ -350,255 +315,135 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
 
         aclevt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.toString().isNotEmpty()) {
-                    if (s.toString().toInt() > 30 || s.toString().toInt() <= 0) {
-                        if (aclev.isHelperTextEnabled) {
-                            aclev.isHelperTextEnabled = false
-                            aclev.isErrorEnabled = true
-                            aclev.error = activity.getString(R.string.treasure_invalid)
-                        }
-                    } else {
-                        if (aclev.isErrorEnabled) {
-                            aclev.error = null
-                            aclev.isErrorEnabled = false
-                            aclev.isHelperTextEnabled = true
-                            aclev.setHelperTextColor(ColorStateList(states, color))
-                            aclev.helperText = "1~30"
-                        }
+                if (s.toString().isNotEmpty() && s.toString().toInt() !in 0..30) {
+                    if (aclev.isHelperTextEnabled) {
+                        aclev.isHelperTextEnabled = false
+                        aclev.isErrorEnabled = true
+                        aclev.error = activity.getString(R.string.treasure_invalid)
                     }
-                } else {
-                    if (aclev.isErrorEnabled) {
-                        aclev.error = null
-                        aclev.isErrorEnabled = false
-                        aclev.isHelperTextEnabled = true
-                        aclev.setHelperTextColor(ColorStateList(states, color))
-                        aclev.helperText = "1~30"
-                    }
+                } else if (aclev.isErrorEnabled) {
+                    aclev.error = null
+                    aclev.isErrorEnabled = false
+                    aclev.isHelperTextEnabled = true
+                    aclev.setHelperTextColor(ColorStateList(states, color))
+                    aclev.helperText = "1~30"
                 }
             }
-
             override fun afterTextChanged(text: Editable) {
-                if (text.toString().isNotEmpty()) {
-                    if (text.toString().toInt() in 1..30) {
-                        val lev = text.toString().toInt()
-                        t.tech[1] = lev
-                        viewHolder.enemdrop.text = s.getDrop(em, t)
-                    }
-                } else {
+                if (text.toString().isNotEmpty() && text.toString().toInt() in 1..30) {
+                    t.tech[1] = text.toString().toInt()
+                } else
                     t.tech[1] = 1
-                    viewHolder.enemdrop.text = s.getDrop(em, t)
-                }
+                viewHolder.enemdrop.text = s.getDrop(em, t)
             }
         })
         actreat.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.toString().isNotEmpty()) {
-                    if (s.toString().toInt() > 300) {
-                        if (actrea.isHelperTextEnabled) {
-                            actrea.isHelperTextEnabled = false
-                            actrea.isErrorEnabled = true
-                            actrea.error = activity.getString(R.string.treasure_invalid)
-                        }
-                    } else {
-                        if (actrea.isErrorEnabled) {
-                            actrea.error = null
-                            actrea.isErrorEnabled = false
-                            actrea.isHelperTextEnabled = true
-                            actrea.setHelperTextColor(ColorStateList(states, color))
-                            actrea.helperText = "0~300"
-                        }
+                if (s.toString().isNotEmpty() && s.toString().toInt() !in 0..300) {
+                    if (actrea.isHelperTextEnabled) {
+                        actrea.isHelperTextEnabled = false
+                        actrea.isErrorEnabled = true
+                        actrea.error = activity.getString(R.string.treasure_invalid)
                     }
-                } else {
-                    if (actrea.isErrorEnabled) {
-                        actrea.error = null
-                        actrea.isErrorEnabled = false
-                        actrea.isHelperTextEnabled = true
-                        actrea.setHelperTextColor(ColorStateList(states, color))
-                        actrea.helperText = "0~300"
-                    }
+                } else if (actrea.isErrorEnabled) {
+                    actrea.error = null
+                    actrea.isErrorEnabled = false
+                    actrea.isHelperTextEnabled = true
+                    actrea.setHelperTextColor(ColorStateList(states, color))
+                    actrea.helperText = "0~300"
                 }
             }
-
             override fun afterTextChanged(text: Editable) {
-                if (text.toString().isNotEmpty()) {
-                    if (text.toString().toInt() <= 300) {
-                        val trea = text.toString().toInt()
-                        t.trea[3] = trea
-                        viewHolder.enemdrop.text = s.getDrop(em, t)
-                    }
-                } else {
+                if (text.toString().isNotEmpty() && text.toString().toInt() in 0..300) {
+                    t.trea[3] = text.toString().toInt()
+                } else
                     t.trea[3] = 0
-                    viewHolder.enemdrop.text = s.getDrop(em, t)
-                }
+                viewHolder.enemdrop.text = s.getDrop(em, t)
             }
         })
 
         itfcryt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.toString().isNotEmpty()) {
-                    if (s.toString().toInt() > 600) {
-                        if (itfcry.isHelperTextEnabled) {
-                            itfcry.isHelperTextEnabled = false
-                            itfcry.isErrorEnabled = true
-                            itfcry.error = activity.getString(R.string.treasure_invalid)
-                        }
-                    } else {
-                        if (itfcry.isErrorEnabled) {
-                            itfcry.error = null
-                            itfcry.isErrorEnabled = false
-                            itfcry.isHelperTextEnabled = true
-                            itfcry.setHelperTextColor(ColorStateList(states, color))
-                            itfcry.helperText = "0~600"
-                        }
+                if (s.toString().isNotEmpty() && s.toString().toInt() !in 0..600) {
+                    if (itfcry.isHelperTextEnabled) {
+                        itfcry.isHelperTextEnabled = false
+                        itfcry.isErrorEnabled = true
+                        itfcry.error = activity.getString(R.string.treasure_invalid)
                     }
-                } else {
-                    if (itfcry.isErrorEnabled) {
-                        itfcry.error = null
-                        itfcry.isErrorEnabled = false
-                        itfcry.isHelperTextEnabled = true
-                        itfcry.setHelperTextColor(ColorStateList(states, color))
-                        itfcry.helperText = "0~600"
-                    }
+                } else if (itfcry.isErrorEnabled) {
+                    itfcry.error = null
+                    itfcry.isErrorEnabled = false
+                    itfcry.isHelperTextEnabled = true
+                    itfcry.setHelperTextColor(ColorStateList(states, color))
+                    itfcry.helperText = "0~600"
                 }
             }
-
             override fun afterTextChanged(text: Editable) {
-                if (text.toString().isNotEmpty()) {
-                    if (text.toString().toInt() <= 600) {
-                        t.alien = text.toString().toInt()
-                        viewHolder.enemhp.text = s.getHP(em, multiplication)
-                        if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                            viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
-                        } else {
-                            viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
-                        }
-                    }
-                } else {
+                if (text.toString().isNotEmpty() && text.toString().toInt() in 0..600) {
+                    t.alien = text.toString().toInt()
+                } else
                     t.alien = 0
-                    viewHolder.enemhp.text = s.getHP(em, multiplication)
-                    if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                        viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
-                    } else {
-                        viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
-                    }
-                }
+                multiply(viewHolder, em)
             }
         })
 
         cotccryt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.toString().isNotEmpty()) {
-                    if (s.toString().toInt() > 1500) {
-                        if (cotccry.isHelperTextEnabled) {
-                            cotccry.isHelperTextEnabled = false
-                            cotccry.isErrorEnabled = true
-                            cotccry.error = activity.getString(R.string.treasure_invalid)
-                        }
-                    } else {
-                        if (cotccry.isErrorEnabled) {
-                            cotccry.error = null
-                            cotccry.isErrorEnabled = false
-                            cotccry.isHelperTextEnabled = true
-                            cotccry.setHelperTextColor(ColorStateList(states, color))
-                            cotccry.helperText = "0~1500"
-                        }
+                if (s.toString().isNotEmpty() && s.toString().toInt() !in 0..1500) {
+                    if (cotccry.isHelperTextEnabled) {
+                        cotccry.isHelperTextEnabled = false
+                        cotccry.isErrorEnabled = true
+                        cotccry.error = activity.getString(R.string.treasure_invalid)
                     }
-                } else {
-                    if (cotccry.isErrorEnabled) {
-                        cotccry.error = null
-                        cotccry.isErrorEnabled = false
-                        cotccry.isHelperTextEnabled = true
-                        cotccry.setHelperTextColor(ColorStateList(states, color))
-                        cotccry.helperText = "0~1500"
-                    }
+                } else if (cotccry.isErrorEnabled) {
+                    cotccry.error = null
+                    cotccry.isErrorEnabled = false
+                    cotccry.isHelperTextEnabled = true
+                    cotccry.setHelperTextColor(ColorStateList(states, color))
+                    cotccry.helperText = "0~1500"
                 }
             }
-
             override fun afterTextChanged(text: Editable) {
-                if (text.toString().isNotEmpty()) {
-                    if (text.toString().toInt() <= 1500) {
-                        t.star = text.toString().toInt()
-                        viewHolder.enemhp.text = s.getHP(em, multiplication)
-                        if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                            viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
-                        } else {
-                            viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
-                        }
-                    }
-                } else {
+                if (text.toString().isNotEmpty() && text.toString().toInt() in 0..1500) {
+                    t.star = text.toString().toInt()
+                } else
                     t.star = 0
-                    viewHolder.enemhp.text = s.getHP(em, multiplication)
-                    if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                        viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
-                    } else {
-                        viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
-                    }
-                }
+                multiply(viewHolder, em)
             }
         })
 
         for (i in godmaskt.indices) {
             godmaskt[i].addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
                 override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                    if (s.toString().isNotEmpty()) {
-                        if (s.toString().toInt() > 100) {
-                            if (godmask[i].isHelperTextEnabled) {
-                                godmask[i].isHelperTextEnabled = false
-                                godmask[i].isErrorEnabled = true
-                                godmask[i].error = activity.getString(R.string.treasure_invalid)
-                            }
-                        } else {
-                            if (godmask[i].isErrorEnabled) {
-                                godmask[i].error = null
-                                godmask[i].isErrorEnabled = false
-                                godmask[i].isHelperTextEnabled = true
-                                godmask[i].setHelperTextColor(ColorStateList(states, color))
-                                godmask[i].helperText = "0~100"
-                            }
+                    if (s.toString().isNotEmpty() && s.toString().toInt() !in 0..100) {
+                        if (godmask[i].isHelperTextEnabled) {
+                            godmask[i].isHelperTextEnabled = false
+                            godmask[i].isErrorEnabled = true
+                            godmask[i].error = activity.getString(R.string.treasure_invalid)
                         }
-                    } else {
-                        if (godmask[i].isErrorEnabled) {
-                            godmask[i].error = null
-                            godmask[i].isErrorEnabled = false
-                            godmask[i].isHelperTextEnabled = true
-                            godmask[i].setHelperTextColor(ColorStateList(states, color))
-                            godmask[i].helperText = "0~100"
-                        }
+                    } else if (godmask[i].isErrorEnabled) {
+                        godmask[i].error = null
+                        godmask[i].isErrorEnabled = false
+                        godmask[i].isHelperTextEnabled = true
+                        godmask[i].setHelperTextColor(ColorStateList(states, color))
+                        godmask[i].helperText = "0~100"
                     }
                 }
-
                 override fun afterTextChanged(text: Editable) {
-                    if (text.toString().isNotEmpty()) {
-                        if (text.toString().toInt() <= 100) {
-                            t.gods[i] = text.toString().toInt()
-                            viewHolder.enemhp.text = s.getHP(em, multiplication)
-                            if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                                viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
-                            } else {
-                                viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
-                            }
-                        }
-                    } else {
+                    if (text.toString().isNotEmpty() && text.toString().toInt() in 0..100) {
+                        t.gods[i] = text.toString().toInt()
+                    } else
                         t.gods[i] = 0
-                        viewHolder.enemhp.text = s.getHP(em, multiplication)
-                        if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                            viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
-                        } else
-                            viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
-                    }
+                    multiply(viewHolder, em)
                 }
             })
         }
-
+        val reset = activity.findViewById<Button>(R.id.enemtreareset)
         reset.setOnClickListener {
             t.tech[1] = 30
             t.trea[3] = 300
@@ -610,21 +455,13 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
 
             aclevt.setText(t.tech[1].toString())
             actreat.setText(t.trea[3].toString())
-
             itfcryt.setText(t.alien.toString())
-
             cotccryt.setText(t.star.toString())
 
             for (i in t.gods.indices)
                 godmaskt[i].setText(t.gods[i].toString())
 
-            viewHolder.enemhp.text = s.getHP(em, multiplication)
-
-            if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps)) {
-                viewHolder.enematk.text = s.getDPS(em, attackMultiplication, catk)
-            } else
-                viewHolder.enematk.text = s.getAtk(em, attackMultiplication, catk)
-
+            multiply(viewHolder, em)
             viewHolder.enemdrop.text = s.getDrop(em, t)
         }
     }
@@ -634,8 +471,7 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
     }
 
     private fun changeAtk(viewHolder: ViewHolder, em: Enemy) {
-        viewHolder.enematk.text = if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps))
-            s.getDPS(em, attackMultiplication, catk) else s.getAtk(em, attackMultiplication, catk)
+        setAtkText(viewHolder, em)
         viewHolder.enematkt.text = s.getSimu(em, catk)
         viewHolder.enemrange.text = s.getRange(em, catk)
 
@@ -644,7 +480,8 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
             activity.getString(R.string.info_current_hit).replace("_", (catk-em.de.firstAtk()+1).toString())
             else em.de.getSpAtks(true, catk-em.de.atkTypeCount)[0].name
         viewHolder.curatk.text = tex
-        viewHolder.nextatk.isEnabled = catk < em.de.realAtkCount() + StaticJava.spAtkCount(em.de) + fir - 1
+        val ratk = if (StaticJava.spAtkCount(em.de) == 0) em.de.realAtkCount() + fir else em.de.atkTypeCount + StaticJava.spAtkCount(em.de)
+        viewHolder.nextatk.isEnabled = catk < ratk - 1
         viewHolder.prevatk.isEnabled = catk > fir
 
         retime(viewHolder, em)
@@ -652,24 +489,26 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
 
     private fun multiply(viewHolder: ViewHolder, em: Enemy) {
         viewHolder.enemhp.text = s.getHP(em, multiplication)
+        setAtkText(viewHolder, em)
+        viewHolder.enemabilt.text = s.getAbilT(em, catk)
+        setAbi(viewHolder, em)
+    }
+    private fun setAtkText(viewHolder: ViewHolder, em: Enemy) {
         viewHolder.enematk.text = if (viewHolder.enematkb.text.toString() == activity.getString(R.string.unit_info_dps))
             s.getDPS(em, attackMultiplication, catk) else s.getAtk(em, attackMultiplication, catk)
-        viewHolder.enemabilt.text = s.getAbilT(em, catk)
-
-        setAbi(viewHolder, em)
     }
 
     private fun retime(viewHolder: ViewHolder, em: Enemy) {
-        viewHolder.enematktime.text = s.getAtkTime(em, fs == 0, catk)
-        viewHolder.enempre.text = s.getPre(em, fs, catk)
-        viewHolder.enempost.text = s.getPost(em, fs == 0, catk)
-        viewHolder.enemtba.text = s.getTBA(em, fs == 0)
+        viewHolder.enematktime.text = s.getAtkTime(em, frame, catk)
+        viewHolder.enempre.text = s.getPre(em, frame, catk)
+        viewHolder.enempost.text = s.getPost(em, frame, catk)
+        viewHolder.enemtba.text = s.getTBA(em, frame)
 
         setAbi(viewHolder, em)
     }
 
     private fun setAbi(viewHolder: ViewHolder, em: Enemy) {
-        val proc: List<String> = Interpret.getProc(em.de, fs == 1, true, arrayOf(multiplication / 100.0, attackMultiplication / 100.0).toDoubleArray(), activity, catk)
+        val proc: List<String> = Interpret.getProc(em.de, !frame, true, arrayOf(multiplication / 100.0, attackMultiplication / 100.0).toDoubleArray(), activity, catk)
         val ability = Interpret.getAbi(em.de, fragment, 0, activity)
         val abilityicon = Interpret.getAbiid(em.de)
 
