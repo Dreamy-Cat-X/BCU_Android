@@ -24,6 +24,7 @@ import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.yumetsuki.bcu.R
@@ -41,6 +42,7 @@ import common.battle.Treasure
 import common.battle.data.MaskUnit
 import common.pack.Identifier
 import common.util.unit.AbUnit
+import common.util.unit.Enemy
 import common.util.unit.Form
 import common.util.unit.Level
 
@@ -75,9 +77,9 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         val uniticon: ImageView = itemView.findViewById(R.id.unitinficon)
         val unitatkb: Button = itemView.findViewById(R.id.unitinfatk)
         val unitatk: TextView = itemView.findViewById(R.id.unitinfatkr)
-        val unittrait: TextView = itemView.findViewById(R.id.unitinftraitr)
+        val unittrait: FlexboxLayout = itemView.findViewById(R.id.unitinftraitr)
         val unitcost: TextView = itemView.findViewById(R.id.unitinfcostr)
-        val unitsimu: TextView = itemView.findViewById(R.id.unitinfsimur)
+        val unitsimu: FlexboxLayout = itemView.findViewById(R.id.unitinfsimur)
         val unitspd: TextView = itemView.findViewById(R.id.unitinfspdr)
         val unitcdb: Button = itemView.findViewById(R.id.unitinfcd)
         val unitcd: TextView = itemView.findViewById(R.id.unitinfcdr)
@@ -165,9 +167,9 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         viewHolder.unithp.text = s.getHP(f, t, false, level)
         viewHolder.unithb.text = s.getHB(f, false, level)
         viewHolder.unitatk.text = s.getTotAtk(f, t, false, level, catk)
-        viewHolder.unittrait.text = s.getTrait(f, false, level, context)
+        setTraits(viewHolder, f)
         viewHolder.unitcost.text = s.getCost(f, false, level)
-        viewHolder.unitsimu.text = s.getSimu(f, catk)
+        setSimus(viewHolder, f)
         viewHolder.unitspd.text = s.getSpd(f, false, level)
         viewHolder.unitcd.text = s.getCD(f, t, frame, false, level)
         viewHolder.unitrang.text = s.getRange(f, catk, false, level)
@@ -624,7 +626,7 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         setAtk(viewHolder, f, t)
         viewHolder.unitcost.text = s.getCost(f, talents, level)
         viewHolder.unitcd.text = s.getCD(f, t, viewHolder.unitcd.text.toString().endsWith("f"), talents, level)
-        viewHolder.unittrait.text = s.getTrait(f, talents, level, context)
+        setTraits(viewHolder, f)
         viewHolder.unitspd.text = s.getSpd(f, talents, level)
         viewHolder.unittba.text = s.getTBA(f, talents, frame, level)
         viewHolder.unitatkt.text = s.getAtkTime(f, talents, frame, level, catk)
@@ -639,9 +641,8 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         setAtk(viewHolder, f, t)
         viewHolder.unitpreatk.text = s.getPre(f, frame, catk)
         viewHolder.unitpost.text = s.getPost(f, frame, catk)
-        viewHolder.unitatkt.text = s.getSimu(f, catk)
         viewHolder.unitrang.text = s.getRange(f, catk, talents, level)
-        viewHolder.unitsimu.text = s.getSimu(f, catk)
+        setSimus(viewHolder, f)
 
         val fir = f.du.firstAtk()
         val tex = if (catk < f.du.atkTypeCount)
@@ -653,6 +654,28 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         viewHolder.prevatk.isEnabled = catk > fir
 
         setAbis(viewHolder, f)
+    }
+    private fun setSimus(viewHolder: ViewHolder, f: Form) {
+        viewHolder.unitsimu.removeAllViews()
+        val icns = s.getSimus(f, catk)
+        for (icn in icns) {
+            val icon = ImageView(context)
+            icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            icon.setImageBitmap(icn)
+            icon.setPadding(StaticStore.dptopx(1f, context), StaticStore.dptopx(4f, context), StaticStore.dptopx(1f, context), StaticStore.dptopx(4f, context))
+            viewHolder.unitsimu.addView(icon)
+        }
+    }
+    private fun setTraits(viewHolder: ViewHolder, f: Form) {
+        viewHolder.unittrait.removeAllViews()
+        val icns = s.getTrait(f, talents, level)
+        for (icn in icns) {
+            val icon = ImageView(context)
+            icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            icon.setImageBitmap(icn)
+            icon.setPadding(StaticStore.dptopx(1f, context), StaticStore.dptopx(4f, context), StaticStore.dptopx(1f, context), StaticStore.dptopx(4f, context))
+            viewHolder.unittrait.addView(icon)
+        }
     }
     private fun setAtk(viewHolder: ViewHolder, f : Form, t : Treasure) {
         if (viewHolder.unitatkb.text == context.getString(R.string.unit_info_atk))

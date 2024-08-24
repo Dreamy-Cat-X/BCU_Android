@@ -617,7 +617,7 @@ class MusicPlayer : AppCompatActivity() {
             } catch (e: IllegalStateException) {
                 StaticStore.showShortMessage(this@MusicPlayer, R.string.music_err)
 
-                ErrorLogWriter.writeLog(e, StaticStore.upload, this@MusicPlayer)
+                ErrorLogWriter.writeLog(e)
 
                 finish()
             }

@@ -249,11 +249,8 @@ class SearchFilter : AppCompatActivity() {
         }
 
         tggroup.setOnCheckedChangeListener { _, checkedId -> StaticStore.tgorand = checkedId == tgor!!.id }
-
         atkgroup.setOnCheckedChangeListener { _, checkedId -> StaticStore.atksimu = checkedId == atkmu!!.id }
-
         atkgroupor.setOnCheckedChangeListener { _, checkedId -> StaticStore.atkorand = checkedId == atkor!!.id }
-
         abgroup.setOnCheckedChangeListener { _, checkedId -> StaticStore.aborand = checkedId == abor!!.id }
 
         for (i in rarities.indices) {

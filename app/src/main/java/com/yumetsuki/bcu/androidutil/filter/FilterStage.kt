@@ -143,7 +143,7 @@ object FilterStage {
                     return true
             }
         } catch(e: Exception) {
-            ErrorLogWriter.writeLog(e, StaticStore.upload, c)
+            ErrorLogWriter.writeLog(e)
             return false
         }
 

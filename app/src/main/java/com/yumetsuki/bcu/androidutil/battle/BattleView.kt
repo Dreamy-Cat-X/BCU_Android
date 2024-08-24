@@ -416,8 +416,7 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
 
     private fun continueBattle() {
         if(painter.bf is SBCtrl) {
-            (painter.bf as SBCtrl).action.add(-4)
-
+            (painter.bf as SBCtrl).action.add(-6)
             continued = true
         }
     }
@@ -630,7 +629,6 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
             } else {
                 secondary.setOnClickListener {
                     dialog.dismiss()
-
                     continueBattle()
                 }
             }

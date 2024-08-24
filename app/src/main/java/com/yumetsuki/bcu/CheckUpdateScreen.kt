@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.net.ConnectivityManager
@@ -97,8 +96,7 @@ open class CheckUpdateScreen : AppCompatActivity() {
 
         (CommonStatic.ctx as AContext).updateActivity(this)
 
-        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter(StaticStore.getExternalLog(this)))
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter("${StaticStore.getPublicDirectory()}logs"))
         setContentView(R.layout.activity_check_update_screen)
 
         lifecycleScope.launch {
@@ -718,7 +716,7 @@ open class CheckUpdateScreen : AppCompatActivity() {
                     close = true
                 }
 
-                StaticStore.getLang(shared.getInt("Language", 0))
+                StaticStore.setLang(shared.getInt("Language", 0))
             }
 
             if (close || isDestroyed || isFinishing)

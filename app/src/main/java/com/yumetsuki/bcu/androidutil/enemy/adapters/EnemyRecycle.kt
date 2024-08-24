@@ -18,6 +18,9 @@ import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.flexbox.AlignItems
+import com.google.android.flexbox.FlexboxLayout
+import com.google.android.flexbox.JustifyContent
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.yumetsuki.bcu.R
@@ -44,7 +47,7 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
     private val data: Identifier<AbEnemy>
 
     private var isRaw = false
-    var catk = 0
+    private var catk = 0
 
     constructor(activity: Activity, data: Identifier<AbEnemy>) {
         this.activity = activity
@@ -83,8 +86,8 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         val enempost = itemView.findViewById<TextView>(R.id.eneminfpostr)
         val enemtbab = itemView.findViewById<Button>(R.id.eneminftba)
         val enemtba = itemView.findViewById<TextView>(R.id.eneminftbar)
-        val enemtrait = itemView.findViewById<TextView>(R.id.eneminftraitr)
-        val enematkt = itemView.findViewById<TextView>(R.id.eneminfatktr)
+        val enemtrait = itemView.findViewById<FlexboxLayout>(R.id.eneminftraitr)
+        val enematkt = itemView.findViewById<FlexboxLayout>(R.id.eneminfatktr)
         val enemdrop = itemView.findViewById<TextView>(R.id.eneminfdropr)
         val enemrange = itemView.findViewById<TextView>(R.id.eneminfranger)
         val enembarrier = itemView.findViewById<TextView>(R.id.eneminfbarrierr)
@@ -176,8 +179,18 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         viewHolder.enemhb.text = s.getHB(em)
         viewHolder.enemmulti.setText(multiplication.toString())
         viewHolder.enemamulti.setText(attackMultiplication.toString())
-        viewHolder.enemtrait.text = s.getTrait(em, activity)
-        viewHolder.enematkt.text = s.getSimu(em, catk)
+
+        viewHolder.enemtrait.alignItems = AlignItems.CENTER
+        viewHolder.enemtrait.justifyContent = JustifyContent.CENTER
+        val icns = s.getTrait(em)
+        for (icn in icns) {
+            val icon = ImageView(activity)
+            icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            icon.setImageBitmap(icn)
+            icon.setPadding(StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity), StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity))
+            viewHolder.enemtrait.addView(icon)
+        }
+        setSimus(viewHolder, em)
         viewHolder.enemrange.text = s.getRange(em, catk)
         viewHolder.enembarrier.text = s.getBarrier(em)
         viewHolder.enemspd.text = s.getSpd(em)
@@ -289,7 +302,7 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
             viewHolder.unitSwitch.text = if (frame) activity.getString(R.string.unit_info_fr) else activity.getString(R.string.unit_info_sec)
         }
         viewHolder.enematkb.setOnClickListener {
-            viewHolder.enematk.text = if (viewHolder.enematkb.text == activity.getString(R.string.unit_info_atk)) activity.getString(R.string.unit_info_dps) else activity.getString(R.string.unit_info_atk)
+            viewHolder.enematkb.text = if (viewHolder.enematkb.text == activity.getString(R.string.unit_info_atk)) activity.getString(R.string.unit_info_dps) else activity.getString(R.string.unit_info_atk)
             setAtkText(viewHolder, em)
         }
         viewHolder.enempreb.setOnClickListener {
@@ -472,7 +485,7 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
 
     private fun changeAtk(viewHolder: ViewHolder, em: Enemy) {
         setAtkText(viewHolder, em)
-        viewHolder.enematkt.text = s.getSimu(em, catk)
+        setSimus(viewHolder, em)
         viewHolder.enemrange.text = s.getRange(em, catk)
 
         val fir = em.de.firstAtk()
@@ -485,6 +498,19 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         viewHolder.prevatk.isEnabled = catk > fir
 
         retime(viewHolder, em)
+    }
+    private fun setSimus(viewHolder: ViewHolder, em: Enemy) {
+        viewHolder.enematkt.removeAllViews()
+        val icns = s.getSimus(em, catk)
+        for (icn in icns) {
+            val icon = ImageView(activity)
+            icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            icon.setImageBitmap(icn)
+            icon.setPadding(StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity), StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity))
+            viewHolder.enematkt.addView(icon)
+        }
+        viewHolder.enematkt.alignItems = AlignItems.CENTER
+        viewHolder.enematkt.justifyContent = JustifyContent.CENTER
     }
 
     private fun multiply(viewHolder: ViewHolder, em: Enemy) {

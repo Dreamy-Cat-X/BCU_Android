@@ -2,7 +2,6 @@ package main;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Environment;
 import android.widget.Toast;
 
 import java.io.File;
@@ -38,10 +37,6 @@ public class MainBCU {
 		for (char c : chs)
 			str = str.replace(c, '#');
 		return str;
-	}
-
-	public static String getPublicDirectory() {
-		return Environment.getDataDirectory().toString() + "/bcu";
 	}
 
 }

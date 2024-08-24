@@ -538,7 +538,7 @@ class StageSearchFilter : AppCompatActivity() {
 
             return name
         } catch (e: Exception) {
-            ErrorLogWriter.writeLog(e, StaticStore.upload, this)
+            ErrorLogWriter.writeLog(e)
             val pack = StaticStore.getPackName(id.id.pack)
 
             return getString(R.string.stg_sch_enemy) + " $pack - ${number(id.id.id)}"

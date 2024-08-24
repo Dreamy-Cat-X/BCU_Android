@@ -34,7 +34,7 @@ object Definer {
             if (!StaticStore.init) {
                 StaticStore.clear()
                 val shared2 = context.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
-                StaticStore.getLang(shared2.getInt("Language", 0))
+                StaticStore.setLang(shared2.getInt("Language", 0))
                 ImageBuilder.builder = BMBuilder()
                 DefineItf().init(context)
                 AContext.check()
@@ -198,14 +198,13 @@ object Definer {
         } catch (e: IOException) {
             e.printStackTrace()
 
-            ErrorLogWriter.writeLog(e, StaticStore.upload, context)
+            ErrorLogWriter.writeLog(e)
         }
     }
 
     fun redefine(context: Context) {
         val shared = context.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
-
-        StaticStore.getLang(shared.getInt("Language", 0))
+        StaticStore.setLang(shared.getInt("Language", 0))
 
         ProcLang.clear()
     }

@@ -27,6 +27,7 @@ import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.yumetsuki.bcu.R
@@ -92,9 +93,9 @@ class UnitInfoPager : Fragment() {
         val unithb = view.findViewById<TextView>(R.id.unitinfhbr)
         val uniticon = view.findViewById<ImageView>(R.id.unitinficon)
         val unitatk = view.findViewById<TextView>(R.id.unitinfatkr)
-        val unittrait = view.findViewById<TextView>(R.id.unitinftraitr)
+        val unittrait = view.findViewById<FlexboxLayout>(R.id.unitinftraitr)
         val unitcost = view.findViewById<TextView>(R.id.unitinfcostr)
-        val unitsimu = view.findViewById<TextView>(R.id.unitinfsimur)
+        val unitsimu = view.findViewById<FlexboxLayout>(R.id.unitinfsimur)
         val unitspd = view.findViewById<TextView>(R.id.unitinfspdr)
         val unitcd = view.findViewById<TextView>(R.id.unitinfcdr)
         val unitrang = view.findViewById<TextView>(R.id.unitinfrangr)
@@ -194,7 +195,8 @@ class UnitInfoPager : Fragment() {
         unitid.text = s.getID(form, StaticStore.trio(u.id.id))
         unithp.text = s.getHP(f, t, false, level)
         unithb.text = s.getHB(f, false, level)
-        unittrait.text = s.getTrait(f, false, level, activity)
+
+        setUpTrait(f, unittrait)
         unitcost.text = s.getCost(f, false, level)
         unitspd.text = s.getSpd(f, false, level)
         unitcd.text = s.getCD(f, t, frames, false, level)
@@ -437,7 +439,7 @@ class UnitInfoPager : Fragment() {
             }
         }
 
-        val unitsimu = view.findViewById<TextView>(R.id.unitinfsimur)
+        val unitsimu = view.findViewById<FlexboxLayout>(R.id.unitinfsimur)
         val unitrang = view.findViewById<TextView>(R.id.unitinfrangr)
         val unitabilt = view.findViewById<TextView>(R.id.unitinfabiltr)
         val prevatk = view.findViewById<Button>(R.id.btn_prevatk)
@@ -694,7 +696,7 @@ class UnitInfoPager : Fragment() {
         val unitlevelp = view.findViewById<Spinner>(R.id.unitinflevpr)
         val unitatkb = view.findViewById<Button>(R.id.unitinfatk)
         val unitatk = view.findViewById<TextView>(R.id.unitinfatkr)
-        val unittrait = view.findViewById<TextView>(R.id.unitinftraitr)
+        val unittrait = view.findViewById<FlexboxLayout>(R.id.unitinftraitr)
         val unitcost = view.findViewById<TextView>(R.id.unitinfcostr)
         val unitspd = view.findViewById<TextView>(R.id.unitinfspdr)
         val unitcd = view.findViewById<TextView>(R.id.unitinfcdr)
@@ -713,7 +715,7 @@ class UnitInfoPager : Fragment() {
         setAtkText(unitatk, unitatkb.text.toString() == activity.getString(R.string.unit_info_dps), f, t)
         unitcost.text = s.getCost(f, talents, this.level)
         unitcd.text = s.getCD(f, t, unitcd.text.toString().endsWith("f"), talents, this.level)
-        unittrait.text = s.getTrait(f, talents, this.level, activity)
+        setUpTrait(f, unittrait)
         unitspd.text = s.getSpd(f, talents, this.level)
         unittba.text = s.getTBA(f, talents, frames, this.level)
         unitatkt.text = s.getAtkTime(f, talents, frames, this.level, catk)
@@ -736,7 +738,17 @@ class UnitInfoPager : Fragment() {
         if(spinner.childCount >= 1 && spinner.getChildAt(0) is AutoMarquee)
             (spinner.getChildAt(0) as AutoMarquee).setTextColor((spinner.getChildAt(0) as AutoMarquee).textColors.withAlpha(spinner.background.alpha))
     }
-
+    private fun setUpTrait(f : Form, unittrait : FlexboxLayout) {
+        unittrait.removeAllViews()
+        val icns = s.getTrait(f, talents, level)
+        for (icn in icns) {
+            val iconn = ImageView(activity)
+            iconn.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            iconn.setImageBitmap(icn)
+            iconn.setPadding(StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity), StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity))
+            unittrait.addView(iconn)
+        }
+    }
     private fun setLvStats(lvt : Int, superTalent: Array<Spinner>, view: View, unithp : TextView, unitatk : TextView, showDPS : Boolean, f : Form, t : Treasure) {
         unithp.text = s.getHP(f, t, talents, this@UnitInfoPager.level)
         setAtkText(unitatk, showDPS, f, t)
@@ -751,11 +763,19 @@ class UnitInfoPager : Fragment() {
         if (showDPS) unitatk.text = s.getDPS(f, t, talents, this@UnitInfoPager.level, catk)
         else unitatk.text = s.getAtk(f, t, talents, this@UnitInfoPager.level, catk)
     }
-    private fun changeAtk(none:TextView, unitabil:RecyclerView, unitatk:TextView, dps:Boolean, unitsimu:TextView, unitrang:TextView, unitpreatk:TextView,
+    private fun changeAtk(none:TextView, unitabil:RecyclerView, unitatk:TextView, dps:Boolean, unitsimu:FlexboxLayout, unitrang:TextView, unitpreatk:TextView,
                           unitpost:TextView, unitatkt:TextView, unitabilt:TextView, prevatk:TextView, curatk:TextView, nextatk:TextView, f:Form, t:Treasure) {
         val activity = this.activity ?: return
         setAtkText(unitatk, dps, f, t)
-        unitsimu.text = s.getSimu(f, catk)
+        unitsimu.removeAllViews()
+        val icns = s.getSimus(f, catk)
+        for (icn in icns) {
+            val icon = ImageView(activity)
+            icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            icon.setImageBitmap(icn)
+            icon.setPadding(StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity), StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity))
+            unitsimu.addView(icon)
+        }
         unitrang.text = s.getRange(f, catk, talents, level)
         unitpreatk.text = s.getPre(f, frames, catk)
         unitpost.text = s.getPost(f, frames, catk)

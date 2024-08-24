@@ -1,9 +1,7 @@
 package com.yumetsuki.bcu.androidutil.io
 
 import android.app.Activity
-import android.os.Environment
 import android.util.Log
-import android.widget.TextView
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.pack.PackConflict
@@ -83,7 +81,7 @@ class AContext : Context {
         }
 
         if(t == Context.ErrType.FATAL || t == Context.ErrType.ERROR)
-            ErrorLogWriter.writeLog(e, StaticStore.upload, a)
+            ErrorLogWriter.writeLog(e)
 
 
     }

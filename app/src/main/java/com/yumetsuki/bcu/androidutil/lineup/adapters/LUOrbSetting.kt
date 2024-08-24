@@ -76,7 +76,7 @@ class LUOrbSetting : Fragment() {
                 try{
                     obj.wait()
                 } catch (e: InterruptedException) {
-                    ErrorLogWriter.writeLog(e, StaticStore.upload, c)
+                    ErrorLogWriter.writeLog(e)
                 }
             }
         }
@@ -103,7 +103,7 @@ class LUOrbSetting : Fragment() {
                 try{
                     obj.wait()
                 } catch (e: InterruptedException) {
-                    ErrorLogWriter.writeLog(e, StaticStore.upload, c)
+                    ErrorLogWriter.writeLog(e)
                 }
             }
         }

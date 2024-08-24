@@ -21,10 +21,9 @@ import java.util.Locale
 class StageListAdapter(private val activity: Activity, private val stages: Array<Identifier<Stage>>) : ArrayAdapter<Identifier<Stage>>(activity, R.layout.stage_list_layout, stages) {
 
     private class ViewHolder constructor(row: View) {
-        var name: TextView = row.findViewById(R.id.stagename)
-        var icons: FlexboxLayout = row.findViewById(R.id.enemicon)
-        var enemy: TextView = row.findViewById(R.id.map_list_coutns)
-        var images: MutableList<ImageView?> = ArrayList()
+        val name: TextView = row.findViewById(R.id.stagename)
+        val icons: FlexboxLayout = row.findViewById(R.id.enemicon)
+        val enemy: TextView = row.findViewById(R.id.map_list_coutns)
     }
 
     override fun getView(position: Int, view: View?, parent: ViewGroup): View {
@@ -48,17 +47,14 @@ class StageListAdapter(private val activity: Activity, private val stages: Array
         if(holder.name.text.isBlank())
             holder.name.text = getStageName(stages[position].id)
 
-        holder.images.clear()
         holder.icons.removeAllViews()
 
         val ids = getid(st.data)
-        val icons = arrayOfNulls<ImageView>(ids.size)
         holder.enemy.visibility = View.GONE
 
         for (i in ids.indices) {
             val icn = getIcon(ids[i])
             if (icn == null) {
-                holder.images.clear()
                 holder.icons.removeAllViews()
                 holder.enemy.visibility = View.VISIBLE
 
@@ -70,12 +66,11 @@ class StageListAdapter(private val activity: Activity, private val stages: Array
                 holder.enemy.text = enemies
                 break
             }
-            icons[i] = ImageView(activity)
-            icons[i]?.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            icons[i]?.setImageBitmap(icn)
-            icons[i]?.setPadding(StaticStore.dptopx(12f, activity), StaticStore.dptopx(4f, activity), 0, StaticStore.dptopx(4f, activity))
-            holder.icons.addView(icons[i])
-            holder.images.add(icons[i])
+            val icon = ImageView(activity)
+            icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            icon.setImageBitmap(icn)
+            icon.setPadding(StaticStore.dptopx(12f, activity), StaticStore.dptopx(4f, activity), 0, StaticStore.dptopx(4f, activity))
+            holder.icons.addView(icon)
         }
         return row
     }

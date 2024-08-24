@@ -144,9 +144,9 @@ class MapList : AppCompatActivity() {
                             val mapListAdapter = MapListAdapter(this@MapList, resmapname)
                             mapList.adapter = mapListAdapter
                         } catch (e: NullPointerException) {
-                            ErrorLogWriter.writeLog(e, StaticStore.upload, this@MapList)
+                            ErrorLogWriter.writeLog(e)
                         } catch (e: IndexOutOfBoundsException) {
-                            ErrorLogWriter.writeLog(e, StaticStore.upload, this@MapList)
+                            ErrorLogWriter.writeLog(e)
                         }
                     }
                 }
@@ -286,14 +286,14 @@ class MapList : AppCompatActivity() {
                                         names.add(stm.id)
                                 }
                             } catch (e : java.lang.IndexOutOfBoundsException) {
-                                ErrorLogWriter.writeLog(e, StaticStore.upload, this@MapList)
+                                ErrorLogWriter.writeLog(e)
                                 return
                             }
 
                             val mapListAdapter = MapListAdapter(this@MapList, names)
                             maplist.adapter = mapListAdapter
                         } catch (e: NullPointerException) {
-                            ErrorLogWriter.writeLog(e, StaticStore.upload, this@MapList)
+                            ErrorLogWriter.writeLog(e)
                         }
                     }
 
@@ -402,9 +402,9 @@ class MapList : AppCompatActivity() {
 
                                 maplist.adapter = mapListAdapter
                             } catch (e: NullPointerException) {
-                                ErrorLogWriter.writeLog(e, StaticStore.upload, this@MapList)
+                                ErrorLogWriter.writeLog(e)
                             } catch (e: IndexOutOfBoundsException) {
-                                ErrorLogWriter.writeLog(e, StaticStore.upload, this@MapList)
+                                ErrorLogWriter.writeLog(e)
                             }
                         }
                     }

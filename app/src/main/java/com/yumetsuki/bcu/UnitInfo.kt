@@ -453,7 +453,7 @@ class UnitInfo : AppCompatActivity() {
         tablePager.isSaveFromParentEnabled = false
 
         tablePager.adapter = TableTab(tabs.tabCount, tabNames, u.id)
-        tablePager.offscreenPageLimit = u.forms.size
+        //tablePager.offscreenPageLimit = u.forms.size
 
         TabLayoutMediator(tabs, tablePager) { tab, position ->
             tab.text = tabNames[position]
@@ -463,7 +463,7 @@ class UnitInfo : AppCompatActivity() {
         viewPager.isSaveFromParentEnabled = false
 
         viewPager.adapter = ExplanationTab(tabs.tabCount, tabNames, u.id)
-        viewPager.offscreenPageLimit = u.forms.size
+        //viewPager.offscreenPageLimit = u.forms.size
 
         TabLayoutMediator(tabs, viewPager) { tab, position ->
             tab.text = tabNames[position]

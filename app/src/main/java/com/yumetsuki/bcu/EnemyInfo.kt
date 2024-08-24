@@ -25,7 +25,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.androidutil.Definer
 import com.yumetsuki.bcu.androidutil.LocaleManager
 import com.yumetsuki.bcu.androidutil.StaticStore
-import com.yumetsuki.bcu.androidutil.enemy.adapters.DynamicEmExplanation
+import com.yumetsuki.bcu.androidutil.enemy.adapters.DynamicExplanation
 import com.yumetsuki.bcu.androidutil.enemy.adapters.EnemyRecycle
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
@@ -142,7 +142,7 @@ class EnemyInfo : AppCompatActivity() {
 
                 ViewCompat.setNestedScrollingEnabled(recyclerView, false)
 
-                val explain = DynamicEmExplanation(this@EnemyInfo, data)
+                val explain = DynamicExplanation(this@EnemyInfo, data)
 
                 viewPager.adapter = explain
                 viewPager.offscreenPageLimit = 1

@@ -50,6 +50,7 @@ import com.yumetsuki.bcu.androidutil.supports.ColorPickerView
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
+import common.util.Res
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -254,7 +255,8 @@ open class ConfigScreen : AppCompatActivity() {
                     ed1.putInt("Language", l)
                     ed1.apply()
 
-                    StaticStore.getLang(l)
+                    StaticStore.setLang(l)
+                    Res.langIcons()
 
                     val dialog = Dialog(this@ConfigScreen)
 

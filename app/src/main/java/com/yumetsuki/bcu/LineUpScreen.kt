@@ -195,7 +195,7 @@ class LineUpScreen : AppCompatActivity() {
                                 BasisSet.list().clear()
                                 BasisSet.list().add(def)
 
-                                ErrorLogWriter.writeLog(e, StaticStore.upload, this@LineUpScreen)
+                                ErrorLogWriter.writeLog(e)
                             }
                         }
                     }
@@ -820,7 +820,7 @@ class LineUpScreen : AppCompatActivity() {
                             try {
                                 StaticStore.saveLineUp(this@LineUpScreen, true)
                             } catch(e: Exception) {
-                                ErrorLogWriter.writeLog(e, StaticStore.upload, this@LineUpScreen)
+                                ErrorLogWriter.writeLog(e)
                                 StaticStore.showShortMessage(this@LineUpScreen, R.string.err_lusave_fail)
                             }
                         }
@@ -850,7 +850,7 @@ class LineUpScreen : AppCompatActivity() {
                             try {
                                 StaticStore.saveLineUp(this@LineUpScreen, true)
                             } catch(e: Exception) {
-                                ErrorLogWriter.writeLog(e, StaticStore.upload, this@LineUpScreen)
+                                ErrorLogWriter.writeLog(e)
                                 StaticStore.showShortMessage(this@LineUpScreen, R.string.err_lusave_fail)
                             }
                         }
@@ -903,7 +903,7 @@ class LineUpScreen : AppCompatActivity() {
                     try {
                         StaticStore.saveLineUp(this@LineUpScreen, true)
                     } catch(e: Exception) {
-                        ErrorLogWriter.writeLog(e, StaticStore.upload, this@LineUpScreen)
+                        ErrorLogWriter.writeLog(e)
                         StaticStore.showShortMessage(this@LineUpScreen, R.string.err_lusave_fail)
                     }
 

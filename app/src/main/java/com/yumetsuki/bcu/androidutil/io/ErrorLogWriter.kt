@@ -1,11 +1,8 @@
 package com.yumetsuki.bcu.androidutil.io
 
-import android.content.Context
 import android.os.Build
-import android.os.Environment
 import android.util.Log
 import com.yumetsuki.bcu.androidutil.StaticStore
-import main.MainBCU
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
@@ -35,35 +32,21 @@ class ErrorLogWriter(private val path: String?) : Thread.UncaughtExceptionHandle
             if (!f.exists()) {
                 f.mkdirs()
             }
-            val fe = File(MainBCU.getPublicDirectory() + "/logs")
-            if (!fe.exists()) fe.mkdirs()
             val dateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US)
-            val date = Date()
-            var name = dateFormat.format(date)
+            val name = dateFormat.format(Date()) + "_" + Build.MODEL + ".txt"
             val stringbuff: Writer = StringWriter()
             val printWriter = PrintWriter(stringbuff)
             e.printStackTrace(printWriter)
             val current = stringbuff.toString()
             printWriter.close()
 
-            val dname = name + "_" + Build.MODEL + ".txt"
-            val df = File(MainBCU.getPublicDirectory() + "/logs/", dname)
-            if (!df.exists())
-                df.createNewFile()
-
-            val dfileWriter = FileWriter(df)
-            dfileWriter.append("VERSION : ").append(StaticStore.VER).append("\r\n")
-            dfileWriter.append("MODEL : ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL.toString()).append("\r\n")
-            dfileWriter.append("IS EMULATOR : ").append((Build.MODEL.contains("Emulator") || Build.MODEL.contains("Android SDK")).toString()).append("\r\n")
-            dfileWriter.append("ANDROID_VER : ").append("API ").append(Build.VERSION.SDK_INT.toString()).append(" (").append(Build.VERSION.RELEASE).append(")").append("\r\n").append("\r\n")
-            dfileWriter.append(current)
-            dfileWriter.flush()
-            dfileWriter.close()
-
-            name += ".txt"
             val file = File(path, name)
             if (!file.exists()) f.createNewFile()
             val fileWriter = FileWriter(file)
+            fileWriter.append("VERSION : ").append(StaticStore.VER).append("\r\n")
+            fileWriter.append("MODEL : ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL.toString()).append("\r\n")
+            fileWriter.append("IS EMULATOR : ").append((Build.MODEL.contains("Emulator") || Build.MODEL.contains("Android SDK")).toString()).append("\r\n")
+            fileWriter.append("ANDROID_VER : ").append("API ").append(Build.VERSION.SDK_INT.toString()).append(" (").append(Build.VERSION.RELEASE).append(")").append("\r\n").append("\r\n")
             fileWriter.append(current)
             fileWriter.flush()
             fileWriter.close()
@@ -93,8 +76,7 @@ class ErrorLogWriter(private val path: String?) : Thread.UncaughtExceptionHandle
 
         fun writeDriveLog(e: Exception) {
             try {
-                val path = File(MainBCU.getPublicDirectory() + "/logs")
-
+                val path = File(StaticStore.getPublicDirectory() + "logs")
                 if(!path.exists() && !path.mkdirs()) {
                     Log.e("ErrorLogWriter", "Failed to create folder "+path.absolutePath)
                     return
@@ -109,7 +91,7 @@ class ErrorLogWriter(private val path: String?) : Thread.UncaughtExceptionHandle
                 val date = Date()
                 val name = dateFormat.format(date) + "_" + Build.MODEL + ".txt"
 
-                val df = File(MainBCU.getPublicDirectory() + "/logs/", name)
+                val df = File(StaticStore.getPublicDirectory() + "logs/", name)
                 if (!df.exists()) df.createNewFile()
                 val dfileWriter = FileWriter(df)
                 dfileWriter.append("VERSION : ").append(StaticStore.VER).append("\r\n")
@@ -125,18 +107,18 @@ class ErrorLogWriter(private val path: String?) : Thread.UncaughtExceptionHandle
             }
         }
 
-        fun writeLog(error: Exception, upload: Boolean, c: Context) {
+        fun writeLog(error: Exception) {
             error.printStackTrace()
 
             try {
-                val path = StaticStore.getExternalPath(c)+"logs/"
+                val path = StaticStore.getPublicDirectory() + "logs"
                 val f = File(path)
                 if (!f.exists()) {
                     f.mkdirs()
                 }
                 val dateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US)
                 val date = Date()
-                val name = dateFormat.format(date) + ".txt"
+                val name = dateFormat.format(date) + "_" + Build.MODEL + ".txt"
                 var file = File(path, name)
                 val stringbuff: Writer = StringWriter()
                 val printWriter = PrintWriter(stringbuff)
@@ -145,20 +127,12 @@ class ErrorLogWriter(private val path: String?) : Thread.UncaughtExceptionHandle
                     file = File(path, getExistingFileName(path, name))
                     file.createNewFile()
                 }
-                if (upload) {
-                    val dname = dateFormat.format(date) + "_" + Build.MODEL + ".txt"
-                    val df = File(MainBCU.getPublicDirectory() + "/logs", dname)
-                    if (!df.exists()) df.createNewFile()
-                    val dfileWriter = FileWriter(df)
-                    dfileWriter.append("VERSION : ").append(StaticStore.VER).append("\r\n")
-                    dfileWriter.append("MODEL : ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL.toString()).append("\r\n")
-                    dfileWriter.append("IS EMULATOR : ").append((Build.MODEL.contains("Emulator") || Build.MODEL.contains("Android SDK")).toString()).append("\r\n")
-                    dfileWriter.append("ANDROID_VER : ").append("API ").append(Build.VERSION.SDK_INT.toString()).append(" (").append(Build.VERSION.RELEASE).append(")").append("\r\n").append("\r\n")
-                    dfileWriter.append(stringbuff.toString())
-                    dfileWriter.flush()
-                    dfileWriter.close()
-                }
+
                 val fileWriter = FileWriter(file)
+                fileWriter.append("VERSION : ").append(StaticStore.VER).append("\r\n")
+                fileWriter.append("MODEL : ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL.toString()).append("\r\n")
+                fileWriter.append("IS EMULATOR : ").append((Build.MODEL.contains("Emulator") || Build.MODEL.contains("Android SDK")).toString()).append("\r\n")
+                fileWriter.append("ANDROID_VER : ").append("API ").append(Build.VERSION.SDK_INT.toString()).append(" (").append(Build.VERSION.RELEASE).append(")").append("\r\n").append("\r\n")
                 fileWriter.append(stringbuff.toString())
                 fileWriter.flush()
                 fileWriter.close()
@@ -168,9 +142,9 @@ class ErrorLogWriter(private val path: String?) : Thread.UncaughtExceptionHandle
             }
         }
 
-        fun writeLog(error: Exception, msg: String, upload: Boolean, c: Context) {
+        fun writeLog(error: Exception, msg: String, upload: Boolean) {
             try {
-                val path = StaticStore.getExternalLog(c)+"logs/"
+                val path = StaticStore.getPublicDirectory() + "logs"
                 val f = File(path)
                 if (!f.exists()) {
                     f.mkdirs()
@@ -190,7 +164,7 @@ class ErrorLogWriter(private val path: String?) : Thread.UncaughtExceptionHandle
                 }
                 if (upload) {
                     val dname = dateFormat.format(date) + "_" + Build.MODEL + ".txt"
-                    val df = File(MainBCU.getPublicDirectory() + "/logs", dname)//Environment.getDataDirectory().toString() + "/data/com.yumetsuki.bcu/upload/"
+                    val df = File(StaticStore.getPublicDirectory() + "logs/", dname)//Environment.getDataDirectory().toString() + "/data/com.yumetsuki.bcu/upload/"
                     if (!df.exists()) df.createNewFile()
                     val dfileWriter = FileWriter(df)
                     dfileWriter.append("VERSION : ").append(StaticStore.VER).append("\r\n")

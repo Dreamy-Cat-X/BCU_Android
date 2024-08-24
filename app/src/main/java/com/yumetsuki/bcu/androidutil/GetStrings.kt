@@ -2,8 +2,10 @@ package com.yumetsuki.bcu.androidutil
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
 import androidx.recyclerview.widget.RecyclerView
 import com.yumetsuki.bcu.R
+import common.CommonStatic
 import common.battle.BasisSet
 import common.battle.Treasure
 import common.battle.data.MaskEntity
@@ -69,8 +71,8 @@ class GetStrings(private val c: Context) {
             R.string.sch_zo, //39: Zombie Trait
             R.string.sch_re, //40: Relic Trait
             R.string.sch_wh, //41: White Trait
-            -1, //42: ??
-            -1, //43: ??
+            R.string.esch_witch, //42: ??
+            R.string.esch_eva, //43: ??
             R.string.sch_abi_iw, //44: Imu. Weaken
             R.string.sch_abi_if, //45: Imu. Freeze
             R.string.sch_abi_is, //46: Imu. Slow
@@ -94,12 +96,55 @@ class GetStrings(private val c: Context) {
             R.string.sch_abi_bh, //64: Behemoth Hunter
             R.string.sch_abi_ms, //65: Mini Surge
             R.string.sch_abi_sh //66: Super Sage Slayer
-        )//TODO - Custom proc talents
+        )
+        private val cusTalent = intArrayOf(
+            -1,
+            R.string.abi_bu,
+            R.string.abi_rev,
+            R.string.enem_info_barrier,
+            R.string.sch_abi_ds,
+            R.string.sch_abi_sd,
+            R.string.sch_abi_cs,
+            R.string.abi_seal,
+            R.string.sch_abi_cou,
+            R.string.sch_abi_cut,
+            R.string.sch_abi_cap,
+            R.string.sch_abi_rms,
+            R.string.abi_armbr,
+            R.string.abi_hast,
+            R.string.sch_abi_rg,
+            R.string.sch_abi_hy,
+            R.string.abi_imcri,
+            R.string.sch_abi_imusm,
+            R.string.abi_iseal,
+            R.string.sch_abi_imar,
+            R.string.sch_abi_imsp,
+            R.string.sch_abi_imlt,
+            R.string.sch_abi_imr,
+            R.string.sch_abi_imh,
+            R.string.unit_info_rang,
+            R.string.sch_abi_poi,
+            R.string.abi_ipoi,
+            R.string.sch_abi_imr,
+            R.string.sch_abi_imh,
+            R.string.abi_isnk,
+            R.string.abi_istt,
+            R.string.abi_ithch,
+            R.string.abi_iboswv,
+            R.string.sch_abi_ltg,
+            R.string.abi_snk,
+            R.string.abi_boswv,
+            R.string.abi_stt,
+            R.string.abi_imvatk,
+            R.string.sch_abi_waur,
+            R.string.sch_abi_saur,
+            R.string.sch_abi_st,
+            R.string.sch_abi_re,
+            R.string.sch_abi_tps,
+            R.string.sch_abi_ss
+        )
         private lateinit var talTool: Array<String>
         private val mapcolcid = arrayOf("N", "S", "C", "CH", "E", "T", "V", "R", "M", "A", "B", "RA", "H", "CA", "Q", "L", "ND", "SR")
-        private lateinit var allColor: String
-        private lateinit var nonMetal: String
-        private lateinit var allTrait: String
     }
 
     init {
@@ -108,20 +153,6 @@ class GetStrings(private val c: Context) {
                 return@Array "Invalid"
             c.getString(talData[i])
         }
-
-        val ac = StringBuilder()
-        val am = StringBuilder()
-        val at = StringBuilder()
-        for (i in 0 .. Data.TRAIT_WHITE) {
-            if (Interpret.traitMask[i] != Data.TRAIT_WHITE)
-                ac.append(c.getString(Interpret.TRAIT[i])).append(", ")
-            if (Interpret.traitMask[i] != Data.TRAIT_METAL)
-                am.append(c.getString(Interpret.TRAIT[i])).append(", ")
-            at.append(c.getString(Interpret.TRAIT[i])).append(", ")
-        }
-        allColor = ac.toString()
-        nonMetal = am.toString()
-        allTrait = at.toString()
     }
 
     fun getTitle(f: Form?): String {
@@ -398,32 +429,20 @@ class GetStrings(private val c: Context) {
         else DecimalFormat("#.##").format(getTotAtk(em, multi, index).toDouble() / (em.de.getItv(index).toDouble() / 30)).toString()
     }
 
-    fun getTrait(ef: Form?, talent: Boolean, lvs: Level, c: Context): String {
-        if (ef == null) return ""
+    fun getTrait(ef: Form?, talent: Boolean, lvs: Level): Array<Bitmap> {
+        if (ef == null) return arrayOf()
         val du: MaskUnit = if (ef.du.pCoin != null && talent) ef.du.pCoin.improve(lvs.talents) else ef.du
-        return getTraitList(du.traits, 0, c)
+        return traitIcons(du.traits)
     }
-    fun getTrait(em: Enemy, c: Context): String {
-        return getTraitList(em.de.traits, em.de.star, c)
+    fun getTrait(em: Enemy): Array<Bitmap> {
+        return traitIcons(em.de.traits)
     }
-    private fun getTraitList(traits : SortedPackSet<Trait>, star : Int, c : Context): String {
-        var result: String
-        result = Interpret.getTrait(traits, star, c)
-        if (result == "")
-            return c.getString(R.string.unit_info_t_none)
-
-        if (result.startsWith(allColor) || result.startsWith(nonMetal) || result.startsWith(allTrait)) {
-            val ts = result.split(", ")
-            for (i in Data.TRAIT_RELIC until traits.size)
-                if (!traits[i].BCTrait() && traits[i].targetType)
-                    result = result.replace(ts[i] + ", ", "")
-
-            result = if (result.startsWith(allColor))
-                result.replace(allColor, c.getString(R.string.unit_info_t_allc) + ", ")
-            else if (result.startsWith(nonMetal)) result.replace(nonMetal, "Non-Metal, ")
-            else result.replace(allTrait, c.getString(R.string.unit_info_t_allt) + ", ")
+    fun traitIcons(traits : SortedPackSet<Trait>) : Array<Bitmap> {
+        return Array(traits.size) { i ->
+            if(traits[i].id.pack == Identifier.DEF) CommonStatic.getBCAssets().icon[3][traits[i].id.id].img.bimg() as Bitmap
+            else if (traits[i].icon != null && traits[i].icon.img != null) traits[i].icon.img.bimg() as Bitmap
+            else CommonStatic.getBCAssets().dummyTrait.img.bimg() as Bitmap
         }
-        return result.substring(0, result.length - 2)
     }
 
     fun getCost(f: Form?, talent: Boolean, lvs: Level): String {
@@ -442,11 +461,7 @@ class GetStrings(private val c: Context) {
         if (f == null || t == null)
             return ""
 
-        val du: MaskUnit = if (f.du.pCoin != null)
-            if (talent) f.du.pCoin.improve(lvs.talents)
-            else f.du
-        else f.du
-
+        val du: MaskUnit = if (talent && f.du.pCoin != null) f.du.pCoin.improve(lvs.talents) else f.du
         val atks = StaticJava.getAtkModel(du, index)
         val damges = ArrayList<Int>()
 
@@ -482,22 +497,40 @@ class GetStrings(private val c: Context) {
         return result.toString()
     }
 
-    fun getSimu(ch: Character?, index: Int): String {
-        if (ch == null || index >= ch.mask.atkTypeCount) return ""
-        return if (Interpret.isType(ch.mask, 1, index)) c.getString(R.string.sch_atk_ra)
-        else c.getString(R.string.sch_atk_si)
+    fun getSimus(ch: Character?, index: Int) : ArrayList<Bitmap> {
+        if (ch == null) return ArrayList(0)
+
+        val single = CommonStatic.getBCAssets().icon[2][Data.ATK_SINGLE.toInt()].img.bimg() as Bitmap
+        val area = CommonStatic.getBCAssets().icon[2][Data.ATK_AREA.toInt()].img.bimg() as Bitmap
+
+        val lis = ArrayList<Bitmap>()
+        val atks = StaticJava.getAtkModel(ch.mask, index)
+
+        var allSame = true
+        val defult = atks[0].isRange
+        for (atk in atks)
+            if (atk.isRange != defult) {
+                allSame = false
+                break
+            }
+        if (allSame) {
+            lis.add(if (defult) area else single)
+        } else
+            for (atk in atks)
+                lis.add(if (atk.isRange) area else single)
+        return lis
     }
+
     fun getTalentName(index: Int, f: Form, c: Context): String {
         val ans: String?
-
         val info = f.du.pCoin.info
+        if (info[index][0] < 0)
+            return c.getString(cusTalent[-info[index][0]])
+        if(talData[info[index][0]] == -1)
+            return "Invalid Data"
 
         val trait = listOf(37, 38, 39, 40)
         val basic = listOf(25, 26, 27, 31, 32)
-
-        if(talData[info[index][0]] == -1) {
-            return "Invalid Data"
-        }
 
         ans = when {
             trait.contains(info[index][0]) -> c.getString(R.string.talen_trait) + talTool[info[index][0]]

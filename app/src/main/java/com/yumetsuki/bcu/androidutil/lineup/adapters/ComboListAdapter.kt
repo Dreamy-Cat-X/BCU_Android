@@ -67,7 +67,7 @@ class ComboListAdapter internal constructor(activity: Activity, private val name
                 }
             }
         } catch (e: NullPointerException) {
-            ErrorLogWriter.writeLog(e, StaticStore.upload, context)
+            ErrorLogWriter.writeLog(e)
 
             return row
         } catch (e: IndexOutOfBoundsException) {

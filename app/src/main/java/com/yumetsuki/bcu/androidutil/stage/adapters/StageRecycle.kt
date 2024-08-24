@@ -155,8 +155,7 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
                             viewHolder.limitrec.layoutManager = LinearLayoutManager(activity)
 
                             ViewCompat.setNestedScrollingEnabled(viewHolder.limitrec, false)
-                            val limitRecycle = LimitRecycle(activity, l)//TODO - Make CharaGroup collapsible
-                            //viewHolder.limitrec.setOnClickListener() {}
+                            val limitRecycle = LimitRecycle(activity, l)
                             viewHolder.limitrec.adapter = limitRecycle
                         }
                     }

@@ -21,9 +21,8 @@ class SearchAbilityAdapter(private val context: Context, private val abils: Arra
     inner class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
         val abil = if(isLandscape()) {
             arrayOf<CheckBox>(row.findViewById(R.id.abilicon1), row.findViewById(R.id.abilicon2), row.findViewById(R.id.abilicon3), row.findViewById(R.id.abilicon4), row.findViewById(R.id.abilicon5))
-        } else {
+        } else
             arrayOf(row.findViewById(R.id.abilicon1), row.findViewById(R.id.abilicon2), row.findViewById(R.id.abilicon3))
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

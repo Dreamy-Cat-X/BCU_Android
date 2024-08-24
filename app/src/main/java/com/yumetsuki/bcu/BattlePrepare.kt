@@ -148,7 +148,7 @@ class BattlePrepare : AppCompatActivity() {
                             StaticStore.showShortMessage(this@BattlePrepare, R.string.lineup_file_err)
                             BasisSet.list().clear()
                             BasisSet()
-                            ErrorLogWriter.writeLog(e, StaticStore.upload, this@BattlePrepare)
+                            ErrorLogWriter.writeLog(e)
                         }
 
                         StaticStore.LUread = true

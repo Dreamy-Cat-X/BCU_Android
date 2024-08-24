@@ -26,75 +26,35 @@ object LangLoader {
         for (l in Lang.Locale.values()) {
             for (n in files) {
                 val f = File("${StaticStore.getExternalAsset(c)}lang/${l.code}/$n")
-
                 if (f.exists()) {
                     val qs = VFile.getFile(f).data.readLine()
                     when (n) {
-                        "UnitName.txt" -> {
-                            val size = qs.size
-                            var j = 0
-                            while (j < size) {
-                                val strs = qs?.poll()?.trim()?.split("\t")?.toTypedArray() ?: break
-
-                                val u = UserProfile.getBCData().units[CommonStatic.parseIntN(strs[0])]
-
-                                if (u == null) {
-                                    j++
-                                    continue
-                                }
-
-                                var i = 0
-
-                                while (i < u.forms.size.coerceAtMost(strs.size - 1)) {
-                                    MultiLangCont.getStatic().FNAME.put(l, u.forms[i], strs[i + 1].trim())
-                                    i++
-                                }
-
-                                j++
+                        "UnitName.txt" -> for (str in qs) {
+                            val strs = str.trim().split("\t").toTypedArray()
+                            val u = UserProfile.getBCData().units[CommonStatic.parseIntN(strs[0])] ?: continue
+                            for (i in u.forms.indices) {
+                                if (i >= strs.size-1) break
+                                MultiLangCont.getStatic().FNAME.put(l, u.forms[i], strs[i + 1].trim())
                             }
                         }
-                        "UnitExplanation.txt" -> {
-                            val size = qs.size
-                            var j = 0
-                            while (j < size) {
-                                val strs = qs?.poll()?.trim()?.split("\t")?.toTypedArray() ?: return
-
-                                val u = UserProfile.getBCData().units[CommonStatic.parseIntN(strs[0])]
-
-                                if (u == null) {
-                                    j++
-                                    continue
-                                }
-
-                                var i = 0
-
-                                while (i < u.forms.size.coerceAtMost(strs.size - 1)) {
-                                    val lines = strs[i + 1].trim().split("<br>").toTypedArray()
-
-                                    MultiLangCont.getStatic().FEXP.put(l, u.forms[i], lines)
-
-                                    i++
-                                }
-                                
-                                j++
+                        "UnitExplanation.txt" -> for (str in qs) {
+                            val strs = str.trim().split("\t").toTypedArray()
+                            val u = UserProfile.getBCData().units[CommonStatic.parseIntN(strs[0])] ?: continue
+                            for (i in u.forms.indices) {
+                                if (i >= strs.size-1) break
+                                MultiLangCont.getStatic().FEXP.put(l, u.forms[i], strs[i + 1].trim().split("<br>").toTypedArray())
                             }
                         }
                         "CatFruitExplanation.txt" -> for (str in qs) {
                             val strs = str.trim().split("\t").toTypedArray()
-
-                            val u = UserProfile.getBCData().units[CommonStatic.parseIntN(strs[0])] ?: continue
-
-                            if (strs.size == 1) {
+                            if (strs.size == 1)
                                 continue
-                            }
-
+                            val u = UserProfile.getBCData().units[CommonStatic.parseIntN(strs[0])] ?: continue
                             val lines = strs[1].replace("<br>", "\n")
 
                             MultiLangCont.getStatic().CFEXP.put(l, u.info, lines)
-
                             if (strs.size == 3) {
                                 val ultraLines = strs[2].replace("<br>", "\n")
-
                                 MultiLangCont.getStatic().UFEXP.put(l, u.info, ultraLines)
                             }
                         }
@@ -132,24 +92,15 @@ object LangLoader {
                     when (n) {
                         "EnemyName.txt" -> for (str in qs) {
                             val strs = str.trim().split("\t").toTypedArray()
-
                             val em = UserProfile.getBCData().enemies[CommonStatic.parseIntN(strs[0])] ?: continue
-
-                            if (strs.size == 1)
-                                MultiLangCont.getStatic().ENAME.put(l, em, null)
-                            else
+                            if (strs.size > 1)
                                 MultiLangCont.getStatic().ENAME.put(l, em, if (strs[1].trim().startsWith("【")) strs[1].trim().substring(1, strs[1].trim().length - 1) else strs[1].trim())
                         }
                         "EnemyExplanation.txt" -> for (str in qs) {
                             val strs = str.trim().split("\t").toTypedArray()
-                            val em = UserProfile.getBCData().enemies[CommonStatic.parseIntN(strs[0])]
-                                    ?: continue
-                            if (strs.size == 1)
-                                MultiLangCont.getStatic().EEXP.put(l, em, null)
-                            else {
-                                val lines = strs[1].trim().split("<br>").toTypedArray()
-                                MultiLangCont.getStatic().EEXP.put(l, em, lines)
-                            }
+                            val em = UserProfile.getBCData().enemies[CommonStatic.parseIntN(strs[0])] ?: continue
+                            if (strs.size > 1)
+                                MultiLangCont.getStatic().EEXP.put(l, em, strs[1].trim().split("<br>").toTypedArray())
                         }
                     }
                 }

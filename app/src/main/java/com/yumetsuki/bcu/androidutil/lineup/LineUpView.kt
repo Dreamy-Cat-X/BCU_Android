@@ -579,7 +579,7 @@ class LineUpView : View {
         try {
             StaticStore.saveLineUp(context, false)
         } catch(e: Exception) {
-            ErrorLogWriter.writeLog(e, StaticStore.upload, context)
+            ErrorLogWriter.writeLog(e)
             StaticStore.showShortMessage(context, R.string.err_lusave_fail)
         }
     }

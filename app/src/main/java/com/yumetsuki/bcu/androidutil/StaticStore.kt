@@ -525,14 +525,14 @@ object StaticStore {
      * @param lan Code of language refers to StaticStore.lang.<br></br>
      * 0 is Auto.
      */
-    fun getLang(lan: Int) {
+    fun setLang(lan: Int) {
         val language: String
 
         if (lan == 0) {
             language = Resources.getSystem().configuration.locales[0].language
-            CommonStatic.getConfig().langs[0] = CommonStatic.Lang.Locale.values()[listOf(*lang).indexOf(language) - 1];
+            CommonStatic.getConfig().langs[0] = CommonStatic.Lang.Locale.values()[listOf(*lang).indexOf(language) - 1]
         } else//TODO: What
-            CommonStatic.getConfig().langs[0] = CommonStatic.Lang.Locale.values()[lan - 1];
+            CommonStatic.getConfig().langs[0] = CommonStatic.Lang.Locale.values()[lan - 1]
     }
 
     /**
@@ -848,6 +848,10 @@ object StaticStore {
 
     fun getExternalLog(c: Context?): String {
         return getExternalPath(c) + "logs/"
+    }
+
+    fun getPublicDirectory(): String {
+        return "${Environment.getExternalStorageDirectory().absolutePath}/bcu/"
     }
 
     @JvmStatic

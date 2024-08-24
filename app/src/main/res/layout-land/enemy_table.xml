@@ -411,16 +411,15 @@
                 android:textColor="?attr/TextPrimary"
                 android:textStyle="bold" />
 
-            <TextView
+            <com.google.android.flexbox.FlexboxLayout
                 android:id="@+id/eneminftraitr"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/cell_shape"
                 android:gravity="center"
                 android:paddingTop="12dp"
                 android:paddingBottom="12dp"
-                android:text="@null"
-                android:textColor="?attr/TextPrimary" />
+                app:flexWrap="wrap" />
 
             <TextView
                 android:id="@+id/eneminfatkt"
@@ -436,16 +435,17 @@
                 android:textColor="?attr/TextPrimary"
                 android:textStyle="bold" />
 
-            <TextView
+            <com.google.android.flexbox.FlexboxLayout
                 android:id="@+id/eneminfatktr"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/cell_shape"
                 android:gravity="center"
                 android:paddingTop="12dp"
                 android:paddingBottom="12dp"
                 android:text="@null"
-                android:textColor="?attr/TextPrimary" />
+                android:textColor="?attr/TextPrimary"
+                app:flexWrap="wrap" />
 
             <TextView
                 android:id="@+id/eneminfdrop"

@@ -27,7 +27,6 @@ import com.yumetsuki.bcu.androidutil.battle.sound.SoundHandler
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
 import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
-import com.yumetsuki.bcu.androidutil.io.Logger
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
@@ -39,7 +38,6 @@ class MainActivity : AppCompatActivity() {
     private var notshowcheck = false
     private var send = false
     private var show = false
-    private lateinit var logger : Logger
 
     companion object {
         @JvmField
@@ -84,9 +82,8 @@ class MainActivity : AppCompatActivity() {
         deleter(File(Environment.getDataDirectory().absolutePath+"/data/com.yumetsuki.bcu/temp/"))
         deleter(File(StaticStore.getExternalTemp(this)))
 
-        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter(StaticStore.getExternalLog(this)))
-        Logger.init();
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter("${StaticStore.getPublicDirectory()}logs"))
+        //Logger.init() TODO - Make logs delete themselves upon app closure. Until then, this won't be implemented
         setContentView(R.layout.activity_main)
 
         SoundHandler.musicPlay = shared.getBoolean("music", true)
@@ -325,8 +322,6 @@ class MainActivity : AppCompatActivity() {
 
         StaticStore.dialogisShowed = false
         StaticStore.toast = null
-        if (Logger.success)//TODO - This doesn't go here but wherever the app closes
-            Logger.logger.logClose()
 
         super.onDestroy()
     }
