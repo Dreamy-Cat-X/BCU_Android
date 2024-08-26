@@ -469,7 +469,9 @@
                 android:paddingBottom="12dp"
                 android:text="@null"
                 android:textColor="?attr/TextPrimary"
-                app:flexWrap="wrap" />
+                app:alignItems="center"
+                app:flexWrap="wrap"
+                app:justifyContent="center" />
 
         </TableRow>
 

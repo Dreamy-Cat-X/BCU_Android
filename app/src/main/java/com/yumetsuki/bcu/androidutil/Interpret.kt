@@ -70,8 +70,8 @@ object Interpret : Data() {
         TRAIT_ALIEN, TRAIT_ZOMBIE, TRAIT_DEMON, TRAIT_RELIC, TRAIT_WHITE, TRAIT_EVA, TRAIT_WITCH)
 
     fun getTrait(traits: SortedPackSet<Trait>, star: Int, c: Context): String {
+        if (traits.isEmpty()) return ""
         val ans = StringBuilder()
-
         for(trait in traits) {
             if(trait.BCTrait()) {
                 if(trait.id.id == 6 && star == 1)
@@ -79,17 +79,7 @@ object Interpret : Data() {
                 else ans.append(c.getString(TRAIT[trait.id.id])).append(", ")
             } else ans.append(trait.name).append(", ")
         }
-
-        return ans.toString()
-    }
-
-    fun getAtkModel(ent : MaskEntity, index : Int) : Array<MaskAtk> {
-        if (index < ent.allAtks.size)
-            return ent.allAtks[index]
-        val arr : Array<MaskAtk> = Array(ent.getSpAtks(true, index).size) { i ->
-            ent.getSpAtks(true, index)[i]
-        }
-        return arr
+        return ans.substring(0, ans.length - 2)
     }
 
     fun getProc(du: MaskEntity, useSecond: Boolean, isEnemy: Boolean, magnif: DoubleArray, context: Context, atk : Int = 0): List<String> {
@@ -140,12 +130,8 @@ object Interpret : Data() {
             for(key in atkMap.keys) {
                 val inds = atkMap[key] ?: ArrayList()
                 when {
-                    inds.isEmpty() || inds.size == StaticJava.getAtkModel(du, atk).size -> {
-                        l.add(key)
-                    }
-                    else -> {
-                        l.add(getFullExplanationWithAtk(key, inds, lang, context))
-                    }
+                    inds.isEmpty() || inds.size == StaticJava.getAtkModel(du, atk).size -> l.add(key)
+                    else -> l.add(getFullExplanationWithAtk(key, inds, lang, context))
                 }
             }
         }
@@ -154,9 +140,8 @@ object Interpret : Data() {
 
     private fun isValidProc(ind: Int, atk: MaskAtk): Boolean {
         return when (ind) {
-            in P_INDEX.indices -> {
+            in P_INDEX.indices ->
                 atk.proc.getArr(P_INDEX[ind].toInt()).exists()
-            }
             else -> {
                 Log.e("Interpret", "Invalid index : $ind")
                 false
@@ -167,14 +152,12 @@ object Interpret : Data() {
     private fun getFullExplanationWithAtk(explanation: String, inds: ArrayList<Int>, lang: String, c: Context) : String {
         if(isEnglish) {
             val builder = StringBuilder("[")
-
             for(i in inds.indices) {
                 builder.append(numberWithExtension(inds[i], lang))
 
                 if(i < inds.size - 1)
                     builder.append(", ")
             }
-
             return explanation + " " + builder.append(getNumberAttack(lang)).append("]").toString()
         } else {
             val builder = StringBuilder()
@@ -185,7 +168,6 @@ object Interpret : Data() {
                 if(i < inds.size - 1)
                     builder.append(", ")
             }
-
             return explanation + " " + c.getString(R.string.unit_info_atks).replace("_", builder.toString())
         }
     }
@@ -211,7 +193,7 @@ object Interpret : Data() {
                     when (i) {
                         ABI_WKILL.toInt() -> l.add(abilityName + c.getString(ADD[0]))
                         ABI_EKILL.toInt() -> l.add(abilityName + c.getString(ADD[1]))
-                        ABI_CKILL.toInt() -> l.add(abilityName + c.getString(ADD[2]))
+                        ABI_BAKILL.toInt() -> l.add(abilityName + c.getString(ADD[2]))
                         else -> l.add(abilityName)
                     }
                 }

@@ -43,7 +43,10 @@ class MapListAdapter(private val activity: Activity, private val maps: ArrayList
         holder.name.text = withID(maps[position])
 
         if (save?.nearUnlock(stm) == true) holder.name.paintFlags = holder.name.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-        else if (save?.clear(stm) == true) holder.name.paintFlags = holder.name.paintFlags or Paint.FAKE_BOLD_TEXT_FLAG
+        else if (save?.clear(stm) == true) {
+            holder.name.paintFlags = holder.name.paintFlags or Paint.FAKE_BOLD_TEXT_FLAG
+            holder.name.paintFlags = holder.name.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+        } else holder.name.paintFlags = 0
 
         val numbers: String = if (stm.list.size() == 1)
             stm.list.size().toString() + activity.getString(R.string.map_list_stage)
@@ -51,10 +54,8 @@ class MapListAdapter(private val activity: Activity, private val maps: ArrayList
             stm.list.size().toString() + activity.getString(R.string.map_list_stages)
         holder.count.text = numbers
 
-        if(!StaticStore.BCMapCodes.contains(stm.id.pack))
-            holder.star.visibility = View.GONE
-        else
-            generateStar(holder.star, stm)
+        if(!StaticStore.BCMapCodes.contains(stm.id.pack)) holder.star.visibility = View.GONE
+        else generateStar(holder.star, stm)
         return row
     }
 

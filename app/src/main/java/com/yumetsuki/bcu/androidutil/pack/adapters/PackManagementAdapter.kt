@@ -83,6 +83,7 @@ class PackManagementAdapter(private val ac: Activity, private val pList: ArrayLi
         popup.setOnMenuItemClickListener {
             when(it.itemId) {
                 R.id.saveremove -> {
+                    p.save.ulkUni.clear()
                     p.save.cSt.clear()
                     val sf = CommonStatic.ctx.getAuxFile("./saves/" + p.desc.id + ".packsave")
                     if (sf.exists())

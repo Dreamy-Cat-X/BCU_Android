@@ -113,14 +113,10 @@ class UnitInfoPager : Fragment() {
         val prevatk = view.findViewById<Button>(R.id.btn_prevatk)
         val curatk = view.findViewById<TextView>(R.id.atk_index)
         val nextatk = view.findViewById<Button>(R.id.btn_nextatk)
-
         val activity = requireActivity()
-
         s = GetStrings(activity)
 
-        color = intArrayOf(
-                StaticStore.getAttributeColor(activity, R.attr.TextPrimary)
-        )
+        color = intArrayOf(StaticStore.getAttributeColor(activity, R.attr.TextPrimary))
 
         val arg = arguments
 
@@ -630,22 +626,16 @@ class UnitInfoPager : Fragment() {
         unittalen.setOnCheckedChangeListener { _, isChecked ->
             talents = isChecked
             validate(view, f, t)
-
             val from1 = if (isChecked) 0 else StaticStore.dptopx(100f, activity)
             val from2 = if (isChecked) 0 else StaticStore.dptopx(48f, activity)
             val from3 = if (isChecked) 0 else StaticStore.dptopx(16f, activity)
             val to1 = StaticStore.dptopx(100f, activity) - from1
             val to2 = StaticStore.dptopx(48f, activity) - from2
             val to3 = StaticStore.dptopx(16f, activity) - from3
-
-            val anim = ScaleAnimator(npresetrow, AnimatorConst.Dimension.WIDTH, 300, AnimatorConst.Accelerator.DECELERATE, from1, to1)
-            anim.start()
-            val anim2 = ScaleAnimator(nprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, from2, to2)
-            anim2.start()
-            val anim3 = ScaleAnimator(nprow, AnimatorConst.Dimension.TOP_MARGIN, 300, AnimatorConst.Accelerator.DECELERATE, from3, to3)
-            anim3.start()
-            val anim4 = ScaleAnimator(supernprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, from2, to2)
-            anim4.start()
+            ScaleAnimator(npresetrow, AnimatorConst.Dimension.WIDTH, 300, AnimatorConst.Accelerator.DECELERATE, from1, to1).start()
+            ScaleAnimator(nprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, from2, to2).start()
+            ScaleAnimator(nprow, AnimatorConst.Dimension.TOP_MARGIN, 300, AnimatorConst.Accelerator.DECELERATE, from3, to3).start()
+            ScaleAnimator(supernprow, AnimatorConst.Dimension.HEIGHT, 300, AnimatorConst.Accelerator.DECELERATE, from2, to2).start()
         }
         for (i in talent.indices) {
             talent[i].onItemSelectedListener = object : OnItemSelectedListener {
@@ -745,7 +735,8 @@ class UnitInfoPager : Fragment() {
             val iconn = ImageView(activity)
             iconn.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             iconn.setImageBitmap(icn)
-            iconn.setPadding(StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity), StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity))
+            val pad = StaticStore.dptopx(1f, activity)
+            iconn.setPadding(pad, pad, pad, pad)
             unittrait.addView(iconn)
         }
     }
@@ -773,7 +764,8 @@ class UnitInfoPager : Fragment() {
             val icon = ImageView(activity)
             icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             icon.setImageBitmap(icn)
-            icon.setPadding(StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity), StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity))
+            val pad = StaticStore.dptopx(1f, activity)
+            icon.setPadding(pad, pad, pad, pad)
             unitsimu.addView(icon)
         }
         unitrang.text = s.getRange(f, catk, talents, level)

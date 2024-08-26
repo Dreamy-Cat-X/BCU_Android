@@ -385,7 +385,6 @@ class LineUpScreen : AppCompatActivity() {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     if (!initialized)
                         return
-
                     if (BasisSet.current().lb.isEmpty())
                         return
 
@@ -398,7 +397,6 @@ class LineUpScreen : AppCompatActivity() {
                     editor.apply()
 
                     line.changeForms(BasisSet.current().sele.lu)
-
                     line.updateUnitSetting()
                     line.updateUnitOrb()
 

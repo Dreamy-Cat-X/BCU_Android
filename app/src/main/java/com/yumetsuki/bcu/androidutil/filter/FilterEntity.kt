@@ -44,7 +44,7 @@ object FilterEntity {
         val p = UserProfile.getPack(pid) ?: return ArrayList()
 
         val result = ArrayList<Identifier<AbEnemy>>()
-        for (e in p.enemies.list) {
+        for (e in p.getEnemies(false)) {
             if ((StaticStore.starred && e.de.star != 1) || !validate(e.de) || !validateName(e))
                 continue
             if (StatFilterElement.statFilter.isEmpty() || StatFilterElement.performFilter(e, StatFilterElement.orand))
@@ -61,8 +61,8 @@ object FilterEntity {
             } catch (_: Exception) { continue }
             if(u !is Unit || (StaticStore.rare.isNotEmpty() && !StaticStore.rare.contains(u.rarity.toString())) || (StaticStore.entityname.isNotEmpty() && !validateName(u.forms[0])))
                 continue
-            if (save?.locked(u.forms[0]) == true) continue
             for(f in u.forms) {
+                if (save?.locked(f) == true) break
                 val du = if(StaticStore.talents) f.maxu() else f.du
                 if (validate(du) && (StatFilterElement.statFilter.isEmpty() || StatFilterElement.performFilter(f, StatFilterElement.orand))) {
                     result.add(u.id)

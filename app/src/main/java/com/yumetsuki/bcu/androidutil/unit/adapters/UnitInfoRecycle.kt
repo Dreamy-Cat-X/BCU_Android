@@ -193,37 +193,29 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
             listeners(viewHolder, arrayOf(), arrayOf())
         } else {
             for(i in f.du.pCoin.info.indices) {
-                if(f.du.pCoin.getReqLv(i) > 0)
-                    superTalentIndex.add(i)
-                else
-                    talentIndex.add(i)
+                if(f.du.pCoin.getReqLv(i) > 0) superTalentIndex.add(i)
+                else talentIndex.add(i)
             }
 
             val talent = Array(talentIndex.size) {
                 val spin = Spinner(context)
-
                 val param = TableRow.LayoutParams(0, StaticStore.dptopx(56f, context), (1.0 / (talentIndex.size)).toFloat())
 
                 spin.layoutParams = param
                 spin.setPopupBackgroundResource(R.drawable.spinner_popup)
                 spin.setBackgroundResource(androidx.appcompat.R.drawable.abc_spinner_mtrl_am_alpha)
-
                 viewHolder.nprow.addView(spin)
-
                 spin
             }
 
             val superTalent = Array(superTalentIndex.size) {
                 val spin = Spinner(context)
-
                 val param = TableRow.LayoutParams(0, StaticStore.dptopx(56f, context), (1.0 / (superTalentIndex.size)).toFloat())
 
                 spin.layoutParams = param
                 spin.setPopupBackgroundResource(R.drawable.spinner_popup)
                 spin.setBackgroundResource(androidx.appcompat.R.drawable.abc_spinner_mtrl_am_alpha)
-
                 viewHolder.supernprow.addView(spin)
-
                 spin
             }
 
@@ -662,7 +654,8 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
             val icon = ImageView(context)
             icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             icon.setImageBitmap(icn)
-            icon.setPadding(StaticStore.dptopx(1f, context), StaticStore.dptopx(4f, context), StaticStore.dptopx(1f, context), StaticStore.dptopx(4f, context))
+            val pad = StaticStore.dptopx(1f, context)
+            icon.setPadding(pad, pad, pad, pad)
             viewHolder.unitsimu.addView(icon)
         }
     }
@@ -673,7 +666,8 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
             val icon = ImageView(context)
             icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             icon.setImageBitmap(icn)
-            icon.setPadding(StaticStore.dptopx(1f, context), StaticStore.dptopx(4f, context), StaticStore.dptopx(1f, context), StaticStore.dptopx(4f, context))
+            val pad = StaticStore.dptopx(1f, context)
+            icon.setPadding(pad, pad, pad, pad)
             viewHolder.unittrait.addView(icon)
         }
     }

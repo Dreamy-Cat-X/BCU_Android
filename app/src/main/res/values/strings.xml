@@ -594,7 +594,7 @@
     <string name="talen_poi">Res.Poison</string>
     <string name="talen_sur">Res.Surge Attack</string>
     <string name="lineup_const_curse">Curseblast Level</string>
-    <string name="stage_sol">Story of Legends</string>
+    <string name="stage_sol">Stories of Legend</string>
     <string name="stage_event">Regular Event Stages</string>
     <string name="stage_collabo">Collaboration Stages</string>
     <string name="stage_eoc">Story Chapters</string>
@@ -1053,4 +1053,7 @@
     <string name="limit_banco">Banned CatCombos</string>
     <string name="limit_rcos">Cost Multipliers</string>
     <string name="limit_rcoo">CD Multipliers</string>
+    <string name="story_title">Stage Clear Rewards</string>
+    <string name="story_umap">Unlocked StageMaps:</string>
+    <string name="story_uuni">Unlocked Units:</string>
 </resources>

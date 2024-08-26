@@ -60,8 +60,7 @@ class LUOrbSetting : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val v = inflater.inflate(R.layout.lineup_orb_setting, container, false)
-
-        val c = context ?: return v
+        if (context == null) return v
 
         val obj = Object()
 
@@ -88,7 +87,7 @@ class LUOrbSetting : Fragment() {
 
     fun update() {
         val v = view ?: return
-        val c = context ?: return
+        if (context == null) return
 
         val obj = Object()
 

@@ -121,13 +121,6 @@ class MainActivity : AppCompatActivity() {
         CommonStatic.getConfig().fps60 = shared.getBoolean("fps60", false)
         CommonStatic.getConfig().prog = shared.getBoolean("prog", false)
 
-        val result = intent
-        var conf = false
-        val bundle = result.extras
-
-        if (bundle != null)
-            conf = bundle.getBoolean("Config")
-
         isRunning = true
 
         val grid = findViewById<GridLayout>(R.id.maingrid)

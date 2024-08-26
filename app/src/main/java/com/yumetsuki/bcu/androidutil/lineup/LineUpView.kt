@@ -691,9 +691,8 @@ class LineUpView : View {
      * Change specific unit's form
      */
     fun changeForms(lu: LineUp) {
-        for (i in lu.fs.indices) {
+        for (i in lu.fs.indices)
             System.arraycopy(lu.fs[i], 0, BasisSet.current().sele.lu.fs[i], 0, lu.fs[i].size)
-        }
 
         updateLineUp()
     }
@@ -707,10 +706,8 @@ class LineUpView : View {
         Log.i("LineupView", "Updating unit list...")
 
         val adapter = pager?.adapter
-
-        if(adapter != null && adapter is LineUpScreen.LUTab) {
+        if(adapter != null && adapter is LineUpScreen.LUTab)
             adapter.updateFragment(0)
-        }
     }
 
     private fun syncUnitList() {

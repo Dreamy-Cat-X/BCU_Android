@@ -51,19 +51,11 @@ class StageListAdapter(private val activity: Activity, private val stages: Array
 
         val ids = getid(st.data)
         holder.enemy.visibility = View.GONE
-
-        for (i in ids.indices) {
+        if (ids.isEmpty()) discardIcons(holder, 0)
+        else for (i in ids.indices) {
             val icn = getIcon(ids[i])
             if (icn == null) {
-                holder.icons.removeAllViews()
-                holder.enemy.visibility = View.VISIBLE
-
-                val lang = Locale.getDefault().language
-                val enemies = if(lang == "en" || lang == "ru" || lang == "fr") {
-                    getEnemyText(ids.size, lang)
-                } else
-                    context.getString(R.string.stg_enem_num).replace("_", ids.size.toString())
-                holder.enemy.text = enemies
+                discardIcons(holder, ids.size)
                 break
             }
             val icon = ImageView(activity)
@@ -74,7 +66,16 @@ class StageListAdapter(private val activity: Activity, private val stages: Array
         }
         return row
     }
+    private fun discardIcons(holder : ViewHolder, siz : Int) {
+        holder.icons.removeAllViews()
+        holder.enemy.visibility = View.VISIBLE
 
+        val lang = Locale.getDefault().language
+        val enemies = if(lang == "en" || lang == "ru" || lang == "fr") {
+            getEnemyText(siz, lang)
+        } else context.getString(R.string.stg_enem_num).replace("_", siz.toString())
+        holder.enemy.text = enemies
+    }
     private fun getIcon(ene : Identifier<AbEnemy>) : Bitmap? {
         if (ene.pack == Identifier.DEF) {
             return if (ene.id < (StaticStore.eicons?.size ?: 0)) StaticStore.eicons?.get(ene.id)// ?: StaticStore.empty()

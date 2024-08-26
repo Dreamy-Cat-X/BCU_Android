@@ -419,7 +419,9 @@
                 android:gravity="center"
                 android:paddingTop="12dp"
                 android:paddingBottom="12dp"
-                app:flexWrap="wrap" />
+                app:alignItems="center"
+                app:flexWrap="wrap"
+                app:justifyContent="center" />
 
             <TextView
                 android:id="@+id/eneminfatkt"
@@ -445,7 +447,9 @@
                 android:paddingBottom="12dp"
                 android:text="@null"
                 android:textColor="?attr/TextPrimary"
-                app:flexWrap="wrap" />
+                app:alignItems="center"
+                app:flexWrap="wrap"
+                app:justifyContent="center" />
 
             <TextView
                 android:id="@+id/eneminfdrop"

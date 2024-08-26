@@ -18,9 +18,7 @@ import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexboxLayout
-import com.google.android.flexbox.JustifyContent
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.yumetsuki.bcu.R
@@ -180,14 +178,13 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
         viewHolder.enemmulti.setText(multiplication.toString())
         viewHolder.enemamulti.setText(attackMultiplication.toString())
 
-        viewHolder.enemtrait.alignItems = AlignItems.CENTER
-        viewHolder.enemtrait.justifyContent = JustifyContent.CENTER
         val icns = s.getTrait(em)
         for (icn in icns) {
             val icon = ImageView(activity)
             icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             icon.setImageBitmap(icn)
-            icon.setPadding(StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity), StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity))
+            val pad = StaticStore.dptopx(1f, activity)
+            icon.setPadding(pad, pad, pad, pad)
             viewHolder.enemtrait.addView(icon)
         }
         setSimus(viewHolder, em)
@@ -506,11 +503,10 @@ class EnemyRecycle : RecyclerView.Adapter<EnemyRecycle.ViewHolder> {
             val icon = ImageView(activity)
             icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             icon.setImageBitmap(icn)
-            icon.setPadding(StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity), StaticStore.dptopx(1f, activity), StaticStore.dptopx(4f, activity))
+            val pad = StaticStore.dptopx(1f, activity)
+            icon.setPadding(pad, pad, pad, pad)
             viewHolder.enematkt.addView(icon)
         }
-        viewHolder.enematkt.alignItems = AlignItems.CENTER
-        viewHolder.enematkt.justifyContent = JustifyContent.CENTER
     }
 
     private fun multiply(viewHolder: ViewHolder, em: Enemy) {

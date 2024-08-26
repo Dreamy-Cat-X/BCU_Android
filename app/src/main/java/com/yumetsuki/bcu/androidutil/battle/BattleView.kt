@@ -4,17 +4,22 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.media.AudioAttributes
 import android.media.SoundPool
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.media3.common.Player
+import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.yumetsuki.bcu.BattleSimulation
@@ -39,8 +44,11 @@ import common.util.anim.ImgCut
 import common.util.lang.MultiLangCont
 import common.util.stage.MapColc
 import common.util.stage.Stage
+import common.util.stage.StageMap
 import common.util.stage.info.DefStageInfo
 import common.util.unit.Form
+import java.util.ArrayDeque
+import java.util.LinkedList
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.pow
@@ -494,9 +502,58 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
         if (win && st.mc.getSave(false) != null) {
             val spoils = st.mc.getSave(true).validClear(st)
             Source.Workspace.saveData(st.mc.getSave(true).pack)
-            if (spoils != null && spoils[0].isNotEmpty()) {
+            if (spoils != null && (spoils[0].isNotEmpty() || spoils[2].isNotEmpty())) {
                 SoundHandler.setSE(29) //Fanfare SE
-                //TODO display unlocked stuff
+                val progPop = Dialog(context)
+                progPop.setContentView(R.layout.battle_story_reward_popup)
+                progPop.setCancelable(true)
+
+                val exGroup = progPop.findViewById<RadioGroup>(R.id.stageGroup)
+                val groupPar = progPop.findViewById<ScrollView>(R.id.stageView)
+                val cont = progPop.findViewById<Button>(R.id.story_continue)
+
+                if (spoils[2].isNotEmpty()) {
+                    val maps = spoils[2] as LinkedList<StageMap>
+                    for (sm in maps) {
+                        val radioButton = RadioButton(context)
+                        radioButton.id = sm.hashCode()
+
+                        radioButton.setTextColor(StaticStore.getAttributeColor(context, R.attr.TextPrimary))
+                        radioButton.text = sm.toString()
+
+                        exGroup.addView(radioButton)
+                        radioButton.isChecked = maps[0] == sm
+                    }
+                } else {
+                    progPop.findViewById<TextView>(R.id.stageDesc).visibility = GONE
+                    groupPar.visibility = GONE
+                    cont.visibility = GONE
+                }
+                val stUnit = progPop.findViewById<FlexboxLayout>(R.id.stFormGroup)
+                if (spoils[0].isNotEmpty()) {
+                    val units = spoils[0] as ArrayDeque<Form>
+                    for (f in units) {
+                        val iconn = ImageView(activity)
+                        iconn.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                        iconn.setImageBitmap(f.deployIcon.img.bimg() as Bitmap)
+                        val pad = StaticStore.dptopx(1f, activity)
+                        iconn.setPadding(pad, pad, pad, pad)
+                        stUnit.addView(iconn)
+                    }
+                } else {
+                    progPop.findViewById<TextView>(R.id.unitDesc).visibility = GONE
+                    progPop.findViewById<ScrollView>(R.id.unitView).visibility = GONE
+                    groupPar.layoutParams.height *= 2
+                    stUnit.visibility = GONE
+                }
+                val cancel = progPop.findViewById<Button>(R.id.story_cancel)
+                cancel.setOnClickListener(object : SingleClick() {
+                    override fun onSingleClick(v: View?) {
+                        progPop.dismiss()
+                    }
+                })
+                if (!activity.isDestroyed && !activity.isFinishing)
+                    progPop.show()
             }
         }
 
@@ -508,7 +565,6 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
                     val dialog = Dialog(context)
 
                     dialog.setContentView(R.layout.battle_ex_picked_popup)
-
                     dialog.setCancelable(true)
 
                     val cont = dialog.findViewById<Button>(R.id.excontinue)
@@ -520,7 +576,6 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
                     cont.setOnClickListener(object : SingleClick() {
                         override fun onSingleClick(v: View?) {
                             reopenStage(stage, true)
-
                             dialog.dismiss()
                         }
                     })
@@ -534,7 +589,6 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
                     if (!activity.isDestroyed && !activity.isFinishing) {
                         dialog.show()
                     }
-
                     return
                 }
             } else {

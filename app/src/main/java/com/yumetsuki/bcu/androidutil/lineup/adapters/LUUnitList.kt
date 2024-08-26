@@ -102,24 +102,17 @@ class LUUnitList : Fragment() {
 
     private fun alreadyExist(form: Form): Boolean {
         val u = form.unit
-
         for (i in BasisSet.current().sele.lu.fs.indices) {
             for (j in BasisSet.current().sele.lu.fs[i].indices) {
-
                 if (BasisSet.current().sele.lu.fs[i][j] == null) {
-                    return if (line.repform == null)
-                        false
-                    else
-                        u == line.repform!!.unit()
+                    return if (line.repform == null) false
+                    else u == line.repform!!.unit()
                 }
-
                 val u2 = BasisSet.current().sele.lu.fs[i][j].unit()
-
                 if (u == u2)
                     return true
             }
         }
-
         return false
     }
 
