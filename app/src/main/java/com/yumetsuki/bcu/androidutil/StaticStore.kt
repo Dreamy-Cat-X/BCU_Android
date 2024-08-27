@@ -1105,11 +1105,8 @@ object StaticStore {
 
             if(n.isBlank())
                 n = id
-
             n
-        }  else {
-            id
-        }
+        } else id
     }
 
     /**

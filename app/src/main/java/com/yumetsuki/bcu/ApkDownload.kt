@@ -171,16 +171,13 @@ class ApkDownload : AppCompatActivity() {
 
     private suspend fun downloadApk(version: String) : File {
         var internetConnected = true
-
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
         val networkInfo = connectivityManager.activeNetwork
 
         if (networkInfo == null) {
             internetConnected = false
         } else {
             val capability = connectivityManager.getNetworkCapabilities(networkInfo)
-
             if (capability == null) {
                 internetConnected = false
             } else if (!capability.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) && !capability.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) && !capability.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
@@ -209,7 +206,7 @@ class ApkDownload : AppCompatActivity() {
 
             val fullPath = path + filePrefix + version + apk
 
-            val domain = "https://github.com/battlecatsultimate/bcu-assets/blob/master/apk/BCU_Android_"
+            val domain = "https://github.com/Blacksun420/sun-bcu-assets/blob/master/apk/BCU_Android_"
             val end = "?raw=true"
 
             val link = domain + version + apk + end

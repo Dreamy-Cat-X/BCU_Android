@@ -211,10 +211,7 @@ open class CheckUpdateScreen : AppCompatActivity() {
                         val musicShared = getSharedPreferences(StaticStore.MUSIC, Context.MODE_PRIVATE)
 
                         //Check APK
-                        val apk : ApkUpdateChecker.ApkJson? = ApkUpdateChecker.getUpdateJson()//if(updateJson.apk_update != null)
-                        //    checkApk(updateJson.apk_update)
-                        //else
-                        //    null
+                        val apk : ApkUpdateChecker.ApkJson? = ApkUpdateChecker.getUpdateJson()
 
                         if(apk != null) {
                             withContext(Dispatchers.Main) {

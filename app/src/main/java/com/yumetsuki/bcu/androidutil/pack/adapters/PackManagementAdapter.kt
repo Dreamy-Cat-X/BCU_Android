@@ -2,17 +2,24 @@ package com.yumetsuki.bcu.androidutil.pack.adapters
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.graphics.Bitmap
+import android.text.util.Linkify
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.ImageView
 import android.widget.PopupMenu
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.FileProvider
+import androidx.core.text.HtmlCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
@@ -30,6 +37,7 @@ class PackManagementAdapter(private val ac: Activity, private val pList: ArrayLi
         val name = v.findViewById<TextView>(R.id.pmanname)!!
         val desc = v.findViewById<TextView>(R.id.pmandesc)!!
         val more = v.findViewById<FloatingActionButton>(R.id.pmanmore)!!
+        val icn = v.findViewById<ImageView>(R.id.packIcon)!!
     }
 
     var dialog = AlertDialog.Builder(context)
@@ -47,21 +55,20 @@ class PackManagementAdapter(private val ac: Activity, private val pList: ArrayLi
             row.tag = holder
         } else {
             row = convertView
-
             holder = row.tag as ViewHolder
         }
 
         val p = pList[position]
 
-        val title = if(p.desc.author == null || p.desc.author.isBlank()) {
-            p.sid
-        } else {
-            p.sid + " [${p.desc.author}]"
-        }
+        val title = if(p.desc.author == null || p.desc.author.isBlank()) { p.sid
+        } else p.sid + " [${p.desc.author}]"
 
         holder.id.text = title
-
         holder.name.text = StaticStore.getPackName(p.sid)
+        if (p.icon == null)
+            holder.icn.visibility = View.GONE
+        else
+            holder.icn.setImageBitmap(p.icon.img.bimg() as Bitmap)
 
         val f = (p.source as Source.ZipSource).packFile
 
@@ -77,6 +84,59 @@ class PackManagementAdapter(private val ac: Activity, private val pList: ArrayLi
 
         val popup = PopupMenu(context, holder.more)
         val menu = popup.menu
+
+        row.setOnLongClickListener {
+            val descPage = Dialog(ac)
+            descPage.setContentView(R.layout.pack_description_viewer)
+            descPage.setCancelable(true)
+
+            val banner = descPage.findViewById<ImageView>(R.id.packBanner)
+            if (p.banner == null) banner.visibility = View.GONE
+            else banner.setImageBitmap(p.banner.img.bimg() as Bitmap)
+
+            val pdesc = descPage.findViewById<TextView>(R.id.packDescription)
+            val pstr = p.desc.info.toString()
+            if (pstr.isNotBlank()) {
+                pdesc.text = HtmlCompat.fromHtml(pstr.replace("\n","<br>"), HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH)
+                Linkify.addLinks(pdesc, Linkify.WEB_URLS)
+            } else descPage.findViewById<ScrollView>(R.id.scrollDesc).visibility = View.GONE
+
+            val pver = descPage.findViewById<TextView>(R.id.packVersion)
+            val pber = descPage.findViewById<TextView>(R.id.packBCUver)
+            val t = "Version: ${p.desc.version}"
+            pver.text = t
+            val tb = "CORE: ${p.desc.FORK_VERSION} | ${p.desc.BCU_VERSION}"
+            pber.text = tb
+
+            val pcre = descPage.findViewById<TextView>(R.id.packCreateD)
+            val pexp = descPage.findViewById<TextView>(R.id.packExportD)
+            if (p.desc.creationDate != null || p.desc.exportDate != null) {
+                val d = "Created: ${p.desc.creationDate?.substring(0, 9) ?: "N/A"}"
+                pcre.text = d
+                val db = "Exported: ${p.desc.exportDate?.substring(0, 9) ?: "N/A"}"
+                pexp.text = db
+            } else {
+                pcre.visibility = View.GONE
+                pexp.visibility = View.GONE
+            }
+            val psta = descPage.findViewById<TextView>(R.id.packSTCount)
+            val pani = descPage.findViewById<TextView>(R.id.packCAnim)
+            val s = "Stage Count: ${p.mc.stageCount}"
+            psta.text = s
+            val sb = "Has Password: ${p.desc.allowAnim}"
+            pani.text = sb
+
+            val cancel = descPage.findViewById<Button>(R.id.packExitB)
+            cancel.setOnClickListener(object : SingleClick() {
+                override fun onSingleClick(v: View?) {
+                    descPage.dismiss()
+                }
+            })
+            if (!ac.isDestroyed && !ac.isFinishing)
+                descPage.show()
+
+            true
+        }
 
         popup.menuInflater.inflate(R.menu.pack_list_option_menu, menu)
 
