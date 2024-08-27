@@ -10,7 +10,7 @@ import java.util.Date;
 
 public class MainBCU {
 
-	public static final int ver = 41009; //TODO - 50000 GORILLION JEWS DEAD
+	public static final int ver = 50000;
 
 	public static int FILTER_TYPE = 0;
 	public static final boolean WRITE = !new File("./.project").exists();

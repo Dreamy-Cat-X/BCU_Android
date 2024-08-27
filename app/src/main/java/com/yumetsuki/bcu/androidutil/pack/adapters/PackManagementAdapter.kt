@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
+import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,6 +21,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.FileProvider
 import androidx.core.text.HtmlCompat
+import androidx.core.text.util.LinkifyCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
@@ -98,7 +100,8 @@ class PackManagementAdapter(private val ac: Activity, private val pList: ArrayLi
             val pstr = p.desc.info.toString()
             if (pstr.isNotBlank()) {
                 pdesc.text = HtmlCompat.fromHtml(pstr.replace("\n","<br>"), HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH)
-                Linkify.addLinks(pdesc, Linkify.WEB_URLS)
+                LinkifyCompat.addLinks(pdesc, Linkify.WEB_URLS)
+                pdesc.movementMethod = LinkMovementMethod.getInstance()
             } else descPage.findViewById<ScrollView>(R.id.scrollDesc).visibility = View.GONE
 
             val pver = descPage.findViewById<TextView>(R.id.packVersion)
@@ -123,7 +126,8 @@ class PackManagementAdapter(private val ac: Activity, private val pList: ArrayLi
             val pani = descPage.findViewById<TextView>(R.id.packCAnim)
             val s = "Stage Count: ${p.mc.stageCount}"
             psta.text = s
-            val sb = "Has Password: ${p.desc.allowAnim}"
+
+            val sb = "Can${(if (p.desc.allowAnim) "" else "'t")} copy anims"
             pani.text = sb
 
             val cancel = descPage.findViewById<Button>(R.id.packExitB)
