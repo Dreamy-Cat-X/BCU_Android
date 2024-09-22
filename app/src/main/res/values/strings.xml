@@ -649,6 +649,7 @@
     <string name="def_lang_ru">Русский</string>
     <string name="png_normal">Normal</string>
     <string name="png_transp">Transparent BG</string>
+    <string name="png_sprite">Spritesheet</string>
     <string name="def_lang_fr">Français</string>
     <string name="stat_sch_type">"Type : "</string>
     <string name="stat_sch_option">"Option : "</string>

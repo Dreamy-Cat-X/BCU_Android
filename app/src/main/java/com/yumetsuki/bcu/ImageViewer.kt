@@ -657,33 +657,66 @@ class ImageViewer : AppCompatActivity() {
 
                                 val imageName = when(content) {
                                     is Identifier<*> -> {
-                                        val packName = if (content.pack == Identifier.DEF) {
-                                            "Default"
-                                        } else {
-                                            content.pack
-                                        }
+                                        val packName = if (content.pack == Identifier.DEF) getString(R.string.pack_default)
+                                        else content.pack
+
+                                        if (type == AnimationCView.AnimationType.UNIT)
+                                            "${dateFormat.format(date)}-F-$packName-${StaticStore.trio(content.id)}-${Data.trio(StaticStore.formposition)}"
+                                        else
+                                            "${dateFormat.format(date)}-E-$packName-${StaticStore.trio(content.id)}"
+                                    }
+                                    is EffAnim<*> -> "${dateFormat.format(date)}-EFF-Default-${StaticStore.trio(index)}"
+                                    is Soul -> "${dateFormat.format(date)}-S-Default-${StaticStore.trio(index)}"
+                                    is NyCastle -> "${dateFormat.format(date)}-C-Default-${StaticStore.trio(index)}"
+                                    is DemonSoul -> "${dateFormat.format(date)}-DS-Default-${StaticStore.trio(index)}"
+                                    else -> throw IllegalStateException("E/ImageViewer::onCreate - Invalid content type : ${content::class.java.name}")
+                                }
+
+                                try {
+                                    val path = MediaScanner.putImage(this@ImageViewer, b, imageName)
+
+                                    if(path == MediaScanner.ERRR_WRONG_SDK) {
+                                        StaticStore.showShortMessage(this@ImageViewer, R.string.anim_png_fail)
+                                    } else
+                                        StaticStore.showShortMessage(this@ImageViewer, getString(R.string.anim_png_success).replace("-", path))
+                                } catch (e: IOException) {
+                                    e.printStackTrace()
+                                    StaticStore.showShortMessage(this@ImageViewer, R.string.anim_png_fail)
+                                }
+
+                                return@OnMenuItemClickListener true
+                            }
+                            R.id.anim_png_transp -> {
+                                val b = Bitmap.createBitmap(cView.width, cView.height, Bitmap.Config.ARGB_8888)
+                                val c = Canvas(b)
+                                val p = Paint()
+
+                                if (!shared.getBoolean("theme", false))
+                                    p.color = Color.argb(255, 54, 54, 54)
+                                else p.color = Color.argb(255, 255, 255, 255)
+
+                                cView.trans = true
+                                cView.draw(c)
+                                cView.trans = false
+
+                                val dateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US)
+                                val date = Date()
+
+                                val imageName = when(content) {
+                                    is Identifier<*> -> {
+                                        val packName = if (content.pack == Identifier.DEF) getString(R.string.pack_default)
+                                        else content.pack
 
                                         if (type == AnimationCView.AnimationType.UNIT) {
-                                            "${dateFormat.format(date)}-F-$packName-${StaticStore.trio(content.id)}-${Data.trio(StaticStore.formposition)}"
-                                        } else {
-                                            "${dateFormat.format(date)}-E-$packName-${StaticStore.trio(content.id)}"
-                                        }
+                                            "${dateFormat.format(date)}-F-Trans-$packName-${StaticStore.trio(content.id)}-${Data.trio(StaticStore.formposition)}"
+                                        } else
+                                            "${dateFormat.format(date)}-E-Trans-$packName-${StaticStore.trio(content.id)}"
                                     }
-                                    is EffAnim<*> -> {
-                                        "${dateFormat.format(date)}-EFF-Default-${StaticStore.trio(index)}"
-                                    }
-                                    is Soul -> {
-                                        "${dateFormat.format(date)}-S-Default-${StaticStore.trio(index)}"
-                                    }
-                                    is NyCastle -> {
-                                        "${dateFormat.format(date)}-C-Default-${StaticStore.trio(index)}"
-                                    }
-                                    is DemonSoul -> {
-                                        "${dateFormat.format(date)}-DS-Default-${StaticStore.trio(index)}"
-                                    }
-                                    else -> {
-                                        throw IllegalStateException("E/ImageViewer::onCreate - Invalid content type : ${content::class.java.name}")
-                                    }
+                                    is EffAnim<*> -> "${dateFormat.format(date)}-EFF-Trans-Default-${StaticStore.trio(index)}"
+                                    is Soul -> "${dateFormat.format(date)}-S-Trans-Default-${StaticStore.trio(index)}"
+                                    is NyCastle -> "${dateFormat.format(date)}-C-Trans-Default-${StaticStore.trio(index)}"
+                                    is DemonSoul -> "${dateFormat.format(date)}-DS-Default-${StaticStore.trio(index)}"
+                                    else -> throw IllegalStateException("E/ImageViewer::onCreate - Invalid content type : ${content::class.java.name}")
                                 }
 
                                 try {
@@ -698,62 +731,26 @@ class ImageViewer : AppCompatActivity() {
                                     e.printStackTrace()
                                     StaticStore.showShortMessage(this@ImageViewer, R.string.anim_png_fail)
                                 }
-
                                 return@OnMenuItemClickListener true
                             }
-                            R.id.anim_png_transp -> {
-                                val b = Bitmap.createBitmap(cView.width, cView.height, Bitmap.Config.ARGB_8888)
-                                val c = Canvas(b)
-
-                                val p = Paint()
-
-                                if (!shared.getBoolean("theme", false))
-                                    p.color = Color.argb(255, 54, 54, 54)
-                                else
-                                    p.color = Color.argb(255, 255, 255, 255)
-
-                                cView.trans = true
-
-                                cView.draw(c)
-
-                                cView.trans = false
-
-                                val dateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US)
-                                val date = Date()
-
-                                val imageName = when(content) {
+                            R.id.anim_png_sprite -> {
+                                val immg = when(content) {
                                     is Identifier<*> -> {
-                                        val packName = if (content.pack == Identifier.DEF) {
-                                            "Default"
-                                        } else {
-                                            content.pack
+                                        if (content.pack != Identifier.DEF && !UserProfile.getUserPack(content.pack).desc.allowAnim) {
+                                            throw Exception("Pack contains password: Spritesheet export for protected packs not supported yet.")
+                                            //TODO - Password display
                                         }
-
-                                        if (type == AnimationCView.AnimationType.UNIT) {
-                                            "${dateFormat.format(date)}-F-Trans-$packName-${StaticStore.trio(content.id)}-${Data.trio(StaticStore.formposition)}"
-                                        } else {
-                                            "${dateFormat.format(date)}-E-Trans-$packName-${StaticStore.trio(content.id)}"
-                                        }
+                                        if (type == AnimationCView.AnimationType.UNIT) (content.get() as Unit).forms[StaticStore.formposition].anim
+                                        else (content.get() as Enemy).anim
                                     }
-                                    is EffAnim<*> -> {
-                                        "${dateFormat.format(date)}-EFF-Trans-Default-${StaticStore.trio(index)}"
-                                    }
-                                    is Soul -> {
-                                        "${dateFormat.format(date)}-S-Trans-Default-${StaticStore.trio(index)}"
-                                    }
-                                    is NyCastle -> {
-                                        "${dateFormat.format(date)}-C-Trans-Default-${StaticStore.trio(index)}"
-                                    }
-                                    is DemonSoul -> {
-                                        "${dateFormat.format(date)}-DS-Default-${StaticStore.trio(index)}"
-                                    }
-                                    else -> {
-                                        throw IllegalStateException("E/ImageViewer::onCreate - Invalid content type : ${content::class.java.name}")
-                                    }
+                                    is EffAnim<*> -> content.anim
+                                    is Soul -> content.anim
+                                    is NyCastle -> content.anim
+                                    is DemonSoul -> content.anim
+                                    else -> throw IllegalStateException("E/ImageViewer::onCreate - Invalid content type : ${content::class.java.name}")
                                 }
-
                                 try {
-                                    val path = MediaScanner.putImage(this@ImageViewer, b, imageName)
+                                    val path = MediaScanner.putImage(this@ImageViewer, immg.getNum().bimg() as Bitmap, immg.toString())
 
                                     if(path == MediaScanner.ERRR_WRONG_SDK) {
                                         StaticStore.showShortMessage(this@ImageViewer, R.string.anim_png_fail)

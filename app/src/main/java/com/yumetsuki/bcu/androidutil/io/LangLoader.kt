@@ -99,7 +99,7 @@ object LangLoader {
                         "EnemyExplanation.txt" -> for (str in qs) {
                             val strs = str.trim().split("\t").toTypedArray()
                             val em = UserProfile.getBCData().enemies[CommonStatic.parseIntN(strs[0])] ?: continue
-                            if (strs.size > 1)
+                            if (strs.size > 1 && strs[1].trim().replace("<br>","").isNotEmpty())
                                 MultiLangCont.getStatic().EEXP.put(l, em, strs[1].trim().split("<br>").toTypedArray())
                         }
                     }

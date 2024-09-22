@@ -18,6 +18,8 @@
 
             <item android:id="@+id/anim_png_transp"
                 android:title="@string/png_transp"/>
+            <item android:id="@+id/anim_png_sprite"
+                android:title="@string/png_sprite" />
         </menu>
     </item>
 
