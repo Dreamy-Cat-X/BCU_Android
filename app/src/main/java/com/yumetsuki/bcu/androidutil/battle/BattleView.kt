@@ -110,9 +110,9 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
 
             generator.generateTextImage()
         }
-
         if(CommonStatic.getConfig().stageName)
             painter.stageImage = stgImage
+        painter.deployImg = StageBitmapGenerator(context, fontMode, context.getString(R.string.nodeploy)).generateTextImage();
 
         painter.dpi = StaticStore.dptopx(32f, context)
         painter.stmImageOffset = StaticStore.dptopx(52f, context)

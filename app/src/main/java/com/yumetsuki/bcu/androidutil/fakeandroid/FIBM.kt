@@ -99,32 +99,32 @@ class FIBM : FakeImage {
         }
     }
 
-    override fun getSubimage(i: Int, j: Int, k: Int, l: Int): FIBM? {
+    override fun getSubimage(x: Int, y: Int, w: Int, h: Int): FIBM? {//ExtendY is bugged and this is why
         return try {
-            val cropped = Bitmap.createBitmap(bit, max(0, i), max(0, j), max(1, k), max(1, l))
-
-            val offsetLeft = if (isSegment(cropped, Snap.LEFT)) {
+            val cropped = Bitmap.createBitmap(bit, max(0, x), max(0, y), max(1, w), max(1, h))
+            builder.build(cropped) as FIBM
+            /*val offsetLeft = if (isSegment(cropped, Snap.LEFT)) {
                 0
             } else {
-                scientificRound(min(MAX_OFFSET.toDouble(), k / 10.0))
+                scientificRound(min(MAX_OFFSET.toDouble(), w / 10.0))
             }
 
             val offsetRight = if (isSegment(cropped, Snap.RIGHT)) {
                 0
             } else {
-                scientificRound(min(MAX_OFFSET.toDouble(), k / 10.0))
+                scientificRound(min(MAX_OFFSET.toDouble(), w / 10.0))
             }
 
             val offsetTop = if (isSegment(cropped, Snap.TOP)) {
                 0
             } else {
-                scientificRound(min(MAX_OFFSET.toDouble(), l / 10.0))
+                scientificRound(min(MAX_OFFSET.toDouble(), h / 10.0))
             }
 
             val offsetBottom = if (isSegment(cropped, Snap.BOTTOM)) {
                 0
             } else {
-                scientificRound(min(MAX_OFFSET.toDouble(), l / 10.0))
+                scientificRound(min(MAX_OFFSET.toDouble(), h / 10.0))
             }
 
             if (offsetLeft + offsetRight + offsetTop + offsetBottom != 0) {
@@ -142,7 +142,7 @@ class FIBM : FakeImage {
                 result
             } else {
                 builder.build(cropped) as FIBM
-            }
+            }*/
         } catch (e: IOException) {
             e.printStackTrace()
             null

@@ -986,6 +986,8 @@
     <string name="eff_cosu">Counter Surge</string>
     <string name="eff_cosue">Counter Surge Enemy Side</string>
     <string name="sch_abi_cs">Counter Surge</string>
+    <string name="sch_abi_expl">Explosive Wave</string>
+    <string name="sch_abi_iexp">Imu. Explosive Wave</string>
     <string name="unit_info_colo">" (Takes damage 0.7x / Gives damage 1.6x)"</string>
     <string name="stg_info_nocpu">You can\'t use gold CPU in this stage</string>
     <string name="err_title">Error Happened</string>
@@ -1057,4 +1059,5 @@
     <string name="story_title">Stage Clear Rewards</string>
     <string name="story_umap">Unlocked StageMaps:</string>
     <string name="story_uuni">Unlocked Units:</string>
+    <string name="nodeploy">Can\'t Deploy any more!</string>
 </resources>

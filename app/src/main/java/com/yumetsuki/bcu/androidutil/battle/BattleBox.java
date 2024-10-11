@@ -125,6 +125,7 @@ public interface BattleBox {
         public int prePos = 0;
 
         public FakeImage stageImage = null;
+        public FakeImage deployImg = null;
 
         public BBPainter(OuterBox bip, BattleField bas, BattleBox bb) {
             page = bip;
@@ -196,13 +197,8 @@ public interface BattleBox {
 
             drawBtm(g);
             drawTop(g);
-
-            if(bf.sb.st.timeLimit != 0) {
-                drawTime(g);
-            }
-
-            if(CommonStatic.getConfig().stageName && stageImage != null)
-                g.drawImage(stageImage, stmImageOffset, stmImageYOffset);
+            if (bf.sb.ebase.health > 0 && bf.sb.ubase.health > 0)
+                deployWarn(g);
         }
 
         private void setSym(FakeGraphics g, float r, float x, float y, int t) {
@@ -1084,13 +1080,19 @@ public interface BattleBox {
                     g.drawImage(bimg, w - cw * (i + 1 + n) - cutout, ih, dpi, dpi);
             }
 
-            if(((CVGraphics)g).neg) {
+            if(((CVGraphics)g).neg)
                 g.setComposite(FakeGraphics.GRAY, 0, 0);
-            }
+
+            if(CommonStatic.getConfig().stageName && stageImage != null) {
+                g.drawImage(stageImage, stmImageOffset, stmImageYOffset);
+                if(bf.sb.st.timeLimit != 0)
+                    drawTime(g, stageImage.getHeight() * 0.9f);
+            } else if(bf.sb.st.timeLimit != 0)
+                drawTime(g, -(bf.endFrames * dpi));
         }
 
-        private void drawTime(FakeGraphics g) {
-            setP(dpi * 16f / 32f, dpi * 60f / 32f);
+        private void drawTime(FakeGraphics g, float nameheight) {
+            setP(dpi * 16f / 32f, dpi * 60f / 32f + nameheight);
 
             float ratio = (float) dpi / aux.timer[0].getImg().getHeight();
 
@@ -1147,6 +1149,15 @@ public interface BattleBox {
                     g.drawImage(m, p.x, p.y, m.getWidth()*ratio, m.getHeight()*ratio);
                     p.x += m.getWidth() * ratio;
                 }
+            }
+        }
+
+        private void deployWarn(FakeGraphics g) {
+            if (deployImg != null && bf.sb.entityCount(-1) >= bf.sb.max_num) {
+                int w = box.getWidth();
+                int h = box.getHeight();
+
+                g.drawImage(deployImg, (w - deployImg.getWidth()) / 2f, h  / (CommonStatic.getConfig().twoRow ? 2.75f : 2.5f));
             }
         }
 
