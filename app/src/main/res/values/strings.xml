@@ -1054,8 +1054,10 @@
     <string name="limit_uvcd">Cat Cooldown</string>
     <string name="limit_inicd">Start on Cooldown</string>
     <string name="limit_banco">Banned CatCombos</string>
+    <string name="limit_unico">Universal Cost</string>
     <string name="limit_rcos">Cost Multipliers</string>
     <string name="limit_rcoo">CD Multipliers</string>
+    <string name="limit_rspn">Deploy Limits</string>
     <string name="story_title">Stage Clear Rewards</string>
     <string name="story_umap">Unlocked StageMaps:</string>
     <string name="story_uuni">Unlocked Units:</string>

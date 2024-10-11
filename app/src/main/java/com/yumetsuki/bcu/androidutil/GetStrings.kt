@@ -704,6 +704,8 @@ class GetStrings(private val c: Context) {
                 limits[c.getString(R.string.limit_bank)] = c.getString(R.string.limit_bank) + " : " + l.stageLimit.maxMoney
             if (l.stageLimit.globalCooldown != 0)
                 limits[c.getString(R.string.limit_uvcd)] = c.getString(R.string.limit_uvcd) + " : " + l.stageLimit.globalCooldown
+            if (l.stageLimit.globalCost != 0)
+                limits[c.getString(R.string.limit_unico)] = c.getString(R.string.limit_unico) + " : " + l.stageLimit.globalCost
             if (l.stageLimit.coolStart)
                 limits[c.getString(R.string.limit_inicd)] = c.getString(R.string.limit_inicd)//lol, lmao even
             if (l.stageLimit.bannedCatCombo.isNotEmpty()) {
@@ -715,7 +717,7 @@ class GetStrings(private val c: Context) {
                 }
                 limits[c.getString(R.string.limit_banco)] = str.toString()
             }
-            if (!l.stageLimit.defCD() || !l.stageLimit.defMoney()) {
+            if (!l.stageLimit.defCD() || !l.stageLimit.defMoney() || !l.stageLimit.defDeploy()) {
                 val rid = intArrayOf(R.string.sch_rare_ba, R.string.sch_rare_ex, R.string.sch_rare_ra, R.string.sch_rare_sr, R.string.sch_rare_ur, R.string.sch_rare_lr)
                 if (!l.stageLimit.defMoney()) {
                     val str = StringBuilder(c.getString(R.string.limit_rcos)).append(": [")
@@ -730,6 +732,13 @@ class GetStrings(private val c: Context) {
                         if (l.stageLimit.cooldownMultiplier[i] != 100)
                             str.append(c.getString(rid[i])).append(": ").append(l.stageLimit.cooldownMultiplier[i]).append("%, ")
                     limits[c.getString(R.string.limit_rcoo)] = str.substring(0, str.length - 2) + "]"
+                }
+                if (!l.stageLimit.defDeploy()) {
+                    val str = StringBuilder(c.getString(R.string.limit_rspn)).append(" : [")
+                    for (i in rid.indices)
+                        if (l.stageLimit.rarityDeployLimit[i] != 100)
+                            str.append(c.getString(rid[i])).append(": ").append(l.stageLimit.rarityDeployLimit[i]).append(", ")
+                    limits[c.getString(R.string.limit_rspn)] = str.substring(0, str.length - 2) + "]"
                 }
             }
         }
