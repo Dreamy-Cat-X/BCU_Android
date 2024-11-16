@@ -722,6 +722,7 @@
     <string name="ui_sound">UI Sound</string>
     <string name="sch_abi_mw">Mini-Wave</string>
     <string name="main_asset">Asset Browser</string>
+    <string name="main_animation">Custom Anim. Browser</string>
     <string name="file_extract">Extract File</string>
     <string name="file_share">Share File</string>
     <string name="file_extract_success">Extracted _ : -</string>
