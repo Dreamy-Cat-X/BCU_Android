@@ -15,10 +15,12 @@ import com.yumetsuki.bcu.LineUpScreen
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
+import common.battle.BasisLU
 import common.battle.BasisSet
 import common.battle.LineUp
 import common.pack.SaveData
 import common.system.files.VFile
+import common.util.stage.BattlePreset
 import common.util.stage.Limit
 import common.util.stage.Stage
 import common.util.unit.AbForm
@@ -34,6 +36,7 @@ class LineUpView : View {
     }
 
     private val pager: ViewPager2?
+    private val preset: BasisLU?
     private var limit: Limit? = null
     private var save: SaveData? = null
     private var price = 0
@@ -90,13 +93,13 @@ class LineUpView : View {
             if (BasisSet.current() == null) {
                 BasisSet.setCurrent(BasisSet.def())
             }
-
+            if (preset != null)
+                return preset.lu
             if (BasisSet.current().sele == null) {
                 if (BasisSet.current().lb.isEmpty()) {
                     BasisSet.current().add()
-                } else {
+                } else
                     BasisSet.current().sele = BasisSet.current().lb[0]
-                }
             }
 
             return BasisSet.current().sele.lu
@@ -149,12 +152,14 @@ class LineUpView : View {
 
     var yellow = false
 
-    constructor(context: Context?) : super(context) {
+    constructor(context: Context?, pre : BattlePreset?) : super(context) {
         this.pager = null
+        preset = pre?.apply()
     }
 
     constructor(context: Context?, pager: ViewPager2) : super(context) {
         this.pager = pager
+        preset = null
     }
 
     init {

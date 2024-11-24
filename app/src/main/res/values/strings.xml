@@ -955,6 +955,7 @@
     <string name="stage_L">Labyrinth Stages</string>
     <string name="stage_ND">Zero Legends</string>
     <string name="stage_SR">Cat Colosseum</string>
+    <string name="stage_G">Cat Path Test</string>
     <string name="fruit24">Purple Behemoth Crystal</string>
     <string name="fruit25">Red Behemoth Crystal</string>
     <string name="fruit26">Blue Behemoth Crystal</string>
@@ -1052,6 +1053,7 @@
     <string name="info_next_hit">Next Atk</string>
     <string name="info_current_hit">Attack Pattern #_</string>
     <string name="limit_bank">Total Bank</string>
+    <string name="limit_spawn">Maximum Deploy Count</string>
     <string name="limit_uvcd">Cat Cooldown</string>
     <string name="limit_inicd">Start on Cooldown</string>
     <string name="limit_banco">Banned CatCombos</string>
@@ -1063,4 +1065,5 @@
     <string name="story_umap">Unlocked StageMaps:</string>
     <string name="story_uuni">Unlocked Units:</string>
     <string name="nodeploy">Can\'t Deploy any more!</string>
+    <string name="presetLu">Preset Lineup</string>
 </resources>

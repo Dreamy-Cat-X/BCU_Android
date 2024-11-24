@@ -144,7 +144,7 @@ class GetStrings(private val c: Context) {
             R.string.sch_abi_ss
         )
         private lateinit var talTool: Array<String>
-        private val mapcolcid = arrayOf("N", "S", "C", "CH", "E", "T", "V", "R", "M", "A", "B", "RA", "H", "CA", "Q", "L", "ND", "SR")
+        private val mapcolcid = arrayOf("N", "S", "C", "CH", "E", "T", "V", "R", "M", "A", "B", "RA", "H", "CA", "Q", "L", "ND", "SR", "G")
     }
 
     init {
@@ -708,6 +708,8 @@ class GetStrings(private val c: Context) {
                 limits[c.getString(R.string.limit_unico)] = c.getString(R.string.limit_unico) + " : " + l.stageLimit.globalCost
             if (l.stageLimit.coolStart)
                 limits[c.getString(R.string.limit_inicd)] = c.getString(R.string.limit_inicd)//lol, lmao even
+            if (l.stageLimit.maxUnitSpawn != 0)
+                limits[c.getString(R.string.limit_spawn)] = c.getString(R.string.limit_spawn) + " : " + l.stageLimit.maxUnitSpawn
             if (l.stageLimit.bannedCatCombo.isNotEmpty()) {
                 val str = StringBuilder(c.getString(R.string.limit_banco)).append(" : ")
                 for (i in l.stageLimit.bannedCatCombo.indices) {

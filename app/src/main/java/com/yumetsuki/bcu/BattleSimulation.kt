@@ -193,7 +193,7 @@ class BattleSimulation : AppCompatActivity() {
 
                 JsonDecoder.inject(JsonEncoder.encode(BasisSet.current().t()), Treasure::class.java, BasisSet.current().sele.t())
 
-                val lu = BasisSet.current().sele.copy()
+                val lu = if (stg.preset == null) BasisSet.current().sele.copy() else stg.preset.apply()
 
                 val restricted = restrictLevel(stg, lu)
 

@@ -1153,7 +1153,7 @@ public interface BattleBox {
         }
 
         private void deployWarn(FakeGraphics g) {
-            if (deployImg != null && bf.sb.entityCount(-1) >= bf.sb.max_num) {
+            if (deployImg != null && (bf.sb.entityCount(-1) >= bf.sb.max_num || bf.sb.rem_spawns == 0)) {
                 int w = box.getWidth();
                 int h = box.getHeight();
 

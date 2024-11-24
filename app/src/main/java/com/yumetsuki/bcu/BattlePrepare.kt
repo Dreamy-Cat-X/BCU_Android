@@ -173,9 +173,13 @@ class BattlePrepare : AppCompatActivity() {
 
                     BasisSet.current().sele = BasisSet.current().lb[lu]
                 }
+
+                prog.isIndeterminate = true
+                val stage = Identifier.get(data) ?: return@launch
+                val stm = stage.cont ?: return@launch
                 
                 //Load UI
-                val line = LineUpView(this@BattlePrepare)
+                val line = LineUpView(this@BattlePrepare, stage.preset)
                 line.id = R.id.lineupView
 
                 val w: Float = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
@@ -188,13 +192,7 @@ class BattlePrepare : AppCompatActivity() {
                 line.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, h.toInt())
                 layout.addView(line)
 
-                prog.isIndeterminate = true
-
-                setname.text = setLUName
-
-                val stage = Identifier.get(data) ?: return@launch
-                val stm = stage.cont ?: return@launch
-
+                setname.text = if (stage.preset == null) setLUName else getString(R.string.presetLu)
                 stname.text = MultiLangCont.get(stage) ?: stage.names.toString()
 
                 line.attachStageLimit(stage, 0)
@@ -282,62 +280,67 @@ class BattlePrepare : AppCompatActivity() {
                     }
                 })
 
-                line.setOnTouchListener { _: View?, event: MotionEvent ->
-                    val posit: IntArray?
+                if (stage.preset == null) {
+                    line.setOnTouchListener { _: View?, event: MotionEvent ->
+                        val posit: IntArray?
 
-                    when (event.action) {
-                        MotionEvent.ACTION_DOWN -> {
-                            line.posx = event.x
-                            line.posy = event.y
+                        when (event.action) {
+                            MotionEvent.ACTION_DOWN -> {
+                                line.posx = event.x
+                                line.posy = event.y
 
-                            line.touched = true
+                                line.touched = true
 
-                            line.invalidate()
+                                line.invalidate()
 
-                            if (!line.drawFloating) {
-                                posit = line.getTouchedUnit(event.x, event.y)
+                                if (!line.drawFloating) {
+                                    posit = line.getTouchedUnit(event.x, event.y)
 
-                                if (posit != null) {
-                                    line.prePosit = posit
-                                }
-                            }
-                        }
-                        MotionEvent.ACTION_MOVE -> {
-                            line.posx = event.x
-                            line.posy = event.y
-
-                            if (!line.drawFloating) {
-                                line.floatB = line.getUnitImage(line.prePosit[0], line.prePosit[1])
-                            }
-
-                            line.drawFloating = true
-
-                            line.invalidate()
-                        }
-                        MotionEvent.ACTION_UP -> {
-                            line.checkChange()
-
-                            val deleted = line.getTouchedUnit(event.x, event.y)
-
-                            if (deleted != null) {
-                                if (deleted[0] == -100) {
-                                    StaticStore.position = intArrayOf(-1, -1)
-
-                                    line.updateUnitSetting()
-                                    line.updateUnitOrb()
-                                } else {
-                                    StaticStore.position = deleted
-
-                                    line.updateUnitSetting()
-                                    line.updateUnitOrb()
+                                    if (posit != null) {
+                                        line.prePosit = posit
+                                    }
                                 }
                             }
 
-                            line.drawFloating = false
-                            line.touched = false
+                            MotionEvent.ACTION_MOVE -> {
+                                line.posx = event.x
+                                line.posy = event.y
+
+                                if (!line.drawFloating) {
+                                    line.floatB =
+                                        line.getUnitImage(line.prePosit[0], line.prePosit[1])
+                                }
+
+                                line.drawFloating = true
+
+                                line.invalidate()
+                            }
+
+                            MotionEvent.ACTION_UP -> {
+                                line.checkChange()
+
+                                val deleted = line.getTouchedUnit(event.x, event.y)
+
+                                if (deleted != null) {
+                                    if (deleted[0] == -100) {
+                                        StaticStore.position = intArrayOf(-1, -1)
+
+                                        line.updateUnitSetting()
+                                        line.updateUnitOrb()
+                                    } else {
+                                        StaticStore.position = deleted
+
+                                        line.updateUnitSetting()
+                                        line.updateUnitOrb()
+                                    }
+                                }
+
+                                line.drawFloating = false
+                                line.touched = false
+                            }
                         }
+                        true
                     }
-                    true
                 }
 
                 val bck = findViewById<FloatingActionButton>(R.id.battlebck)
@@ -398,6 +401,8 @@ class BattlePrepare : AppCompatActivity() {
                 }
 
                 StaticStore.setAppear(line, setname, star, equip, sniper, rich, start, layout, stname, v)
+                if (stage.preset != null)
+                    equip.visibility = View.INVISIBLE
 
                 if(stage.isAkuStage) {
                     StaticStore.setAppear(lvlim, plus)
