@@ -125,6 +125,8 @@
     <string name="abi_stt">Stop Time</string>
     <string name="abi_snk">Sniper KB</string>
     <string name="abi_seal">Seal</string>
+    <string name="abi_drn">Drain</string>
+    <string name="abi_bles">Blessing</string>
     <string name="abi_sum">Summon</string>
     <string name="abi_mvatk">Moving Attack</string>
     <string name="abi_thch">Theme Change</string>
