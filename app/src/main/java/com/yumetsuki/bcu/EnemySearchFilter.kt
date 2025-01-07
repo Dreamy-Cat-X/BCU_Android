@@ -349,7 +349,6 @@ open class EnemySearchFilter : AppCompatActivity() {
         for(userPack in UserProfile.getUserPacks()) {
             for(tr in userPack.traits.list) {
                 tr ?: continue
-
                 traits.add(tr.id)
             }
         }
