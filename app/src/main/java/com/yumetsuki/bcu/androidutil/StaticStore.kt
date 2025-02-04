@@ -523,13 +523,21 @@ object StaticStore {
      * 0 is Auto.
      */
     fun setLang(lan: Int) {
-        val language: String
-
+        val l = CommonStatic.getConfig().langs[0]
+        var ind : Int
         if (lan == 0) {
-            language = Resources.getSystem().configuration.locales[0].language
-            CommonStatic.getConfig().langs[0] = CommonStatic.Lang.Locale.values()[listOf(*lang).indexOf(language) - 1]
-        } else//TODO: What
-            CommonStatic.getConfig().langs[0] = CommonStatic.Lang.Locale.values()[lan - 1]
+            val language: String = Resources.getSystem().configuration.locales[0].language
+            ind = listOf(*lang).indexOf(language) - 1
+            CommonStatic.getConfig().langs[0] = CommonStatic.Lang.Locale.values()[ind]
+        } else {
+            ind = lan - 1
+            CommonStatic.getConfig().langs[0] = CommonStatic.Lang.Locale.values()[ind]
+        }
+        if (l != CommonStatic.getConfig().langs[0]) {
+            if (ind == 0)
+                ind = l.ordinal
+            CommonStatic.getConfig().langs[ind] = l
+        }
     }
 
     /**
