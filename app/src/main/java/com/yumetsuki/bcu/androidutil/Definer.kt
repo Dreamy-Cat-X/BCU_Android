@@ -17,6 +17,7 @@ import com.yumetsuki.bcu.androidutil.pack.PackConflict
 import common.CommonStatic
 import common.io.assets.AssetLoader
 import common.pack.PackData
+import common.pack.Source.Workspace
 import common.pack.UserProfile
 import common.system.fake.ImageBuilder
 import common.system.files.VFile
@@ -59,6 +60,7 @@ object Definer {
                 text.accept(context.getString(R.string.main_pack))
                 (CommonStatic.ctx as AContext).prog = prog
                 (CommonStatic.ctx as AContext).sprg = text
+                Workspace.loadAnimations(null)
                 UserProfile.loadPacks(true)
                 PackConflict.filterConflict()
 

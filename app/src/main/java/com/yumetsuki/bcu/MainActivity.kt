@@ -32,6 +32,7 @@ import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
 import java.io.File
 import java.util.Locale
+import kotlin.math.min
 
 class MainActivity : AppCompatActivity() {
     private var sendcheck = false
@@ -133,15 +134,15 @@ class MainActivity : AppCompatActivity() {
         val classes = arrayOf(AnimationViewer::class.java, EnemyList::class.java, MapList::class.java,
                 MedalList::class.java, LineUpScreen::class.java, BackgroundList::class.java, CastleList::class.java,
                 MusicList::class.java, EffectList::class.java, PackManagement::class.java, AssetBrowser::class.java,
-                AnimationEditorMenu::class.java)
+                AnimationManagement::class.java)
 
         val texts = intArrayOf(R.string.main_unitinfo,R.string.main_enemy_info, R.string.stg_inf,
                 R.string.main_medal, R.string.main_equip, R.string.main_bg, R.string.main_castle,
                 R.string.main_music, R.string.main_effect, R.string.main_packs, R.string.main_asset,
                 R.string.main_animation)
 
-        val row = 7
-        val col = 2 // unit/enemy | stage,medal | basis | bg,castles | music,effect | pack | asset
+        val row = 8
+        val col = 2 // unit/enemy | stage,medal | basis | bg,castles | music,effect | pack | asset | custom anim/custom pack
 
         val gap = StaticStore.dptopx(4f, this)
 
@@ -156,7 +157,6 @@ class MainActivity : AppCompatActivity() {
 
                 if(i > 2)
                     index--
-
                 if(i > 5)
                     index--
 
@@ -212,7 +212,12 @@ class MainActivity : AppCompatActivity() {
                     var index = i * 2 + j
 
                     if(i > 2)
-                        index --
+                        index--
+                    if(i > 6)
+                        index -= 2
+
+                    if (index >= min(min(texts.size, classes.size), drawables.size))
+                        break
 
                     val card = CardView(this)
 

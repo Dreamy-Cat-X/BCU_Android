@@ -954,6 +954,7 @@
     <string name="stage_L">바닥 미궁 스테이지</string>
     <string name="stage_ND">레전드 스토리 0</string>
     <string name="stage_SR">Cat Colosseum</string>
+    <string name="stage_G">Cat Path Test</string>
     <string name="fruit24">자수결정</string>
     <string name="fruit25">홍수결정</string>
     <string name="fruit26">청수결정</string>
@@ -1045,4 +1046,6 @@
     <string name="list_unlock">You have unlocked:</string>
     <string name="list_unlock_u">Units: _</string>
     <string name="list_unlock_c">Chapters: _</string>
+    <string name="limit_rcos">Cost Multipliers</string>
+    <string name="limit_rspn">Deploy Limits</string>
 </resources>

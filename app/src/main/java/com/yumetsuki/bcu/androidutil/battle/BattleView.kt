@@ -606,17 +606,12 @@ class BattleView(context: Context, field: BattleField?, type: Int, axis: Boolean
 
                 for(s in stageData.indices) {
                     val radioButton = RadioButton(context)
-
                     radioButton.id = R.id.exstage + stageData[s].hashCode()
-
                     radioButton.setTextColor(StaticStore.getAttributeColor(context, R.attr.TextPrimary))
-
                     radioButton.text = getMapStageName(stageData[s])
 
                     exGroup.addView(radioButton)
-
-                    if(s == 0)
-                        radioButton.isChecked = true
+                    radioButton.isChecked = s == 0
                 }
 
                 cont.setOnClickListener(object : SingleClick() {

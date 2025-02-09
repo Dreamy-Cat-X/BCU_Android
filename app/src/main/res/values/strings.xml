@@ -125,8 +125,8 @@
     <string name="abi_stt">Stop Time</string>
     <string name="abi_snk">Sniper KB</string>
     <string name="abi_seal">Seal</string>
-    <string name="abi_drn">Drain</string>
-    <string name="abi_bles">Blessing</string>
+    <string name="abi_drn" translatable="false">Drain</string>
+    <string name="abi_bles" translatable="false">Blessing</string>
     <string name="abi_sum">Summon</string>
     <string name="abi_mvatk">Moving Attack</string>
     <string name="abi_thch">Theme Change</string>
@@ -651,7 +651,7 @@
     <string name="def_lang_ru">Русский</string>
     <string name="png_normal">Normal</string>
     <string name="png_transp">Transparent BG</string>
-    <string name="png_sprite">Spritesheet</string>
+    <string name="png_sprite" translatable="false">Spritesheet</string>
     <string name="def_lang_fr">Français</string>
     <string name="stat_sch_type">"Type : "</string>
     <string name="stat_sch_option">"Option : "</string>
@@ -724,7 +724,7 @@
     <string name="ui_sound">UI Sound</string>
     <string name="sch_abi_mw">Mini-Wave</string>
     <string name="main_asset">Asset Browser</string>
-    <string name="main_animation">Custom Anim. Browser</string>
+    <string name="main_animation" translatable="false">Custom Anim. Browser</string>
     <string name="file_extract">Extract File</string>
     <string name="file_share">Share File</string>
     <string name="file_extract_success">Extracted _ : -</string>
@@ -956,15 +956,15 @@
     <string name="config_showres">Show battle results upon ends</string>
     <string name="stage_L">Labyrinth Stages</string>
     <string name="stage_ND">Zero Legends</string>
-    <string name="stage_SR">Cat Colosseum</string>
-    <string name="stage_G">Cat Path Test</string>
+    <string name="stage_SR">Otherworld Colosseum</string>
+    <string name="stage_G">Catclaw Championships</string>
     <string name="fruit24">Purple Behemoth Crystal</string>
     <string name="fruit25">Red Behemoth Crystal</string>
     <string name="fruit26">Blue Behemoth Crystal</string>
     <string name="fruit27">Green Behemoth Crystal</string>
     <string name="fruit28">Yellow Behemoth Crystal</string>
     <string name="fruit29">Epic Behemoth Stone</string>
-    <string name="config_reallv">Perform realistic leveling in battle</string>
+    <string name="config_reallv">Simulate BC leveling</string>
     <string name="lineup_base">Foundation</string>
     <string name="lineup_decoration">Castle Decoration</string>
     <string name="lineup_slfd">Slow Beam Foundation Level</string>
@@ -990,8 +990,8 @@
     <string name="eff_cosu">Counter Surge</string>
     <string name="eff_cosue">Counter Surge Enemy Side</string>
     <string name="sch_abi_cs">Counter Surge</string>
-    <string name="sch_abi_expl">Explosive Wave</string>
-    <string name="sch_abi_iexp">Imu. Explosive Wave</string>
+    <string name="sch_abi_expl" translatable="false">Explosive Wave</string>
+    <string name="sch_abi_iexp" translatable="false">Imu. Explosive Wave</string>
     <string name="unit_info_colo">" (Takes damage 0.7x / Gives damage 1.6x)"</string>
     <string name="stg_info_nocpu">You can\'t use gold CPU in this stage</string>
     <string name="err_title">Error Happened</string>
@@ -1051,21 +1051,41 @@
     <string name="list_unlock">You have unlocked:</string>
     <string name="list_unlock_u">Units: _</string>
     <string name="list_unlock_c">Chapters: _</string>
-    <string name="info_prev_hit">Previous Atk</string>
-    <string name="info_next_hit">Next Atk</string>
-    <string name="info_current_hit">Attack Pattern #_</string>
-    <string name="limit_bank">Total Bank</string>
-    <string name="limit_spawn">Maximum Deploy Count</string>
-    <string name="limit_uvcd">Cat Cooldown</string>
-    <string name="limit_inicd">Start on Cooldown</string>
-    <string name="limit_banco">Banned CatCombos</string>
-    <string name="limit_unico">Universal Cost</string>
+    <string name="info_prev_hit" translatable="false">Previous Atk</string>
+    <string name="info_next_hit" translatable="false">Next Atk</string>
+    <string name="info_current_hit" translatable="false">Attack Pattern #_</string>
+    <string name="limit_bank" translatable="false">Total Bank</string>
+    <string name="limit_spawn" translatable="false">Maximum Deploy Count</string>
+    <string name="limit_uvcd" translatable="false">Cat Cooldown</string>
+    <string name="limit_inicd" translatable="false">Start on Cooldown</string>
+    <string name="limit_banco" translatable="false">Banned CatCombos</string>
+    <string name="limit_unico" translatable="false">Universal Cost</string>
     <string name="limit_rcos">Cost Multipliers</string>
-    <string name="limit_rcoo">CD Multipliers</string>
+    <string name="limit_rcoo" translatable="false">CD Multipliers</string>
     <string name="limit_rspn">Deploy Limits</string>
-    <string name="story_title">Stage Clear Rewards</string>
-    <string name="story_umap">Unlocked StageMaps:</string>
-    <string name="story_uuni">Unlocked Units:</string>
-    <string name="nodeploy">Can\'t Deploy any more!</string>
-    <string name="presetLu">Preset Lineup</string>
+    <string name="story_title" translatable="false">Stage Clear Rewards</string>
+    <string name="story_umap" translatable="false">Unlocked StageMaps:</string>
+    <string name="story_uuni" translatable="false">Unlocked Units:</string>
+    <string name="nodeploy" translatable="false">Can\'t Deploy any more!</string>
+    <string name="presetLu" translatable="false">Preset Lineup</string>
+    <string name="anim_name_hint" translatable="false">Animation Name</string>
+    <string name="anim_imgcut_btn" translatable="false">ImgCut Editor</string>
+    <string name="anim_mamodel_btn" translatable="false">Model Editor</string>
+    <string name="anim_maanim_btn" translatable="false">Anim. Editor</string>
+    <string name="anim_uni_desc" translatable="false">Deploy Icon</string>
+    <string name="anim_edi_desc" translatable="false">Display Icon</string>
+    <string name="anim_prev_desc" translatable="false">StageMap Preview Icon</string>
+    <string name="anim_btn_set_edi" translatable="false">Set Preview Icon</string>
+    <string name="anim_btn_set_uni" translatable="false">Set Deploy Icon</string>
+    <string name="anim_btn_set_prev" translatable="false">Set Map Preview</string>
+    <string name="anim_btn_delete" translatable="false">Delete Animation</string>
+    <string name="image_import_invalid" translatable="false">You can only import png or jpg files</string>
+    <string name="image_import_wrongsize" translatable="false">Wrong Image size (_owx_oh). Has to be (_nwx_nh)</string>
+    <string name="anim_manager_delete" translatable="false">Deleting Animation</string>
+    <string name="anim_manager_deleted" translatable="false">Animation deleted</string>
+    <string name="anim_manager_delwarn" translatable="false">Do you want to delete this animation? This can\'t be undone.</string>
+    <string name="anim_type_default" translatable="false">Unit/Enemy</string>
+    <string name="anim_type_soul" translatable="false">Soul</string>
+    <string name="anim_type_bgeff" translatable="false">BG Effect</string>
+    <string name="anim_type_desc" translatable="false">Choose Animation Type (Cannot be changed later)</string>
 </resources>

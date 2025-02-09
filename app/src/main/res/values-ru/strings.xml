@@ -953,6 +953,7 @@
     <string name="stage_L">Labyrinth Stages</string>
     <string name="stage_ND">Zero Legends</string>
     <string name="stage_SR">Cat Colosseum</string>
+    <string name="stage_G">Cat Path Test</string>
     <string name="fruit24">Purple Behemoth Crystal</string>
     <string name="fruit25">Red Behemoth Crystal</string>
     <string name="fruit26">Blue Behemoth Crystal</string>
@@ -1044,4 +1045,6 @@
     <string name="list_unlock">You have unlocked:</string>
     <string name="list_unlock_u">Units: _</string>
     <string name="list_unlock_c">Chapters: _</string>
+    <string name="limit_rcos">Cost Multipliers</string>
+    <string name="limit_rspn">Deploy Limits</string>
 </resources>

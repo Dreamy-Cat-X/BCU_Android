@@ -954,6 +954,7 @@
     <string name="stage_L">地底迷宮</string>
     <string name="stage_ND">傳奇故事0</string>
     <string name="stage_SR">Cat Colosseum</string>
+    <string name="stage_G">Cat Path Test</string>
     <string name="fruit24">紫獸結晶</string>
     <string name="fruit25">紅獸結晶</string>
     <string name="fruit26">蒼獸結晶</string>
@@ -1045,4 +1046,6 @@
     <string name="list_unlock">You have unlocked:</string>
     <string name="list_unlock_u">Units: _</string>
     <string name="list_unlock_c">Chapters: _</string>
+    <string name="limit_rcos">Cost Multipliers</string>
+    <string name="limit_rspn">Deploy Limits</string>
 </resources>

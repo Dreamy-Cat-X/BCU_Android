@@ -33,7 +33,7 @@ import common.pack.UserProfile
 import java.io.File
 import java.text.DecimalFormat
 
-class PackManagementAdapter(private val ac: Activity, private val pList: ArrayList<PackData.UserPack>) : ArrayAdapter<PackData.UserPack>(ac, R.layout.ability_layout, pList) {
+class PackManagementAdapter(private val ac: Activity, private val pList: ArrayList<PackData.UserPack>) : ArrayAdapter<PackData.UserPack>(ac, R.layout.pack_manage_list_layout, pList) {
     class ViewHolder(v: View) {
         val id = v.findViewById<TextView>(R.id.pmanid)!!
         val name = v.findViewById<TextView>(R.id.pmanname)!!
@@ -81,11 +81,7 @@ class PackManagementAdapter(private val ac: Activity, private val pList: ArrayLi
         }
 
         val desc = "${f.name} (${byteToMB(f.length())}MB)"
-
         holder.desc.text = desc
-
-        val popup = PopupMenu(context, holder.more)
-        val menu = popup.menu
 
         row.setOnLongClickListener {
             val descPage = Dialog(ac)
@@ -142,6 +138,8 @@ class PackManagementAdapter(private val ac: Activity, private val pList: ArrayLi
             true
         }
 
+        val popup = PopupMenu(context, holder.more)
+        val menu = popup.menu
         popup.menuInflater.inflate(R.menu.pack_list_option_menu, menu)
 
         popup.setOnMenuItemClickListener {

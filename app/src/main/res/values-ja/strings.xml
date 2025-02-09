@@ -950,9 +950,10 @@
     <string name="config_showst">Show stage name image in battle</string>
     <string name="stg_info_killcount">Kill Count</string>
     <string name="config_showres">Show battle results upon ends</string>
-    <string name="stage_L">Labyrinth Stages</string>
-    <string name="stage_ND">Zero Legends</string>
-    <string name="stage_SR">Cat Colosseum</string>
+    <string name="stage_L">地底迷宮</string>
+    <string name="stage_ND">レジェンドストーリー0</string>
+    <string name="stage_SR">異次元コロシアム</string>
+    <string name="stage_G">にゃんこ道検定</string>
     <string name="fruit24">紫獣結晶</string>
     <string name="fruit25">紅獣結晶</string>
     <string name="fruit26">蒼獣結晶</string>
@@ -1044,4 +1045,6 @@
     <string name="list_unlock">You have unlocked:</string>
     <string name="list_unlock_u">Units: _</string>
     <string name="list_unlock_c">Chapters: _</string>
+    <string name="limit_rcos">生産キャラ数制限</string>
+    <string name="limit_rspn">プラスワン 超激レア</string>
 </resources>
