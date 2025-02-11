@@ -16,25 +16,244 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:backgroundTint="?attr/backgroundPrimary"
-        android:orientation="horizontal"></LinearLayout>
+        android:orientation="horizontal">
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/imgcutCfgDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:tint="@color/iconPrimaryN"
+        app:backgroundTint="@color/colorAccent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_skip_next_black_24dp" />
 
     <RelativeLayout
         android:id="@+id/imgCutMenu"
         android:layout_width="300dp"
         android:layout_height="0dp"
+        android:background="?attr/SemiBackgroundPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-    </RelativeLayout>
+        <TableRow
+            android:id="@+id/imgcutvalues"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/imgcutCfgHide"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp">
 
-    <RelativeLayout
-        android:id="@+id/imgCutPartMenu"
-        android:layout_width="match_parent"
-        android:layout_height="400dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.25"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:paddingStart="4dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="4dp"
+                android:paddingBottom="12dp"
+                android:text="X"
+                android:textColor="?attr/TextPrimary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.25"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:paddingStart="4dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="4dp"
+                android:paddingBottom="12dp"
+                android:text="Y"
+                android:textColor="?attr/TextPrimary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.25"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:paddingStart="4dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="4dp"
+                android:paddingBottom="12dp"
+                android:text="W"
+                android:textColor="?attr/TextPrimary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.25"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:paddingStart="4dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="4dp"
+                android:paddingBottom="12dp"
+                android:text="H"
+                android:textColor="?attr/TextPrimary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </TableRow>
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/imgcutTable"
+            android:layout_below="@id/imgcutvalues"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/imgcutexit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="8dp"
+            android:layout_toEndOf="@id/imgcutCfgHide"
+            android:backgroundTint="?attr/ButtonPrimary"
+            android:text="@string/battle_exit"
+            android:textAllCaps="false"
+            android:textColor="?attr/TextPrimary"
+            tools:ignore="ButtonStyle" />
+
+        <TableLayout
+            android:id="@+id/imgcutTable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="16dp">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/imgcutimport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="0.5"
+                    android:backgroundTint="?attr/ButtonPrimary"
+                    android:text="@string/imgcut_import"
+                    android:textAllCaps="false"
+                    android:textColor="?attr/TextPrimary"
+                    tools:ignore="ButtonStyle" />
+
+                <Button
+                    android:id="@+id/imgcutsprimp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="0.5"
+                    android:backgroundTint="?attr/ButtonPrimary"
+                    android:text="@string/sprite_import"
+                    android:textAllCaps="false"
+                    android:textColor="?attr/TextPrimary"
+                    tools:ignore="ButtonStyle" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+
+                <Button
+                    android:id="@+id/imgcutexport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="0.5"
+                    android:backgroundTint="?attr/ButtonPrimary"
+                    android:text="@string/imgcut_export"
+                    android:textAllCaps="false"
+                    android:textColor="?attr/TextPrimary"
+                    tools:ignore="ButtonStyle" />
+
+                <Button
+                    android:id="@+id/imgc_view_anim"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="0.5"
+                    android:backgroundTint="?attr/ButtonPrimary"
+                    android:text="@string/anim_view"
+                    android:textAllCaps="false"
+                    android:textColor="?attr/TextPrimary"
+                    tools:ignore="ButtonStyle" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/imgc_mamodel_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="0.5"
+                    android:backgroundTint="?attr/ButtonPrimary"
+                    android:text="@string/anim_mamodel_btn"
+                    android:textAllCaps="false"
+                    android:textColor="?attr/TextPrimary"
+                    tools:ignore="ButtonStyle" />
+
+                <Button
+                    android:id="@+id/imgc_maanim_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="0.5"
+                    android:backgroundTint="?attr/ButtonPrimary"
+                    android:text="@string/anim_maanim_btn"
+                    android:textAllCaps="false"
+                    android:textColor="?attr/TextPrimary"
+                    tools:ignore="ButtonStyle" />
+            </TableRow>
+
+        </TableLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/imgcutCfgHide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:tint="@color/iconPrimaryN"
+            app:backgroundTint="@color/colorAccent"
+            app:srcCompat="@drawable/ic_skip_previous_black_24dp" />
 
     </RelativeLayout>
 

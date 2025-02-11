@@ -1088,4 +1088,10 @@
     <string name="anim_type_soul" translatable="false">Soul</string>
     <string name="anim_type_bgeff" translatable="false">BG Effect</string>
     <string name="anim_type_desc" translatable="false">Choose Animation Type (Cannot be changed later)</string>
+    <string name="imgcut_import" translatable="false">Import Imgcut</string>
+    <string name="sprite_import" translatable="false">Import Sprites</string>
+    <string name="imgcut_export" translatable="false">Export Imgcut</string>
+    <string name="img_anim_spr_exp" translatable="false">Exporting Spritesheet</string>
+    <string name="password_wrong" translatable="false">Incorrect Password</string>
+    <string name="password_hint" translatable="false">Enter Pack\'s Password</string>
 </resources>

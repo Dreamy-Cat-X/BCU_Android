@@ -2,6 +2,7 @@ package com.yumetsuki.bcu
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences.Editor
 import android.content.pm.ActivityInfo
@@ -21,6 +22,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
@@ -57,6 +59,7 @@ import com.yumetsuki.bcu.androidutil.supports.adapter.GIFRangeRecycle
 import common.CommonStatic
 import common.io.json.JsonDecoder
 import common.pack.Identifier
+import common.pack.Source.ZipSource
 import common.pack.UserProfile
 import common.system.P
 import common.util.Data
@@ -734,33 +737,33 @@ class ImageViewer : AppCompatActivity() {
                                 return@OnMenuItemClickListener true
                             }
                             R.id.anim_png_sprite -> {
-                                val immg = when(content) {
-                                    is Identifier<*> -> {
-                                        if (content.pack != Identifier.DEF && !UserProfile.getUserPack(content.pack).desc.allowAnim) {
-                                            throw Exception("Pack contains password: Spritesheet export for protected packs not supported yet.")
-                                            //TODO - Password display
-                                        }
-                                        if (type == AnimationCView.AnimationType.UNIT) (content.get() as Unit).forms[StaticStore.formposition].anim
-                                        else (content.get() as Enemy).anim
-                                    }
-                                    is EffAnim<*> -> content.anim
-                                    is Soul -> content.anim
-                                    is NyCastle -> content.anim
-                                    is DemonSoul -> content.anim
-                                    else -> throw IllegalStateException("E/ImageViewer::onCreate - Invalid content type : ${content::class.java.name}")
-                                }
-                                try {
-                                    val path = MediaScanner.putImage(this@ImageViewer, immg.getNum().bimg() as Bitmap, immg.toString())
+                                if (content is Identifier<*> && content.pack != Identifier.DEF && !UserProfile.getUserPack(content.pack).desc.allowAnim) {
+                                    val dialog = Dialog(this@ImageViewer)
+                                    dialog.setContentView(R.layout.create_setlu_dialog)
+                                    val edit = dialog.findViewById<EditText>(R.id.setluedit)
+                                    val done = dialog.findViewById<Button>(R.id.setludone)
+                                    val cancel = dialog.findViewById<Button>(R.id.setlucancel)
+                                    val tbar = dialog.findViewById<TextView>(R.id.setluname)
+                                    tbar.setText(R.string.img_anim_spr_exp)
 
-                                    if(path == MediaScanner.ERRR_WRONG_SDK) {
-                                        StaticStore.showShortMessage(this@ImageViewer, R.string.anim_png_fail)
-                                    } else {
-                                        StaticStore.showShortMessage(this@ImageViewer, getString(R.string.anim_png_success).replace("-", path))
+                                    edit.hint = getString(R.string.password_hint)
+                                    val rgb = StaticStore.getRGB(StaticStore.getAttributeColor(this@ImageViewer, R.attr.TextPrimary))
+                                    edit.setHintTextColor(Color.argb(255 / 2, rgb[0], rgb[1], rgb[2]))
+
+                                    done.setOnClickListener {
+                                        val pk = UserProfile.getUserPack(content.pack).source as ZipSource
+                                        if (pk.zip.matchKey(edit.text.toString()))
+                                            copySprite(content, type)
+                                        else
+                                            StaticStore.showShortMessage(this@ImageViewer, getString(R.string.password_wrong))
+                                        dialog.dismiss()
                                     }
-                                } catch (e: IOException) {
-                                    e.printStackTrace()
-                                    StaticStore.showShortMessage(this@ImageViewer, R.string.anim_png_fail)
-                                }
+                                    cancel.setOnClickListener { dialog.dismiss() }
+                                    if (!isDestroyed && !isFinishing) {
+                                        dialog.show()
+                                    }
+                                } else
+                                    copySprite(content, type)
                                 return@OnMenuItemClickListener true
                             }
                             R.id.anim_gif_normal -> {
@@ -950,6 +953,32 @@ class ImageViewer : AppCompatActivity() {
                     bck.performClick()
                 }
             })
+        }
+    }
+
+    private fun copySprite(content: Any, type : AnimationCView.AnimationType) {
+        val immg = when(content) {
+            is Identifier<*> -> {
+                if (type == AnimationCView.AnimationType.UNIT) (content.get() as Unit).forms[StaticStore.formposition].anim
+                else (content.get() as Enemy).anim
+            }
+            is EffAnim<*> -> content.anim
+            is Soul -> content.anim
+            is NyCastle -> content.anim
+            is DemonSoul -> content.anim
+            else -> throw IllegalStateException("E/ImageViewer::onCreate - Invalid content type : ${content::class.java.name}")
+        }
+        try {
+            val path = MediaScanner.putImage(this@ImageViewer, immg.getNum().bimg() as Bitmap, immg.toString())
+
+            if(path == MediaScanner.ERRR_WRONG_SDK) {
+                StaticStore.showShortMessage(this@ImageViewer, R.string.anim_png_fail)
+            } else {
+                StaticStore.showShortMessage(this@ImageViewer, getString(R.string.anim_png_success).replace("-", path))
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            StaticStore.showShortMessage(this@ImageViewer, R.string.anim_png_fail)
         }
     }
 
