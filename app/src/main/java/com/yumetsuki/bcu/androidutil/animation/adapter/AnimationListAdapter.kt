@@ -1,6 +1,7 @@
 package com.yumetsuki.bcu.androidutil.animation.adapter
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.text.SpannableStringBuilder
@@ -15,11 +16,14 @@ import android.widget.PopupMenu
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.yumetsuki.bcu.AnimationManagement
+import com.yumetsuki.bcu.ImageViewer
+import com.yumetsuki.bcu.ImgCutEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.fakeandroid.FIBM
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
+import common.io.json.JsonEncoder
 import common.pack.Source.BasePath
 import common.system.VImg
 import common.util.anim.AnimCE
@@ -56,7 +60,6 @@ class AnimationListAdapter(private val activity: AnimationManagement, private va
         holder.name.setOnEditorActionListener { _, actionId, _ ->
             if (actionId != EditorInfo.IME_ACTION_DONE || a.id.id == holder.name.text.toString())
                 return@setOnEditorActionListener false
-            println(holder.name.text.toString())
             a.renameTo(holder.name.text.toString())
             false
         }
@@ -133,16 +136,17 @@ class AnimationListAdapter(private val activity: AnimationManagement, private va
         menu.getItem(3).isEnabled = a.deletable()
 
         holder.imgc.setOnClickListener {
-            StaticStore.showShortMessage(context, "Coming Soon")
-            //val intent = Intent(context, ImgCutEditor::class.java) //TODO: Finish the imgcut editing menu
-            //activity.startActivity(intent)
-            //activity.finish()
+            val intent = Intent(context, ImgCutEditor::class.java)
+            intent.putExtra("Data", a.id.id)
+
+            activity.startActivity(intent)
+            activity.finish()
         }
         holder.mamo.setOnClickListener {
-            StaticStore.showShortMessage(context, "Coming Later")
+            StaticStore.showShortMessage(context, "Coming Soon")
         }
         holder.maan.setOnClickListener {
-            StaticStore.showShortMessage(context, "Coming Sometime")
+            StaticStore.showShortMessage(context, "Coming Later")
         }
 
         holder.more.setOnClickListener(object : SingleClick() {

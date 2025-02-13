@@ -209,7 +209,7 @@ class AnimationManagement : AppCompatActivity() {
         Source.warn = false
         val ac = AnimCE(rl)
         Source.warn = true
-        ac.setNum(FIBM(img))
+        ac.num = FIBM(img)
         ac.saveImg()
         ac.createNew()
         AnimCE.map()[rl.id] = ac

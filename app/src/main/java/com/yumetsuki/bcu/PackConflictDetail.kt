@@ -608,7 +608,7 @@ class PackConflictDetail : AppCompatActivity() {
 
     private fun getFilePath(pack: String) : String {
         return when {
-            pack.endsWith(".pack.bcuzip") -> {
+            pack.endsWith(".pack.bcuzip") || pack.endsWith(".userpack") -> {
                 StaticStore.getExternalPack(this)+pack
             }
             else -> {

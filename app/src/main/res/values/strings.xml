@@ -1094,4 +1094,6 @@
     <string name="img_anim_spr_exp" translatable="false">Exporting Spritesheet</string>
     <string name="password_wrong" translatable="false">Incorrect Password</string>
     <string name="password_hint" translatable="false">Enter Pack\'s Password</string>
+    <string name="anim_addpart" translatable="false">Add Part</string>
+    <string name="anim_rempart" translatable="false">Remove Part</string>
 </resources>
