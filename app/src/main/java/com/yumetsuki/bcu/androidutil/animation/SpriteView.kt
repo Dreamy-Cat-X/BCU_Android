@@ -58,15 +58,15 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
             wi += 20
         }
 
-        m.preTranslate(pos.x, pos.y)
+        m.preTranslate(-pos.x, -pos.y)
         m.preScale(zoom, zoom)
         c.drawBitmap(spr, m, bitPaint)
 
         val ic = anim.imgcut
         for (i in 0 until ic.n) {
             val cut = ic.cuts[i]
-            val sx = (cut[0] + pos.x) * zoom - 1
-            val sy = (cut[1] + pos.y) * zoom - 1
+            val sx = -pos.x + (cut[0] * zoom - 1)
+            val sy = -pos.y + (cut[1] * zoom - 1)
             val sw = sx + (cut[2] * zoom + 2)
             val sh = sy + (cut[3] * zoom + 2)
             if (i == sele) {
@@ -98,7 +98,7 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
 
         if (pos.y < 0 || height >= spriteH) {
             pos.y = 0f
-        } else if (y + height >= spriteH)
+        } else if (pos.y + height >= spriteH)
             pos.y = max(0f, (spriteH - height).toFloat())
         invalidate()
     }

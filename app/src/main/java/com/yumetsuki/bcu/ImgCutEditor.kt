@@ -140,7 +140,7 @@ class ImgCutEditor : AppCompatActivity() {
 
             StaticStore.setDisappear(cfgBtn, layout)
 
-            val anim = AnimCE.map()[extra.getString("Data")] ?: return@launch
+            val anim = AnimCE.map()[extra.getString("Data")] ?: return@launch//TODO - Allow editing mapped animations
             var ic = anim.imgcut
 
             val cfgShowT = MaterialContainerTransform().apply {
@@ -213,8 +213,8 @@ class ImgCutEditor : AppCompatActivity() {
                             val dx = x - preX
                             val dy = y - preY
 
-                            viewer.pos.x += dx
-                            viewer.pos.y += dy
+                            viewer.pos.x -= dx
+                            viewer.pos.y -= dy
                             viewer.limit()
                         }
                     }
@@ -270,6 +270,16 @@ class ImgCutEditor : AppCompatActivity() {
                     bck.performClick()
                 }
             })
+
+            val mamodelBtn = findViewById<Button>(R.id.imgc_mamodel_btn)
+            mamodelBtn.setOnClickListener {
+                anim.save()
+                val intent = Intent(this@ImgCutEditor, MaModelEditor::class.java)
+                intent.putExtra("Data", anim.id.id)
+
+                startActivity(intent)
+                finish()
+            }
 
             StaticStore.setAppear(cfgBtn, layout)
         }
