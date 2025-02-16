@@ -1096,4 +1096,12 @@
     <string name="password_hint" translatable="false">Enter Pack\'s Password</string>
     <string name="anim_addpart" translatable="false">Add Part</string>
     <string name="anim_rempart" translatable="false">Remove Part</string>
+    <string name="mamodel_par" translatable="false">Parent</string>
+    <string name="mamodel_spr" translatable="false">Sprite</string>
+    <string name="mamodel_z" translatable="false">Z-Order</string>
+    <string name="def_pos" translatable="false">Position</string>
+    <string name="def_piv" translatable="false">Pivot</string>
+    <string name="def_scale" translatable="false">Scale</string>
+    <string name="def_rot" translatable="false">Angle</string>
+    <string name="def_glow" translatable="false">Glow</string>
 </resources>

@@ -1,11 +1,8 @@
 package com.yumetsuki.bcu
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import android.provider.MediaStore
@@ -20,7 +17,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.get
 import androidx.lifecycle.lifecycleScope
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionValues
@@ -29,9 +25,8 @@ import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.gson.JsonParser
 import com.yumetsuki.bcu.androidutil.StaticStore
-import com.yumetsuki.bcu.androidutil.animation.SpriteView
-import com.yumetsuki.bcu.androidutil.animation.adapter.ImgcutListAdapter
-import com.yumetsuki.bcu.androidutil.fakeandroid.FIBM
+import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
+import com.yumetsuki.bcu.androidutil.animation.adapter.MaModelListAdapter
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
@@ -43,15 +38,15 @@ import common.pack.Source.ResourceLocation
 import common.pack.UserProfile
 import common.system.files.FDFile
 import common.util.anim.AnimCE
-import common.util.anim.ImgCut
+import common.util.anim.MaAnim
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileNotFoundException
 
-class ImgCutEditor : AppCompatActivity() {
+class MaAnimEditor : AppCompatActivity() {
 
     companion object {
-        var tempFunc : ((input: Any) -> Unit)? = null
+        var tempFunc : ((input: MaAnim) -> Unit)? = null
     }
 
     val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -79,17 +74,10 @@ class ImgCutEditor : AppCompatActivity() {
                 if(cursor.moveToFirst()) {
                     val name = cursor.getString(0) ?: return@registerForActivityResult
 
-                    if(name.endsWith(".png") || name.endsWith(".jpg")) {
-                        val input = this.contentResolver.openInputStream(path)
-                        val img = BitmapFactory.decodeStream(input, null, BitmapFactory.Options())
-                        input!!.close()
-                        if (img == null)
-                            return@registerForActivityResult
-                        tempFunc?.invoke(img)
-                    } else if(name.endsWith(".txt") || name.endsWith(".imgcut")) {
+                    if(name.endsWith(".txt") || name.endsWith(".mamodel")) {
                         val fl = File(StaticStore.getExternalPack(this), name)
                         if (fl.exists()) {
-                            val imc = ImgCut.newIns(FDFile(fl))
+                            val imc = MaAnim.newIns(FDFile(fl), false)
                             tempFunc?.invoke(imc)
                         }
                     }
@@ -99,7 +87,6 @@ class ImgCutEditor : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -120,20 +107,20 @@ class ImgCutEditor : AppCompatActivity() {
         DefineItf.check(this)
         AContext.check()
         (CommonStatic.ctx as AContext).updateActivity(this)
-        setContentView(R.layout.activity_imgcut_editor)
+        //setContentView(R.layout.activity_maanim_editor)
 
         val result = intent
         val extra = result.extras ?: return
 
         lifecycleScope.launch {
-            val root = findViewById<ConstraintLayout>(R.id.imgcutroot)
-            val layout = findViewById<LinearLayout>(R.id.imgcutlayout)
+            /*val root = findViewById<ConstraintLayout>(R.id.maanimroot)
+            val layout = findViewById<LinearLayout>(R.id.maanimlayout)
 
-            val cfgBtn = findViewById<FloatingActionButton>(R.id.imgcutCfgDisplay)
-            val cfgMenu = findViewById<RelativeLayout>(R.id.imgCutMenu)
-            val cfgHideBtn = findViewById<FloatingActionButton>(R.id.imgcutCfgHide)
+            val cfgBtn = findViewById<FloatingActionButton>(R.id.maanimCfgDisplay)
+            val cfgMenu = findViewById<RelativeLayout>(R.id.maanimMenu)
+            val cfgHideBtn = findViewById<FloatingActionButton>(R.id.maanimCfgHide)
 
-            StaticStore.setDisappear(cfgBtn, layout)
+            StaticStore.setDisappear(cfgBtn, layout)*/
 
             val res = JsonDecoder.decode(JsonParser.parseString(extra.getString("Data")), ResourceLocation::class.java) ?: return@launch
             val anim = if (res.pack == ResourceLocation.LOCAL)
@@ -144,7 +131,7 @@ class ImgCutEditor : AppCompatActivity() {
                 return@launch
             anim.load()
 
-            val cfgShowT = MaterialContainerTransform().apply {
+            /*val cfgShowT = MaterialContainerTransform().apply {
                 startView = cfgBtn
                 endView = cfgMenu
 
@@ -177,97 +164,76 @@ class ImgCutEditor : AppCompatActivity() {
                     cfgBtn.visibility = View.VISIBLE
                     cfgMenu.visibility = View.GONE
                 }
-            })
+            })*/
             refreshAdapter(anim)
 
-            val viewer = SpriteView(this@ImgCutEditor, anim).apply {
+            val viewer = AnimationEditView(this@MaAnimEditor, anim, !shared.getBoolean("theme", false), shared.getBoolean("Axis", true)).apply {
                 layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             }
-            viewer.id = R.id.spriteView
-            layout.addView(viewer)
+            viewer.id = R.id.animationView
+            //layout.addView(viewer)
 
-            val addl = findViewById<Button>(R.id.imgcutpadd)
-            val impr = findViewById<Button>(R.id.imgcutimport)
-            val spri = findViewById<Button>(R.id.imgcutsprimp)
-            addl.setOnClickListener {
-                anim.imgcut.addLine(-1)
-                refreshAdapter(anim)
-                anim.unSave("imgcut add line")
-                viewer.invalidate()
-            }
-            impr.setOnClickListener {
-                getImport(fun(f : Any) {
-                    if (f !is ImgCut)
-                        return
-                    anim.imgcut = f
-                    refreshAdapter(anim)
-                    anim.unSave("Import imgcut")
-                    viewer.invalidate()
-                })
-            }
-            spri.setOnClickListener {
-                getImport(fun(f : Any) {
-                    if (f !is Bitmap)
-                        return
-                    anim.num = FIBM(f)
-                    anim.saveImg()
-                    anim.reloImg()
-                    viewer.calculateSize(true)
-                })
-            }
+            //val addl = findViewById<Button>(R.id.maanimpadd)
+            //addl.setOnClickListener {
+            //    //anim.addMMline(viewer.anim.sele + 1, 0)
+            //    refreshAdapter(anim)
+            //    anim.unSave("maanim add line")
+            //    viewer.animationChanged()
+            //}
+            //val impr = findViewById<Button>(R.id.maanimimport)
+            //impr.setOnClickListener {
+            //    val intent = Intent(Intent.ACTION_GET_CONTENT)
+            //    intent.addCategory(Intent.CATEGORY_DEFAULT)
+            //    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            //    intent.type = "*/*"
 
-            val bck = findViewById<Button>(R.id.imgcutexit)
+            //    tempFunc = fun(f : MaAnim) {
+            //        //anim.mamodel = f //TODO - It's more complex than this
+            //        //refreshAdapter(anim)
+            //        //anim.unSave("Import mamodel")
+            //        //viewer.animationChanged()
+            //    }
+            //    resultLauncher.launch(Intent.createChooser(intent, "Choose Directory"))
+            //}
+
+            /*val bck = findViewById<Button>(R.id.maanimexit)
             bck.setOnClickListener {
                 anim.save()
-                val intent = Intent(this@ImgCutEditor, AnimationManagement::class.java)
+                val intent = Intent(this@MaAnimEditor, AnimationManagement::class.java)
                 startActivity(intent)
                 finish()
             }
-            onBackPressedDispatcher.addCallback(this@ImgCutEditor, object : OnBackPressedCallback(true) {
+            onBackPressedDispatcher.addCallback(this@MaAnimEditor, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     bck.performClick()
                 }
             })
 
-            val mamodelBtn = findViewById<Button>(R.id.imgc_mamodel_btn)
-            mamodelBtn.setOnClickListener {
+            val imgcutBtn = findViewById<Button>(R.id.maan_imgcut_btn)
+            imgcutBtn.setOnClickListener {
                 anim.save()
-                val intent = Intent(this@ImgCutEditor, MaModelEditor::class.java)
+                val intent = Intent(this@MaAnimEditor, ImgCutEditor::class.java)
                 intent.putExtra("Data", JsonEncoder.encode(anim.id).toString())
 
                 startActivity(intent)
                 finish()
             }
-            val maanimBtn = findViewById<Button>(R.id.imgc_maanim_btn)
+            val maanimBtn = findViewById<Button>(R.id.maan_mamodel_btn)
             maanimBtn.setOnClickListener {
                 anim.save()
-                val intent = Intent(this@ImgCutEditor, MaAnimEditor::class.java)
+                val intent = Intent(this@MaAnimEditor, MaModelEditor::class.java)
                 intent.putExtra("Data", JsonEncoder.encode(anim.id).toString())
 
                 startActivity(intent)
                 finish()
             }
 
-            StaticStore.setAppear(cfgBtn, layout)
+            StaticStore.setAppear(cfgBtn, layout)*/
         }
     }
 
-    fun spriteMoved(ic : IntArray, i : Int) {
-        (findViewById<ListView>(R.id.imgcutvalList)[i].tag as ImgcutListAdapter.ViewHolder).setData(ic)
-    }
-
     fun refreshAdapter(anim : AnimCE) {
-        val list = findViewById<ListView>(R.id.imgcutvalList)
-        list.adapter = ImgcutListAdapter(this, anim)
-    }
-
-    private fun getImport(func: (f: Any) -> Unit) {
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.addCategory(Intent.CATEGORY_DEFAULT)
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        intent.type = "*/*"
-
-        tempFunc = func
-        resultLauncher.launch(Intent.createChooser(intent, "Choose Directory"))
+        //val list = findViewById<ListView>(R.id.maanimvalList) //TODO - It's more complex
+        //list.adapter = MaModelListAdapter(this, anim)
     }
 }

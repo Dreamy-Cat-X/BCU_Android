@@ -17,12 +17,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.yumetsuki.bcu.AnimationManagement
 import com.yumetsuki.bcu.ImgCutEditor
+import com.yumetsuki.bcu.MaAnimEditor
 import com.yumetsuki.bcu.MaModelEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.fakeandroid.FIBM
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
+import common.io.json.JsonEncoder
 import common.pack.Source.BasePath
 import common.system.VImg
 import common.util.anim.AnimCE
@@ -136,25 +138,24 @@ class AnimationListAdapter(private val activity: AnimationManagement, private va
 
         holder.imgc.setOnClickListener {
             val intent = Intent(context, ImgCutEditor::class.java)
-            intent.putExtra("Data", a.id.id)
+            intent.putExtra("Data", JsonEncoder.encode(a.id).toString())
 
             activity.startActivity(intent)
             activity.finish()
         }
         holder.mamo.setOnClickListener {
             val intent = Intent(context, MaModelEditor::class.java)
-            intent.putExtra("Data", a.id.id)
+            intent.putExtra("Data", JsonEncoder.encode(a.id).toString())
 
             activity.startActivity(intent)
             activity.finish()
         }
         holder.maan.setOnClickListener {
-            StaticStore.showShortMessage(context, "Coming Later")
-            //val intent = Intent(context, MaAnimEditor::class.java)
-            //intent.putExtra("Data", a.id.id)
+            val intent = Intent(context, MaAnimEditor::class.java)
+            intent.putExtra("Data", JsonEncoder.encode(a.id).toString())
 
-            //activity.startActivity(intent)
-            //activity.finish()
+            activity.startActivity(intent)
+            activity.finish()
         }
 
         holder.more.setOnClickListener(object : SingleClick() {

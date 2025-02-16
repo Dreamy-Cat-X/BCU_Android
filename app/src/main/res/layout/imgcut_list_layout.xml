@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
+        <Button
             android:id="@+id/imgcut_id"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

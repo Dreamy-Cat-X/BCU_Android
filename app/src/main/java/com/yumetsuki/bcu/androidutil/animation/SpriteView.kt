@@ -7,13 +7,17 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
+import com.yumetsuki.bcu.ImgCutEditor
 import com.yumetsuki.bcu.androidutil.supports.PP
 import common.util.anim.AnimCE
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.time.times
 
-@SuppressLint("ViewConstructor")
+@SuppressLint("ViewConstructor", "ClickableViewAccessibility")
 class SpriteView(context: Context, val anim : AnimCE) : View(context) {
 
     var sele : Int = -1
@@ -28,6 +32,116 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
         isFilterBitmap = true
     }
     val m: Matrix = Matrix()
+
+    init {
+        val scaleListener = ScaleListener(this@SpriteView)
+        val detector = ScaleGestureDetector(context, scaleListener)
+        setOnTouchListener(object : OnTouchListener {
+            var preid = -1
+            var spriteSelected = false
+            var spriteMoved = false
+            var preX = 0f
+            var preY = 0f
+
+            override fun onTouch(v: View, event: MotionEvent): Boolean {
+                detector.onTouchEvent(event)
+                if (preid == -1)
+                    preid = event.getPointerId(0)
+
+                val id = event.getPointerId(0)
+
+                val x = event.x
+                val y = event.y
+
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    scaleListener.updateScale = true
+                    spriteSelected = false
+                    if (sele != -1) {
+                        val cut = anim.imgcut.cuts[sele]
+                        val sx = -pos.x + (cut[0] * zoom - 1)
+                        val sy = -pos.y + (cut[1] * zoom - 1)
+                        val sw = sx + (cut[2] * zoom + 2)
+                        val sh = sy + (cut[3] * zoom + 2)
+                        if (!(x in sx..sw && y in sy..sh))
+                            sele = -1
+                    } else {
+                        val ic = anim.imgcut
+                        for (i in 0 until ic.n) {
+                            val cut = ic.cuts[i]
+                            val sx = -pos.x + (cut[0] * zoom - 1)
+                            val sy = -pos.y + (cut[1] * zoom - 1)
+                            val sw = sx + (cut[2] * zoom + 2)
+                            val sh = sy + (cut[3] * zoom + 2)
+
+                            if (x in sx..sw && y in sy..sh) {
+                                sele = i
+                                spriteSelected = true
+                                limit()
+                                break
+                            }
+                        }
+                    }
+                } else if (event.action == MotionEvent.ACTION_MOVE) {
+                    if (event.pointerCount == 1 && id == preid) {
+                        var dx = x - preX
+                        var dy = y - preY
+
+                        if (sele == -1) {
+                            pos.x -= dx
+                            pos.y -= dy
+                        } else {
+                            dx /= zoom
+                            dy /= zoom
+                            spriteMoved = spriteMoved || dx.toInt() != 0 || dy.toInt() != 0
+                            anim.imgcut.cuts[sele][0] += dx.toInt()
+                            anim.imgcut.cuts[sele][1] += dy.toInt()
+                            if (context is ImgCutEditor && dx != 0f || dy != 0f)
+                                (context as ImgCutEditor).spriteMoved(anim.imgcut.cuts[sele], sele)
+                        }
+                        if (dx != 0f || dy != 0f)
+                            limit()
+                    }
+                } else if (event.action == MotionEvent.ACTION_UP) {
+                    if (spriteMoved) {
+                        spriteMoved = false
+                        anim.unSave("imgcut move part $sele")
+                    } else if (!spriteSelected) {
+                        var selected = -1
+                        val ic = anim.imgcut
+                        for (i in 0 until ic.n) {
+                            if (sele == i)
+                                continue
+                            val cut = ic.cuts[i]
+                            val sx = -pos.x + (cut[0] * zoom - 1)
+                            val sy = -pos.y + (cut[1] * zoom - 1)
+                            val sw = sx + (cut[2] * zoom + 2)
+                            val sh = sy + (cut[3] * zoom + 2)
+
+                            if (x in sx..sw && y in sy..sh) {
+                                selected = i
+                                break
+                            }
+                        }
+                        sele = selected
+                        limit()
+                    } else if (sele != -1 && scaleListener.scaled())
+                        anim.unSave("imgcut scale part $sele")
+                }
+
+                preX = x
+                preY = y
+
+                preid = id
+
+                return true
+            }
+        })
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        calculateSize(true)
+    }
 
     override fun onDraw(c: Canvas) {
         calculateSize(false)
@@ -72,10 +186,10 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
             if (i == sele) {
                 paint.color = Color.RED
                 paint.style = Paint.Style.FILL
-                c.drawRect(sx - 5, sy - 5, sw + 5, 5f, paint)
-                c.drawRect(sx - 5, sy, 5f, sh + 5, paint)
-                c.drawRect(sx + sw, sy - 5, 5f, sh + 5, paint)
-                c.drawRect(sx, sy + sh, sw + 5, 5f, paint)
+                c.drawRect(sx - 5, sy - 5, sx, sh + 5, paint)//left
+                c.drawRect(sx - 5, sy - 5, sw, sy, paint)//top
+                c.drawRect(sw, sy - 5, sw + 5, sh + 5, paint)//right
+                c.drawRect(sx, sh, sw, sh + 5, paint)
             } else {
                 paint.color = Color.BLACK
                 paint.style = Paint.Style.STROKE
@@ -113,7 +227,65 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
         val h = height
 
         initzoom = min(1f * w / spriteW, 1f * h / spriteH)
-        if (first || zoom == 0f)
+        if (first || zoom == 0f) {
             zoom = initzoom
+            limit()
+        }
+    }
+
+    inner class ScaleListener(private val cView: SpriteView) : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        var updateScale = false
+
+        private var realFX = 0f
+        private var previousX = 0f
+
+        private var realFY = 0f
+        private var previousY = 0f
+
+        private var previousScale = 0f
+
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
+            if (cView.sele != -1) {
+                val cut = cView.anim.imgcut
+                cut.cuts[cView.sele][2] = (cut.cuts[cView.sele][2] * detector.scaleFactor).toInt()
+                cut.cuts[cView.sele][3] = (cut.cuts[cView.sele][3] * detector.scaleFactor).toInt()
+                if (context is ImgCutEditor && detector.scaleFactor != 1f)
+                    (context as ImgCutEditor).spriteMoved(anim.imgcut.cuts[sele], sele)
+            } else {
+                cView.zoom *= detector.scaleFactor
+                val diffX = (realFX) * (cView.zoom / previousScale - 1)
+                val diffY = (realFY) * (cView.zoom / previousScale - 1)
+
+                cView.pos.x = previousX + diffX
+                cView.pos.y = previousY + diffY
+            }
+            cView.limit()
+
+            return true
+        }
+
+        override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+            if (updateScale) {
+                if (cView.sele != -1) {
+                    val cut = cView.anim.imgcut.cuts[cView.sele]
+                    realFX = cut[2].toFloat()
+                    realFY = cut[3].toFloat()
+                } else {
+                    realFX = detector.focusX - (cView.width / 2f)
+                    previousX = cView.pos.x
+
+                    realFY = detector.focusY - (cView.height * 2f / 3f)
+                    previousY = cView.pos.y
+                }
+                previousScale = cView.zoom
+                updateScale = false
+            }
+            return super.onScaleBegin(detector)
+        }
+
+        fun scaled() : Boolean {
+            val cut = cView.anim.imgcut.cuts[cView.sele]
+            return cut[2] != realFX.toInt() || cut[3] != realFY.toInt()
+        }
     }
 }

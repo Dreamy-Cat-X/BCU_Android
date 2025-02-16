@@ -86,11 +86,10 @@ object Interpret : Data() {
         val l: MutableList<String> = ArrayList()
         val c = Formatter.Context(isEnemy, useSecond, magnif, du.traits)
 
-        val mr = du.repAtk
         for (i in PROCIND.indices) {
-            if (isValidProc(i, mr) && (common || mr.proc.sharable(P_INDEX[i].toInt()))) {
+            if (isValidProc(i, du.proc) && (common || du.proc.sharable(P_INDEX[i].toInt()))) {
                 val f = ProcLang.get().get(PROCIND[i]).format
-                val item = mr.proc.get(PROCIND[i])
+                val item = du.proc.get(PROCIND[i])
                 val ans = if ((P_INDEX[i] == P_DMGINC || P_INDEX[i] == P_DEFINC)) {
                     "${-(StaticStore.dmgType(P_INDEX[i] == P_DMGINC, item[0])+1)}\\" + Formatter.format(f, item, c)
                 } else if (immune.contains(P_INDEX[i]) && item[0] != 100 && (P_INDEX[i] == P_IMUWAVE || item[1] < 100)) {//item[0] will always be mult, which calculates resistances
@@ -107,7 +106,7 @@ object Interpret : Data() {
             for (k in 0 until StaticJava.getAtkModel(du, atk).size) {
                 val ma = StaticJava.getAtkModel(du, atk)[k]
                 for (i in PROCIND.indices) {
-                    if (isValidProc(i, ma) && !ma.proc.sharable(P_INDEX[i].toInt())) {
+                    if (isValidProc(i, ma.proc) && !ma.proc.sharable(P_INDEX[i].toInt())) {
                         val mf = ProcLang.get().get(PROCIND[i]).format
                         val item = ma.proc.get(PROCIND[i])
                         val ans = if ((P_INDEX[i] == P_DMGINC || P_INDEX[i] == P_DEFINC)) {
@@ -135,10 +134,10 @@ object Interpret : Data() {
         return l
     }
 
-    private fun isValidProc(ind: Int, atk: MaskAtk): Boolean {
+    private fun isValidProc(ind: Int, proc: Proc): Boolean {
         return when (ind) {
             in P_INDEX.indices ->
-                atk.proc.getArr(P_INDEX[ind].toInt()).exists()
+                proc.getArr(P_INDEX[ind].toInt()).exists()
             else -> {
                 Log.e("Interpret", "Invalid index : $ind")
                 false
@@ -233,7 +232,7 @@ object Interpret : Data() {
                     n.toString() + "ière"
                 } else n.toString() + "ième"
             }
-            else -> "" + n
+            else -> " $n"
         }
     }
 

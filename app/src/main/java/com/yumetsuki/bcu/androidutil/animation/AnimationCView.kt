@@ -23,14 +23,14 @@ import common.util.unit.Unit
 
 @SuppressLint("ViewConstructor")
 class AnimationCView(
-    context: ImageViewer,
+    activity: ImageViewer,
     data: Any,
     private val session: GifSession,
     val type: AnimationType,
     dataId: Int,
     night: Boolean,
     axis: Boolean,
-) : View(context) {
+) : View(activity) {
     enum class AnimationType {
         UNIT,
         ENEMY,
@@ -39,8 +39,6 @@ class AnimationCView(
         CANNON,
         DEMON_SOUL
     }
-
-    val activity = context
     val data: Any
 
     private val backgroundPaint = Paint()
@@ -134,48 +132,22 @@ class AnimationCView(
         if (StaticStore.gifisSaving && !StaticStore.keepDoing) {
             StaticStore.keepDoing = true
         }
-
         if (StaticStore.enableGIF) {
             animP = P.newP(width.toFloat() / 2 + posx, height.toFloat() * 2 / 3 + posy)
-
             session.pushFrame(this, StaticStore.animposition, StaticStore.formposition, anim.f)
-
             StaticStore.gifFrame++
         }
 
+        p2 = P.newP(width / 2f + posx, height * 2f / 3 + posy)
+        cv.setCanvas(canvas)
+        if (!trans)
+            canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), backgroundPaint)
+        cv.setColor(range.color)
+        anim.draw(cv, p2, size)
         if (StaticStore.play) {
-            p2 = P.newP(width / 2f + posx, height * 2f / 3 + posy)
-
-            cv.setCanvas(canvas)
-
-            if (!trans)
-                canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), backgroundPaint)
-
-            cv.setColor(range.color)
-
-            anim.draw(cv, p2, size)
             anim.update(true)
-
-            if (CommonStatic.getConfig().fps60) {
-                StaticStore.frame += 0.5f
-            } else {
-                StaticStore.frame++
-            }
-
-            P.delete(p2)
-        } else {
-            p2 = P.newP(width / 2f + posx, height * 2f / 3 + posy)
-            
-            cv.setCanvas(canvas)
-
-            if (!trans)
-                canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), backgroundPaint)
-
-            cv.setColor(range.color)
-
-            anim.draw(cv, p2, size)
-
-            P.delete(p2)
+            StaticStore.frame += CommonStatic.fltFpsDiv(1f)
         }
+        P.delete(p2)
     }
 }
