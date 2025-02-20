@@ -1,5 +1,6 @@
 package com.yumetsuki.bcu
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -7,16 +8,26 @@ import android.graphics.Color
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
+import android.view.View.OnTouchListener
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.RelativeLayout
+import android.widget.SeekBar
+import android.widget.Spinner
+import android.widget.TableRow
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionValues
@@ -24,9 +35,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.gson.JsonParser
+import com.yumetsuki.bcu.androidutil.StaticJava
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
-import com.yumetsuki.bcu.androidutil.animation.adapter.MaModelListAdapter
+import com.yumetsuki.bcu.androidutil.animation.adapter.MaAnimListAdapter
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
@@ -34,15 +46,29 @@ import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
 import common.io.json.JsonDecoder
 import common.io.json.JsonEncoder
+import common.pack.Source
 import common.pack.Source.ResourceLocation
 import common.pack.UserProfile
+import common.system.P
 import common.system.files.FDFile
 import common.util.anim.AnimCE
+import common.util.anim.AnimU
+import common.util.anim.AnimU.UType
 import common.util.anim.MaAnim
+import common.util.anim.Part
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
+import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.sin
+import kotlin.system.measureTimeMillis
 
+@SuppressLint("ClickableViewAccessibility")
 class MaAnimEditor : AppCompatActivity() {
 
     companion object {
@@ -107,20 +133,20 @@ class MaAnimEditor : AppCompatActivity() {
         DefineItf.check(this)
         AContext.check()
         (CommonStatic.ctx as AContext).updateActivity(this)
-        //setContentView(R.layout.activity_maanim_editor)
+        setContentView(R.layout.activity_maanim_editor)
 
         val result = intent
         val extra = result.extras ?: return
 
         lifecycleScope.launch {
-            /*val root = findViewById<ConstraintLayout>(R.id.maanimroot)
+            val root = findViewById<ConstraintLayout>(R.id.maanimroot)
             val layout = findViewById<LinearLayout>(R.id.maanimlayout)
 
             val cfgBtn = findViewById<FloatingActionButton>(R.id.maanimCfgDisplay)
             val cfgMenu = findViewById<RelativeLayout>(R.id.maanimMenu)
             val cfgHideBtn = findViewById<FloatingActionButton>(R.id.maanimCfgHide)
 
-            StaticStore.setDisappear(cfgBtn, layout)*/
+            StaticStore.setDisappear(cfgBtn, layout)
 
             val res = JsonDecoder.decode(JsonParser.parseString(extra.getString("Data")), ResourceLocation::class.java) ?: return@launch
             val anim = if (res.pack == ResourceLocation.LOCAL)
@@ -131,7 +157,7 @@ class MaAnimEditor : AppCompatActivity() {
                 return@launch
             anim.load()
 
-            /*val cfgShowT = MaterialContainerTransform().apply {
+            val cfgShowT = MaterialContainerTransform().apply {
                 startView = cfgBtn
                 endView = cfgMenu
 
@@ -164,22 +190,72 @@ class MaAnimEditor : AppCompatActivity() {
                     cfgBtn.visibility = View.VISIBLE
                     cfgMenu.visibility = View.GONE
                 }
-            })*/
-            refreshAdapter(anim)
+            })
 
             val viewer = AnimationEditView(this@MaAnimEditor, anim, !shared.getBoolean("theme", false), shared.getBoolean("Axis", true)).apply {
                 layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             }
             viewer.id = R.id.animationView
-            //layout.addView(viewer)
+            val scaleListener = ScaleListener(viewer)
+            val detector = ScaleGestureDetector(this@MaAnimEditor, scaleListener)
+            viewer.setOnTouchListener(object : OnTouchListener {
+                var preid = -1
+                var preX = 0f
+                var preY = 0f
 
-            //val addl = findViewById<Button>(R.id.maanimpadd)
-            //addl.setOnClickListener {
-            //    //anim.addMMline(viewer.anim.sele + 1, 0)
-            //    refreshAdapter(anim)
-            //    anim.unSave("maanim add line")
-            //    viewer.animationChanged()
-            //}
+                override fun onTouch(v: View, event: MotionEvent): Boolean {
+                    detector.onTouchEvent(event)
+                    if (preid == -1)
+                        preid = event.getPointerId(0)
+
+                    val id = event.getPointerId(0)
+
+                    val x = event.x
+                    val y = event.y
+
+                    if (event.action == MotionEvent.ACTION_DOWN) {
+                        scaleListener.updateScale = true
+                    } else if (event.action == MotionEvent.ACTION_MOVE) {
+                        if (event.pointerCount == 1 && id == preid) {
+                            val dx = x - preX
+                            val dy = y - preY
+
+                            viewer.pos.x += dx
+                            viewer.pos.y += dy
+                            if (dx != 0f || dy != 0f)
+                                viewer.invalidate()
+                        }
+                    }
+
+                    preX = x
+                    preY = y
+
+                    preid = id
+
+                    return true
+                }
+            })
+            layout.addView(viewer)
+            refreshAdapter(anim)
+
+            val addl = findViewById<Button>(R.id.maanimpadd)
+            addl.setOnClickListener {
+                val ma = getAnim(anim)
+                val ind : Int = ma.n
+                val data: Array<Part> = ma.parts
+                ma.parts = arrayOfNulls<Part>(++ma.n)
+                if (ind >= 0) System.arraycopy(data, 0, ma.parts, 0, ind)
+                if (data.size - ind >= 0)
+                    System.arraycopy(data, ind, ma.parts, ind + 1, data.size - ind)
+
+                val np = Part()
+                np.validate()
+                ma.parts[ind] = np
+                ma.validate()
+                anim.unSave("maanim add line")
+                refreshAdapter(anim)
+                viewer.animationChanged()
+            }
             //val impr = findViewById<Button>(R.id.maanimimport)
             //impr.setOnClickListener {
             //    val intent = Intent(Intent.ACTION_GET_CONTENT)
@@ -190,13 +266,90 @@ class MaAnimEditor : AppCompatActivity() {
             //    tempFunc = fun(f : MaAnim) {
             //        //anim.mamodel = f //TODO - It's more complex than this
             //        //refreshAdapter(anim)
-            //        //anim.unSave("Import mamodel")
+            //        //anim.unSave("Import maanim")
             //        //viewer.animationChanged()
             //    }
             //    resultLauncher.launch(Intent.createChooser(intent, "Choose Directory"))
             //}
 
-            /*val bck = findViewById<Button>(R.id.maanimexit)
+            val anims = findViewById<Spinner>(R.id.maanimselect)
+            val controller = findViewById<SeekBar>(R.id.maanimframeseek)
+            val frame = findViewById<TextView>(R.id.maanimframe)
+
+            StaticStore.frame = 0f
+            frame.text = getString(R.string.anim_frame).replace("-", "" + StaticStore.frame)
+            controller.progress = CommonStatic.fltFpsMul(StaticStore.frame).toInt()
+            controller.max = CommonStatic.fltFpsMul(viewer.anim.len().toFloat()).toInt()
+            if (anim.id.base == Source.BasePath.SOUL)
+                anims.visibility = View.GONE
+            else {
+                anims.adapter = ArrayAdapter(this@MaAnimEditor, R.layout.spinneradapter, anim.rawNames())
+                anims.setSelection(viewer.aind)
+                anims.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                        if (viewer.aind != position) {
+                            viewer.aind = position
+                            viewer.animationChanged()
+                            refreshAdapter(anim)
+                            controller.max = CommonStatic.fltFpsMul(viewer.anim.len().toFloat()).toInt()
+
+                            controller.progress = 0
+                            StaticStore.frame = 0f
+                        }
+                    }
+                    override fun onNothingSelected(parent: AdapterView<*>?) {}
+                }
+            }
+            controller.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(controller: SeekBar, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        StaticStore.frame = CommonStatic.fltFpsDiv(progress.toFloat())
+                        viewer.anim.setTime(StaticStore.frame)
+                    }
+                }
+                override fun onStartTrackingTouch(controller: SeekBar) {}
+                override fun onStopTrackingTouch(controller: SeekBar) {}
+            })
+            val buttons = arrayOf<FloatingActionButton>(findViewById(R.id.animbackward), findViewById(R.id.animplay), findViewById(R.id.animforward))
+            buttons[1].setOnClickListener {
+                frame.setTextColor(StaticStore.getAttributeColor(this@MaAnimEditor, R.attr.TextPrimary))
+
+                if (StaticStore.play) {
+                    buttons[1].setImageDrawable(ContextCompat.getDrawable(this@MaAnimEditor, R.drawable.ic_play_arrow_black_24dp))
+                    buttons[0].show()
+                    buttons[2].show()
+                    controller.isEnabled = true
+                } else {
+                    buttons[1].setImageDrawable(ContextCompat.getDrawable(this@MaAnimEditor, R.drawable.ic_pause_black_24dp))
+                    buttons[0].hide()
+                    buttons[2].hide()
+                    controller.isEnabled = false
+                }
+                StaticStore.play = !StaticStore.play
+            }
+            buttons[0].setOnClickListener {
+                buttons[2].isEnabled = false
+                if (StaticStore.frame > 0) {
+                    val f = CommonStatic.fltFpsDiv(1f)
+                    StaticStore.frame -= f
+                    viewer.anim.setTime(StaticStore.frame)
+                } else {
+                    frame.setTextColor(Color.rgb(227, 66, 66))
+                    StaticStore.showShortMessage(this@MaAnimEditor, R.string.anim_warn_frame)
+                }
+
+                buttons[2].isEnabled = true
+            }
+            buttons[2].setOnClickListener {
+                buttons[0].isEnabled = false
+                val f = CommonStatic.fltFpsDiv(1f)
+                StaticStore.frame += f
+                viewer.anim.setTime(StaticStore.frame)
+                frame.setTextColor(StaticStore.getAttributeColor(this@MaAnimEditor, R.attr.TextPrimary))
+                buttons[0].isEnabled = true
+            }
+
+            val bck = findViewById<Button>(R.id.maanimexit)
             bck.setOnClickListener {
                 anim.save()
                 val intent = Intent(this@MaAnimEditor, AnimationManagement::class.java)
@@ -228,12 +381,88 @@ class MaAnimEditor : AppCompatActivity() {
                 finish()
             }
 
-            StaticStore.setAppear(cfgBtn, layout)*/
+            StaticStore.setAppear(cfgBtn, layout)
+            activateAnims()
+        }
+    }
+
+    private fun activateAnims() {
+        StaticStore.play = true
+        lifecycleScope.launch {
+            val viewer = findViewById<AnimationEditView>(R.id.animationView)
+            val controller = findViewById<SeekBar>(R.id.maanimframeseek)
+            val targetFPS = 1000L / CommonStatic.fltFpsMul(30f).toLong()
+            val frame = findViewById<TextView>(R.id.maanimframe)
+
+            withContext(Dispatchers.IO) {
+                while (true) {
+                    if (!viewer.started)
+                        continue
+
+                    val time = measureTimeMillis {
+                        viewer.postInvalidate()
+
+                        withContext(Dispatchers.Main) {
+                            frame.text = getText(R.string.anim_frame).toString().replace("-", "" + StaticStore.frame)
+                        }
+
+                        val maxValue = CommonStatic.fltFpsDiv(controller.max.toFloat())
+                        controller.progress =
+                            if (StaticStore.frame >= maxValue && StaticStore.play) {
+                                StaticStore.frame = 0f
+                                0
+                            } else {
+                                CommonStatic.fltFpsMul(StaticStore.frame).toInt()
+                            }
+                    }
+                    delay(max(0, targetFPS - time))
+                }
+            }
         }
     }
 
     fun refreshAdapter(anim : AnimCE) {
-        //val list = findViewById<ListView>(R.id.maanimvalList) //TODO - It's more complex
-        //list.adapter = MaModelListAdapter(this, anim)
+        val list = findViewById<ListView>(R.id.maanimvalList)
+        list.adapter = MaAnimListAdapter(this, anim)
+    }
+    fun getAnim(a : AnimCE) : MaAnim {
+        val viewer = findViewById<AnimationEditView>(R.id.animationView)
+        return a.getMaAnim(viewer.type[viewer.aind])
+    }
+
+    inner class ScaleListener(private val cView : AnimationEditView) : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        var updateScale = false
+
+        private var realFX = 0f
+        private var previousX = 0f
+
+        private var realFY = 0f
+        private var previousY = 0f
+
+        private var previousScale = 0f
+
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
+            cView.size *= detector.scaleFactor
+
+            val diffX = (realFX - previousX) * (cView.size / previousScale - 1)
+            val diffY = (realFY - previousY) * (cView.size / previousScale - 1)
+            cView.pos.x = previousX - diffX
+            cView.pos.y = previousY - diffY
+            return true
+        }
+
+        override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+            if (updateScale) {
+                realFX = detector.focusX - cView.width / 2f
+                previousX = cView.pos.x
+
+                realFY = detector.focusY - cView.height * 2f / 3f
+                previousY = cView.pos.y
+
+                previousScale = cView.size
+                updateScale = false
+            }
+            return super.onScaleBegin(detector)
+        }
     }
 }

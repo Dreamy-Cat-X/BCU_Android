@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.widget.doAfterTextChanged
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.ImgCutEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.animation.SpriteView
@@ -27,7 +28,7 @@ class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : Anim
         val iw: EditText = row.findViewById(R.id.imgcut_w)
         val ih: EditText = row.findViewById(R.id.imgcut_h)
         val iname: EditText = row.findViewById(R.id.imgcut_name)
-        val del: Button = row.findViewById(R.id.imgcut_part_delete)
+        val del: FloatingActionButton = row.findViewById(R.id.imgcut_part_delete)
 
         fun setData(ic : IntArray) {
             ix.text = SpannableStringBuilder(ic[0].toString())
@@ -65,12 +66,12 @@ class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : Anim
 
         val voo = activity.findViewById<SpriteView>(R.id.spriteView)
         holder.ix.doAfterTextChanged {
-            ic[0] = max(0, CommonStatic.parseIntN(holder.ix.text.toString()))
+            ic[0] = CommonStatic.parseIntN(holder.ix.text.toString())
             a.unSave("imgcut change $position x")
             voo.invalidate()
         }
         holder.iy.doAfterTextChanged {
-            ic[1] = max(0, CommonStatic.parseIntN(holder.iy.text.toString()))
+            ic[1] = CommonStatic.parseIntN(holder.iy.text.toString())
             a.unSave("imgcut change $position y")
             voo.invalidate()
         }

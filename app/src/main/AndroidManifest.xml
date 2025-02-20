@@ -113,6 +113,20 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".MaAnimEditor"
+            android:configChanges="locale"
+            android:exported="true">
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".txt"
+                    android:scheme="file" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".StatSearchFilter"
             android:windowSoftInputMode="adjustPan" />
         <activity

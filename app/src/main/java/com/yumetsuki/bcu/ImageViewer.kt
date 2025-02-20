@@ -59,10 +59,16 @@ import com.yumetsuki.bcu.androidutil.supports.adapter.GIFRangeRecycle
 import common.CommonStatic
 import common.io.json.JsonDecoder
 import common.pack.Identifier
+import common.pack.Source
+import common.pack.Source.ResourceLocation
+import common.pack.Source.Workspace
 import common.pack.Source.ZipSource
 import common.pack.UserProfile
 import common.system.P
 import common.util.Data
+import common.util.anim.AnimCE
+import common.util.anim.AnimD
+import common.util.anim.AnimU
 import common.util.anim.EAnimD
 import common.util.pack.Background
 import common.util.pack.DemonSoul
@@ -85,6 +91,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
 import kotlin.system.measureTimeMillis
+
 
 class ImageViewer : AppCompatActivity() {
     enum class ViewerType {
@@ -113,7 +120,7 @@ class ImageViewer : AppCompatActivity() {
     } else {
         30L
     }
-    private var targetFPS = if (CommonStatic.getConfig().fps60) {
+    private val targetFPS = if (CommonStatic.getConfig().fps60) {
         1000L / 60L
     } else {
         1000L / 30L
@@ -766,6 +773,36 @@ class ImageViewer : AppCompatActivity() {
                                     copySprite(content, type)
                                 return@OnMenuItemClickListener true
                             }
+                            R.id.anim_copy_anim -> {
+                                if (content is Identifier<*> && content.pack != Identifier.DEF && !UserProfile.getUserPack(content.pack).desc.allowAnim) {
+                                    val dialog = Dialog(this@ImageViewer)
+                                    dialog.setContentView(R.layout.create_setlu_dialog)
+                                    val edit = dialog.findViewById<EditText>(R.id.setluedit)
+                                    val done = dialog.findViewById<Button>(R.id.setludone)
+                                    val cancel = dialog.findViewById<Button>(R.id.setlucancel)
+                                    val tbar = dialog.findViewById<TextView>(R.id.setluname)
+                                    tbar.setText(R.string.img_anim_spr_cop)
+
+                                    edit.hint = getString(R.string.password_hint)
+                                    val rgb = StaticStore.getRGB(StaticStore.getAttributeColor(this@ImageViewer, R.attr.TextPrimary))
+                                    edit.setHintTextColor(Color.argb(255 / 2, rgb[0], rgb[1], rgb[2]))
+
+                                    done.setOnClickListener {
+                                        val pk = UserProfile.getUserPack(content.pack).source as ZipSource
+                                        if (pk.zip.matchKey(edit.text.toString()))
+                                            copyAnimation()
+                                        else
+                                            StaticStore.showShortMessage(this@ImageViewer, getString(R.string.password_wrong))
+                                        dialog.dismiss()
+                                    }
+                                    cancel.setOnClickListener { dialog.dismiss() }
+                                    if (!isDestroyed && !isFinishing) {
+                                        dialog.show()
+                                    }
+                                } else
+                                    copyAnimation()
+                                return@OnMenuItemClickListener true
+                            }
                             R.id.anim_gif_normal -> {
                                 if (!StaticStore.gifisSaving) {
                                     gif.visibility = View.VISIBLE
@@ -980,6 +1017,24 @@ class ImageViewer : AppCompatActivity() {
             e.printStackTrace()
             StaticStore.showShortMessage(this@ImageViewer, R.string.anim_png_fail)
         }
+    }
+
+    private fun copyAnimation() {
+        val ei = findViewById<AnimationCView>(R.id.animationView).anim
+        if (ei.anim() !is AnimD<*, *>)
+            return
+        val eau = ei.anim() as AnimD<*, *>
+
+        val rl = if (eau.types[0] == AnimU.SOUL[0])
+            ResourceLocation(ResourceLocation.LOCAL, eau.toString(), Source.BasePath.SOUL)
+        else if (eau.types[0] == AnimU.BGEFFECT[0])
+            ResourceLocation(ResourceLocation.LOCAL, eau.toString(), Source.BasePath.BGEffect)
+        else
+            ResourceLocation(ResourceLocation.LOCAL, eau.toString(), Source.BasePath.ANIM)
+
+        Workspace.validate(rl)
+        AnimCE(rl, eau)
+        StaticStore.showShortMessage(this@ImageViewer, R.string.img_anim_spr_suc)
     }
 
     private fun getColorData(bg: Background, mode: Int) : IntArray {

@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import androidx.core.widget.doAfterTextChanged
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.MaModelEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
@@ -22,7 +23,7 @@ import kotlin.math.max
 
 class MaModelListAdapter(private val activity: MaModelEditor, private val a : AnimCE) : ArrayAdapter<IntArray>(activity, R.layout.mamodel_list_layout, a.mamodel.parts) {
 
-    private class ViewHolder(row: View) {
+    internal class ViewHolder(row: View) {
         val iid: Button = row.findViewById(R.id.mamodel_id)
         val ipar: EditText = row.findViewById(R.id.mamodel_par)
         val ispr: EditText = row.findViewById(R.id.mamodel_spr)
@@ -37,7 +38,7 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
         val iopa: EditText = row.findViewById(R.id.mamodel_opa)
         val iglw: EditText = row.findViewById(R.id.mamodel_glw)
         val iname: EditText = row.findViewById(R.id.mamodel_name)
-        val del: Button = row.findViewById(R.id.mamodel_part_delete)
+        val del: FloatingActionButton = row.findViewById(R.id.mamodel_part_delete)
 
         fun setData(ic : IntArray) {
             ipar.text = SpannableStringBuilder(ic[0].toString())
@@ -84,10 +85,8 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
 
         val voo = activity.findViewById<AnimationEditView>(R.id.animationView)
         holder.ipar.doAfterTextChanged {
-            var ind = MathUtil.clip(CommonStatic.parseIntN(holder.ispr.text.toString()), -1, a.mamodel.n - 1)
-            if (ind == position || unviableParent(position, ind, a.mamodel.parts))
-                ind = -1
-            mo[0] = ind
+            mo[0] = MathUtil.clip(CommonStatic.parseIntN(holder.ipar.text.toString()), -1, a.mamodel.n - 1)
+            a.mamodel.check(a)
             a.unSave("mamodel change $position Parent")
             voo.animationChanged()
         }
@@ -196,13 +195,5 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
                     break
             }
         return row
-    }
-
-    private fun unviableParent(to : Int, part : Int, parts : Array<IntArray>) : Boolean {
-        if (to == -1 || part == -1)
-            return false
-        if (parts[part][0] == to)
-            return true
-        return unviableParent(to, parts[part][0], parts)
     }
 }

@@ -40,4 +40,8 @@
         android:id="@+id/anim_option_gif_finish"
         android:title="@string/anim_option_gifstop"/>
 
+    <item
+        android:id="@+id/anim_copy_anim"
+        android:title="@string/anim_option_copyanim"/>
+
 </menu>

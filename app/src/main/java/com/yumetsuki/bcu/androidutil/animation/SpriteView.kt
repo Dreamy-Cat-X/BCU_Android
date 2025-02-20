@@ -253,8 +253,8 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
                     (context as ImgCutEditor).spriteMoved(anim.imgcut.cuts[sele], sele)
             } else {
                 cView.zoom *= detector.scaleFactor
-                val diffX = (realFX) * (cView.zoom / previousScale - 1)
-                val diffY = (realFY) * (cView.zoom / previousScale - 1)
+                val diffX = realFX * (cView.zoom / previousScale - 1)
+                val diffY = realFY * (cView.zoom / previousScale - 1)
 
                 cView.pos.x = previousX + diffX
                 cView.pos.y = previousY + diffY

@@ -161,6 +161,11 @@ class UnitInfoRecycle(private val context: Activity, private val names: ArrayLis
         else viewHolder.uniticon.setImageBitmap(StaticStore.makeIcon(context, icon as Bitmap, 48f))
 
         catk = f.du.firstAtk()
+        if (f.du.realAtkCount() + StaticJava.spAtkCount(f.du) == 1) {
+            viewHolder.prevatk.visibility = View.GONE
+            viewHolder.curatk.visibility = View.GONE
+            viewHolder.nextatk.visibility = View.GONE
+        }
         viewHolder.unitname.text = names[position]
         viewHolder.unitpack.text = s.getPackName(f.unit.id, isRaw)
         viewHolder.unitid.text = s.getID(viewHolder, StaticStore.trio(u.id.id))

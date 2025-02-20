@@ -2,14 +2,14 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mamodelroot"
+    android:id="@+id/maanimroot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/backgroundPrimary"
     android:backgroundTint="?attr/backgroundPrimary">
 
     <LinearLayout
-        android:id="@+id/mamodellayout"
+        android:id="@+id/maanimlayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal">
@@ -17,35 +17,104 @@
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/mamodelCfgDisplay"
+        android:id="@+id/maanimCfgDisplay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_weight="1"
-        android:clickable="true"
-        android:tint="@color/iconPrimaryN"
-        app:backgroundTint="@color/colorAccent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_skip_next_black_24dp" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/mamodelSpriteDisplay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_weight="1"
         android:clickable="true"
         android:tint="@color/iconPrimaryN"
         app:backgroundTint="@color/colorAccent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_skip_next_black_24dp" />
 
+    <Spinner
+        android:id="@+id/maanimselect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="?attr/colorPrimary"
+        android:backgroundTint="?attr/colorPrimary"
+        android:popupBackground="?attr/backgroundPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintTop_toTopOf="parent" />
+
+    <TableRow
+        android:id="@+id/palyrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/animbackward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:contentDescription="@null"
+            android:focusable="true"
+            android:tint="?attr/TextPrimary"
+            app:backgroundTint="?attr/ButtonPrimary"
+            app:srcCompat="@drawable/ic_skip_previous_black_24dp" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/animplay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:contentDescription="@null"
+            android:focusable="true"
+            android:tint="?attr/TextPrimary"
+            app:backgroundTint="?attr/ButtonPrimary"
+            app:srcCompat="@drawable/ic_pause_black_24dp" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/animforward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:clickable="true"
+            android:contentDescription="@null"
+            android:focusable="true"
+            android:tint="?attr/TextPrimary"
+            app:backgroundTint="?attr/ButtonPrimary"
+            app:srcCompat="@drawable/ic_skip_next_black_24dp" />
+    </TableRow>
+
+    <SeekBar
+        android:id="@+id/maanimframeseek"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/palyrow"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/maanimframe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/anim_frame"
+        android:textColor="?attr/TextPrimary"
+        app:layout_constraintStart_toStartOf="@+id/animframeseek"
+        app:layout_constraintTop_toTopOf="@+id/palyrow" />
+
     <RelativeLayout
-        android:id="@+id/mamodelMenu"
+        android:id="@+id/maanimMenu"
         android:layout_width="match_parent"
         android:layout_height="350dp"
         android:background="?attr/SemiBackgroundPrimary"
@@ -53,7 +122,7 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/mamodelCfgHide"
+            android:id="@+id/maanimCfgHide"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -71,10 +140,10 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_toEndOf="@id/mamodelCfgHide">
+            android:layout_toEndOf="@id/maanimCfgHide">
 
             <Button
-                android:id="@+id/mamodelexit"
+                android:id="@+id/maanimexit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
@@ -87,7 +156,7 @@
                 tools:ignore="ButtonStyle" />
 
             <Button
-                android:id="@+id/mamo_view_anim"
+                android:id="@+id/maan_view_anim"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
@@ -100,7 +169,7 @@
                 tools:ignore="ButtonStyle" />
 
             <Button
-                android:id="@+id/mamo_imgcut_btn"
+                android:id="@+id/maan_imgcut_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
@@ -113,7 +182,7 @@
                 tools:ignore="ButtonStyle" />
 
             <Button
-                android:id="@+id/mamo_maanim_btn"
+                android:id="@+id/maan_mamodel_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
@@ -128,10 +197,10 @@
         </TableRow>
 
         <TableRow
-            android:id="@+id/mamodelvalues"
+            android:id="@+id/maanimvalues"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/mamodelCfgHide"
+            android:layout_below="@id/maanimCfgHide"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="8dp"
@@ -200,96 +269,6 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.225"
-                android:background="@drawable/cell_shape"
-                android:gravity="center"
-                android:paddingStart="4dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="4dp"
-                android:paddingBottom="12dp"
-                android:text="@string/def_pos"
-                android:textColor="?attr/TextPrimary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.225"
-                android:background="@drawable/cell_shape"
-                android:gravity="center"
-                android:paddingStart="4dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="4dp"
-                android:paddingBottom="12dp"
-                android:text="@string/def_piv"
-                android:textColor="?attr/TextPrimary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.225"
-                android:background="@drawable/cell_shape"
-                android:gravity="center"
-                android:paddingStart="4dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="4dp"
-                android:paddingBottom="12dp"
-                android:text="@string/def_scale"
-                android:textColor="?attr/TextPrimary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:background="@drawable/cell_shape"
-                android:gravity="center"
-                android:paddingStart="4dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="4dp"
-                android:paddingBottom="12dp"
-                android:text="@string/def_rot"
-                android:textColor="?attr/TextPrimary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:background="@drawable/cell_shape"
-                android:gravity="center"
-                android:paddingStart="4dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="4dp"
-                android:paddingBottom="12dp"
-                android:text="@string/def_glow"
-                android:textColor="?attr/TextPrimary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:background="@drawable/cell_shape"
-                android:gravity="center"
-                android:paddingStart="4dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="4dp"
-                android:paddingBottom="12dp"
-                android:text="@string/stg_sch_name"
-                android:textColor="?attr/TextPrimary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.25"
                 android:background="@drawable/cell_shape"
@@ -305,24 +284,24 @@
         </TableRow>
 
         <ListView
-            android:id="@+id/mamodelvalList"
+            android:id="@+id/maanimvalList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/mamodeltable"
-            android:layout_below="@id/mamodelvalues"
+            android:layout_above="@id/maanimtable"
+            android:layout_below="@id/maanimvalues"
             android:layout_marginBottom="4dp">
 
         </ListView>
 
         <TableRow
-            android:id="@+id/mamodeltable"
+            android:id="@+id/maanimtable"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="8dp">
 
             <Button
-                android:id="@+id/mamodelpadd"
+                android:id="@+id/maanimpadd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
@@ -335,7 +314,7 @@
                 tools:ignore="ButtonStyle" />
 
             <Button
-                android:id="@+id/mamodelimport"
+                android:id="@+id/maanimimport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
@@ -348,7 +327,7 @@
                 tools:ignore="ButtonStyle" />
 
             <Button
-                android:id="@+id/mamodelexport"
+                android:id="@+id/maanimexport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"

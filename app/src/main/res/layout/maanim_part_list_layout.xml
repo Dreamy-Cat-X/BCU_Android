@@ -7,73 +7,50 @@
 
     <TableRow
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:id="@+id/imgcut_id"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/cell_shape"
-            android:gravity="center"
-            android:textColor="?attr/TextPrimary"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+        android:layout_height="wrap_content" >
 
         <EditText
-            android:id="@+id/imgcut_x"
+            android:id="@+id/mapart_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
-            android:inputType="number" />
+            android:inputType="numberSigned" />
 
         <EditText
-            android:id="@+id/imgcut_y"
+            android:id="@+id/mapart_mod"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
-            android:inputType="number" />
+            android:inputType="numberSigned" />
+
+        <Spinner
+            android:id="@+id/mapart_ease"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/cell_shape" />
 
         <EditText
-            android:id="@+id/imgcut_w"
+            android:id="@+id/mapart_param"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
-            android:inputType="number" />
-
-        <EditText
-            android:id="@+id/imgcut_h"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/cell_shape"
-            android:ems="10"
-            android:inputType="number" />
-
-        <EditText
-            android:id="@+id/imgcut_name"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/cell_shape"
-            android:ems="10"
-            android:hint="@string/stg_sch_name"
-            android:inputType="text" />
+            android:inputType="numberSigned" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/imgcut_part_delete"
+            android:id="@+id/mapart_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
             android:tint="@color/iconPrimaryN"
             app:backgroundTint="@color/colorAccent"
             app:srcCompat="@drawable/ic_baseline_delete_24" />
-
     </TableRow>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
