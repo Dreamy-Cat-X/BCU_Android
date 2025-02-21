@@ -41,6 +41,7 @@ import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
 import com.yumetsuki.bcu.androidutil.animation.adapter.MaAnimListAdapter
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.supports.DynamicListView
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
@@ -252,7 +253,7 @@ class MaAnimEditor : AppCompatActivity() {
                 np.validate()
                 ma.parts[ind] = np
                 ma.validate()
-                anim.unSave("maanim add line")
+                unSave(anim,"maanim add line")
                 refreshAdapter(anim)
                 viewer.animationChanged()
             }
@@ -349,6 +350,37 @@ class MaAnimEditor : AppCompatActivity() {
                 buttons[0].isEnabled = true
             }
 
+            val undo = findViewById<FloatingActionButton>(R.id.anim_Undo)
+            val redo = findViewById<FloatingActionButton>(R.id.anim_Redo)
+            undo.setOnClickListener {
+                anim.undo()
+                undo.visibility = if (anim.undo == "initial")
+                    View.GONE
+                else
+                    View.VISIBLE
+                redo.visibility = View.VISIBLE
+                refreshAdapter(anim)
+                viewer.invalidate()
+            }
+            redo.setOnClickListener {
+                anim.redo()
+                redo.visibility = if (anim.getRedo() == "nothing")
+                    View.GONE
+                else
+                    View.VISIBLE
+                undo.visibility = View.VISIBLE
+                refreshAdapter(anim)
+                viewer.invalidate()
+            }
+            undo.visibility = if (anim.undo == "initial")
+                View.GONE
+            else
+                View.VISIBLE
+            redo.visibility = if (anim.getRedo() == "nothing")
+                View.GONE
+            else
+                View.VISIBLE
+
             val bck = findViewById<Button>(R.id.maanimexit)
             bck.setOnClickListener {
                 anim.save()
@@ -422,12 +454,28 @@ class MaAnimEditor : AppCompatActivity() {
     }
 
     fun refreshAdapter(anim : AnimCE) {
-        val list = findViewById<ListView>(R.id.maanimvalList)
+        val list = findViewById<DynamicListView>(R.id.maanimvalList)
         list.adapter = MaAnimListAdapter(this, anim)
+        list.setSwapListener { from, to ->
+            val p = getAnim(anim).parts
+            val temp = p[from]
+            p[from] = p[to]
+            p[to] = temp
+            anim.unSave("maanim sort")
+        }
     }
     fun getAnim(a : AnimCE) : MaAnim {
         val viewer = findViewById<AnimationEditView>(R.id.animationView)
         return a.getMaAnim(viewer.type[viewer.aind])
+    }
+
+    fun unSave(a : AnimCE, str : String) {
+        a.unSave(str)
+
+        val undo = findViewById<FloatingActionButton>(R.id.anim_Undo)
+        val redo = findViewById<FloatingActionButton>(R.id.anim_Redo)
+        undo.visibility = View.VISIBLE
+        redo.visibility = View.GONE
     }
 
     inner class ScaleListener(private val cView : AnimationEditView) : ScaleGestureDetector.SimpleOnScaleGestureListener() {

@@ -13,12 +13,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.MaAnimEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
+import com.yumetsuki.bcu.androidutil.supports.DynamicListView.StableArrayAdapter
 import common.CommonStatic
 import common.util.anim.AnimCE
 import common.util.anim.MaAnim
 import common.util.anim.Part
 
-class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE, private val p : Part, private val ref : () -> Unit) : ArrayAdapter<IntArray>(activity, R.layout.maanim_part_list_layout, p.moves) {
+class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE, private val p : Part, private val ref : () -> Unit) : StableArrayAdapter<IntArray>(activity, R.layout.maanim_part_list_layout, p.moves) {
 
     companion object {
         val eases = arrayOf("0 - Linear", "1 - Instant", "2 - Exponential", "3 - Polynomial", "4 - Sinusoidal")
@@ -66,20 +67,20 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
         holder.ifr.doAfterTextChanged {
             pa[0] = CommonStatic.parseIntN(holder.ifr.text.toString())
             p.check(a)
-            a.unSave("maanim change part move $position frame")
+            activity.unSave(a,"maanim change part move $position frame")
             voo.animationChanged()
         }
         holder.idat.doAfterTextChanged {
             pa[1] = CommonStatic.parseIntN(holder.idat.text.toString())
             p.check(a)
-            a.unSave("maanim change part move $position effect")
+            activity.unSave(a,"maanim change part move $position effect")
             voo.animationChanged()
         }
         holder.iea.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
                 pa[2] = position
                 p.check(a)
-                a.unSave("maanim change part move $position easing")
+                activity.unSave(a,"maanim change part move $position easing")
                 holder.ipa.visibility = if (pa[2] == 2 || pa[2] == 4)
                     View.VISIBLE
                 else
@@ -91,7 +92,7 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
         holder.ipa.doAfterTextChanged {
             pa[3] = CommonStatic.parseIntN(holder.ipa.text.toString())
             p.check(a)
-            a.unSave("maanim change part move $position effect")
+            activity.unSave(a,"maanim change part move $position effect")
             voo.animationChanged()
         }
         holder.ire.setOnClickListener {
@@ -104,7 +105,7 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
                 if (datum != null)
                     ma.parts[ind++] = datum
             ma.validate()
-            a.unSave("maanim remove part")
+            activity.unSave(a,"maanim remove part")
             ref()
             voo.animationChanged()
         }

@@ -14,6 +14,7 @@ import com.yumetsuki.bcu.MaModelEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
 import com.yumetsuki.bcu.androidutil.animation.adapter.ImgcutListAdapter.ViewHolder
+import com.yumetsuki.bcu.androidutil.supports.DynamicListView.StableArrayAdapter
 import common.CommonStatic
 import common.util.anim.AnimCE
 import common.util.anim.MaModel
@@ -21,7 +22,7 @@ import org.jcodec.common.tools.MathUtil
 import kotlin.math.max
 
 
-class MaModelListAdapter(private val activity: MaModelEditor, private val a : AnimCE) : ArrayAdapter<IntArray>(activity, R.layout.mamodel_list_layout, a.mamodel.parts) {
+class MaModelListAdapter(private val activity: MaModelEditor, private val a : AnimCE) : StableArrayAdapter<IntArray>(activity, R.layout.mamodel_list_layout, a.mamodel.parts) {
 
     internal class ViewHolder(row: View) {
         val iid: Button = row.findViewById(R.id.mamodel_id)
@@ -85,64 +86,88 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
 
         val voo = activity.findViewById<AnimationEditView>(R.id.animationView)
         holder.ipar.doAfterTextChanged {
+            if (!holder.ipar.hasFocus())
+                return@doAfterTextChanged
             mo[0] = MathUtil.clip(CommonStatic.parseIntN(holder.ipar.text.toString()), -1, a.mamodel.n - 1)
             a.mamodel.check(a)
-            a.unSave("mamodel change $position Parent")
+            activity.unSave(a,"mamodel change $position Parent")
             voo.animationChanged()
         }
         holder.ispr.doAfterTextChanged {
+            if (!holder.ispr.hasFocus())
+                return@doAfterTextChanged
             mo[2] = MathUtil.clip(CommonStatic.parseIntN(holder.ispr.text.toString()), 0, a.imgcut.n - 1)
-            a.unSave("mamodel change $position Sprite")
+            activity.unSave(a,"mamodel change $position Sprite")
             voo.animationChanged()
         }
         holder.iz.doAfterTextChanged {
+            if (!holder.iz.hasFocus())
+                return@doAfterTextChanged
             mo[3] = CommonStatic.parseIntN(holder.iz.text.toString())
-            a.unSave("mamodel change $position Z-Order")
+            activity.unSave(a,"mamodel change $position Z-Order")
             voo.animationChanged()
         }
         holder.ix.doAfterTextChanged {
+            if (!holder.ix.hasFocus())
+                return@doAfterTextChanged
             mo[4] = CommonStatic.parseIntN(holder.ix.text.toString())
-            a.unSave("imgcut change $position x")
+            activity.unSave(a,"imgcut change $position x")
             voo.animationChanged()
         }
         holder.iy.doAfterTextChanged {
+            if (!holder.iy.hasFocus())
+                return@doAfterTextChanged
             mo[5] = CommonStatic.parseIntN(holder.iy.text.toString())
-            a.unSave("imgcut change $position y")
+            activity.unSave(a,"imgcut change $position y")
             voo.animationChanged()
         }
         holder.ipx.doAfterTextChanged {
+            if (!holder.ipx.hasFocus())
+                return@doAfterTextChanged
             mo[6] = CommonStatic.parseIntN(holder.ipx.text.toString())
-            a.unSave("imgcut change $position pivot x")
+            activity.unSave(a,"imgcut change $position pivot x")
             voo.animationChanged()
         }
         holder.ipy.doAfterTextChanged {
+            if (!holder.ipy.hasFocus())
+                return@doAfterTextChanged
             mo[7] = CommonStatic.parseIntN(holder.ipy.text.toString())
-            a.unSave("imgcut change $position pivot y")
+            activity.unSave(a,"imgcut change $position pivot y")
             voo.animationChanged()
         }
         holder.isx.doAfterTextChanged {
+            if (!holder.isx.hasFocus())
+                return@doAfterTextChanged
             mo[8] = CommonStatic.parseIntN(holder.isx.text.toString())
-            a.unSave("imgcut change $position scale x")
+            activity.unSave(a,"imgcut change $position scale x")
             voo.animationChanged()
         }
         holder.isy.doAfterTextChanged {
+            if (!holder.isy.hasFocus())
+                return@doAfterTextChanged
             mo[9] = CommonStatic.parseIntN(holder.isy.text.toString())
-            a.unSave("imgcut change $position scale y")
+            activity.unSave(a,"imgcut change $position scale y")
             voo.animationChanged()
         }
         holder.irot.doAfterTextChanged {
+            if (!holder.irot.hasFocus())
+                return@doAfterTextChanged
             mo[10] = CommonStatic.parseIntN(holder.irot.text.toString())
-            a.unSave("imgcut change $position angle")
+            activity.unSave(a,"imgcut change $position angle")
             voo.animationChanged()
         }
         holder.iopa.doAfterTextChanged {
+            if (!holder.iopa.hasFocus())
+                return@doAfterTextChanged
             mo[11] = max(0, CommonStatic.parseIntN(holder.iopa.text.toString()))
-            a.unSave("imgcut change $position opacity")
+            activity.unSave(a,"imgcut change $position opacity")
             voo.animationChanged()
         }
         holder.iglw.doAfterTextChanged {
+            if (!holder.iglw.hasFocus())
+                return@doAfterTextChanged
             mo[12] = MathUtil.clip(CommonStatic.parseIntN(holder.iglw.text.toString()), -1, 3)
-            a.unSave("imgcut change $position glow")
+            activity.unSave(a,"imgcut change $position glow")
             voo.animationChanged()
         }
         holder.iid.setOnClickListener {
@@ -172,7 +197,7 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
 
             a.reorderModel(inds)
             mm.reorder(move)
-            a.unSave("mamodel remove line")
+            activity.unSave(a,"mamodel remove line")
             activity.refreshAdapter(a)
             voo.invalidate()
         }

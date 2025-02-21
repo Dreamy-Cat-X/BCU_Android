@@ -34,6 +34,7 @@ import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
 import com.yumetsuki.bcu.androidutil.animation.adapter.MaModelListAdapter
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.supports.DynamicListView
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
@@ -264,7 +265,7 @@ class MaModelEditor : AppCompatActivity() {
                     } else if (event.action == MotionEvent.ACTION_UP) {
                         if (partMoved) {
                             partMoved = false
-                            anim.unSave("mamodel move part ${viewer.anim.sele}")
+                            unSave(anim,"mamodel move part ${viewer.anim.sele}")
                         }/* else if (!spriteSelected) {
                             var selected = -1
                             val ic = anim.imgcut
@@ -285,7 +286,7 @@ class MaModelEditor : AppCompatActivity() {
                             sele = selected
                             limit()
                         }*/else if (viewer.anim.sele != -1 && scaleListener.scaled())
-                            anim.unSave("mamodel scale part ${viewer.anim.sele}")
+                            unSave(anim,"mamodel scale part ${viewer.anim.sele}")
                     }
 
                     preX = x
@@ -302,7 +303,7 @@ class MaModelEditor : AppCompatActivity() {
             addl.setOnClickListener {
                 anim.addMMline(viewer.anim.sele + 1, 0)
                 refreshAdapter(anim)
-                anim.unSave("mamodel add line")
+                unSave(anim,"initial")
                 viewer.animationChanged()
             }
             val impr = findViewById<Button>(R.id.mamodelimport)
@@ -315,11 +316,42 @@ class MaModelEditor : AppCompatActivity() {
                 tempFunc = fun(f : MaModel) {
                     anim.mamodel = f
                     refreshAdapter(anim)
-                    anim.unSave("Import mamodel")
+                    unSave(anim,"Import mamodel")
                     viewer.animationChanged()
                 }
                 resultLauncher.launch(Intent.createChooser(intent, "Choose Directory"))
             }
+
+            val undo = findViewById<FloatingActionButton>(R.id.anim_Undo)
+            val redo = findViewById<FloatingActionButton>(R.id.anim_Redo)
+            undo.setOnClickListener {
+                anim.undo()
+                undo.visibility = if (anim.undo == "initial")
+                    View.GONE
+                else
+                    View.VISIBLE
+                redo.visibility = View.VISIBLE
+                refreshAdapter(anim)
+                viewer.animationChanged()
+            }
+            redo.setOnClickListener {
+                anim.redo()
+                redo.visibility = if (anim.getRedo() == "nothing")
+                    View.GONE
+                else
+                    View.VISIBLE
+                undo.visibility = View.VISIBLE
+                refreshAdapter(anim)
+                viewer.animationChanged()
+            }
+            undo.visibility = if (anim.undo == "initial")
+                View.GONE
+            else
+                View.VISIBLE
+            redo.visibility = if (anim.getRedo() == "nothing")
+                View.GONE
+            else
+                View.VISIBLE
 
             val bck = findViewById<Button>(R.id.mamodelexit)
             bck.setOnClickListener {
@@ -358,12 +390,31 @@ class MaModelEditor : AppCompatActivity() {
     }
 
     fun partMoved(mo : IntArray, i : Int) {
-        (findViewById<ListView>(R.id.mamodelvalList)[i].tag as MaModelListAdapter.ViewHolder).setData(mo)
+        (findViewById<DynamicListView>(R.id.mamodelvalList)[i].tag as MaModelListAdapter.ViewHolder).setData(mo)
     }
 
     fun refreshAdapter(anim : AnimCE) {
-        val list = findViewById<ListView>(R.id.mamodelvalList)
+        val list = findViewById<DynamicListView>(R.id.mamodelvalList)
         list.adapter = MaModelListAdapter(this, anim)
+        list.setSwapListener { from, to ->
+            val s = anim.mamodel.strs0
+            val tempe = s[from]
+            s[from] = s[to]
+            s[to] = tempe
+
+            val p = anim.mamodel.parts
+            val temp = p[from]
+            p[from] = p[to]
+            p[to] = temp
+            for (ma in anim.anims)
+                for (pt in ma.parts) {
+                    if (pt.ints[0] == from)
+                        pt.ints[0] = to
+                    else if (pt.ints[0] == to)
+                        pt.ints[0] = from
+                }
+            unSave(anim,"mamodel sort")
+        }
     }
 
     private fun realScale(parts : Array<IntArray>, part: IntArray, ignoreFirst: Boolean): P {
@@ -381,6 +432,15 @@ class MaModelEditor : AppCompatActivity() {
         if (part[0] != -1)
             a += getAngle(parts, parts[part[0]], false)
         return a
+    }
+
+    fun unSave(a : AnimCE, str : String) {
+        a.unSave(str)
+
+        val undo = findViewById<FloatingActionButton>(R.id.anim_Undo)
+        val redo = findViewById<FloatingActionButton>(R.id.anim_Redo)
+        undo.visibility = View.VISIBLE
+        redo.visibility = View.GONE
     }
 
     inner class ScaleListener(private val cView : AnimationEditView, private val anim : AnimCE) : ScaleGestureDetector.SimpleOnScaleGestureListener() {

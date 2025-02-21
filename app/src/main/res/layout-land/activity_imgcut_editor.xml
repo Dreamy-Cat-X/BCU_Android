@@ -34,6 +34,43 @@
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/ic_skip_next_black_24dp" />
 
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/anim_Undo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:tint="@color/iconPrimaryN"
+            android:visibility="gone"
+            app:backgroundTint="@color/colorAccent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_skip_previous_black_24dp" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/anim_Redo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:tint="@color/iconPrimaryN"
+            android:visibility="gone"
+            app:backgroundTint="@color/colorAccent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_skip_next_black_24dp" />
+    </TableRow>
+
     <RelativeLayout
         android:id="@+id/imgCutMenu"
         android:layout_width="match_parent"
@@ -235,7 +272,7 @@
 
         </TableRow>
 
-        <ListView
+        <com.yumetsuki.bcu.androidutil.supports.DynamicListView
             android:id="@+id/imgcutvalList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

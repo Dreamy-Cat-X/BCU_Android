@@ -14,12 +14,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.ImgCutEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.animation.SpriteView
+import com.yumetsuki.bcu.androidutil.supports.DynamicListView.StableArrayAdapter
 import common.CommonStatic
 import common.util.anim.AnimCE
 import kotlin.math.max
 
 
-class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : AnimCE) : ArrayAdapter<IntArray>(activity, R.layout.imgcut_list_layout, a.imgcut.cuts) {
+class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : AnimCE) : StableArrayAdapter<IntArray>(activity, R.layout.imgcut_list_layout, a.imgcut.cuts) {
 
     internal class ViewHolder(row: View) {
         val iid: Button = row.findViewById(R.id.imgcut_id)
@@ -66,23 +67,31 @@ class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : Anim
 
         val voo = activity.findViewById<SpriteView>(R.id.spriteView)
         holder.ix.doAfterTextChanged {
+            if (!holder.ix.hasFocus())
+                return@doAfterTextChanged
             ic[0] = CommonStatic.parseIntN(holder.ix.text.toString())
-            a.unSave("imgcut change $position x")
+            activity.unSave(a,"imgcut change $position x")
             voo.invalidate()
         }
         holder.iy.doAfterTextChanged {
+            if (!holder.iy.hasFocus())
+                return@doAfterTextChanged
             ic[1] = CommonStatic.parseIntN(holder.iy.text.toString())
-            a.unSave("imgcut change $position y")
+            activity.unSave(a,"imgcut change $position y")
             voo.invalidate()
         }
         holder.iw.doAfterTextChanged {
+            if (!holder.iw.hasFocus())
+                return@doAfterTextChanged
             ic[2] = max(1, CommonStatic.parseIntN(holder.iw.text.toString()))
-            a.unSave("imgcut change $position w")
+            activity.unSave(a,"imgcut change $position w")
             voo.invalidate()
         }
         holder.ih.doAfterTextChanged {
+            if (!holder.ih.hasFocus())
+                return@doAfterTextChanged
             ic[3] = max(1, CommonStatic.parseIntN(holder.ih.text.toString()))
-            a.unSave("imgcut change $position h")
+            activity.unSave(a,"imgcut change $position h")
             voo.invalidate()
         }
         holder.iid.setOnClickListener {
@@ -91,6 +100,7 @@ class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : Anim
         }
         holder.del.setOnClickListener {
             a.removeICline(position)
+            activity.unSave(a, "initial")
             activity.refreshAdapter(a)
             voo.invalidate()
         }

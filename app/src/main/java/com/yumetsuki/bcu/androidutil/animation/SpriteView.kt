@@ -32,6 +32,7 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
         isFilterBitmap = true
     }
     val m: Matrix = Matrix()
+    lateinit var postMove : (sav : String) -> Unit
 
     init {
         val scaleListener = ScaleListener(this@SpriteView)
@@ -54,7 +55,6 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
                 val y = event.y
 
                 if (event.action == MotionEvent.ACTION_DOWN) {
-                    scaleListener.updateScale = true
                     spriteSelected = false
                     if (sele != -1) {
                         val cut = anim.imgcut.cuts[sele]
@@ -81,6 +81,7 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
                             }
                         }
                     }
+                    scaleListener.updateScale = true
                 } else if (event.action == MotionEvent.ACTION_MOVE) {
                     if (event.pointerCount == 1 && id == preid) {
                         var dx = x - preX
@@ -95,8 +96,8 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
                             spriteMoved = spriteMoved || dx.toInt() != 0 || dy.toInt() != 0
                             anim.imgcut.cuts[sele][0] += dx.toInt()
                             anim.imgcut.cuts[sele][1] += dy.toInt()
-                            if (context is ImgCutEditor && dx != 0f || dy != 0f)
-                                (context as ImgCutEditor).spriteMoved(anim.imgcut.cuts[sele], sele)
+                            if (dx != 0f || dy != 0f)
+                                postMove("")
                         }
                         if (dx != 0f || dy != 0f)
                             limit()
@@ -104,7 +105,7 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
                 } else if (event.action == MotionEvent.ACTION_UP) {
                     if (spriteMoved) {
                         spriteMoved = false
-                        anim.unSave("imgcut move part $sele")
+                        postMove("imgcut move part $sele")
                     } else if (!spriteSelected) {
                         var selected = -1
                         val ic = anim.imgcut
@@ -125,7 +126,7 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
                         sele = selected
                         limit()
                     } else if (sele != -1 && scaleListener.scaled())
-                        anim.unSave("imgcut scale part $sele")
+                        postMove("imgcut scale part $sele")
                 }
 
                 preX = x
@@ -249,12 +250,12 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
                 val cut = cView.anim.imgcut
                 cut.cuts[cView.sele][2] = (cut.cuts[cView.sele][2] * detector.scaleFactor).toInt()
                 cut.cuts[cView.sele][3] = (cut.cuts[cView.sele][3] * detector.scaleFactor).toInt()
-                if (context is ImgCutEditor && detector.scaleFactor != 1f)
-                    (context as ImgCutEditor).spriteMoved(anim.imgcut.cuts[sele], sele)
+                if (detector.scaleFactor != 1f)
+                    cView.postMove("")
             } else {
                 cView.zoom *= detector.scaleFactor
-                val diffX = realFX * (cView.zoom / previousScale - 1)
-                val diffY = realFY * (cView.zoom / previousScale - 1)
+                val diffX = realFX * (cView.zoom / previousScale)
+                val diffY = realFY * (cView.zoom / previousScale)
 
                 cView.pos.x = previousX + diffX
                 cView.pos.y = previousY + diffY

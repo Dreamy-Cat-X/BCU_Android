@@ -93,7 +93,7 @@
             tools:ignore="ButtonStyle" />
     </TableRow>
 
-    <ListView
+    <com.yumetsuki.bcu.androidutil.supports.DynamicListView
         android:id="@+id/maanim_part_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -101,7 +101,6 @@
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/maanim_partRow"
         tools:layout_editor_absoluteX="16dp">
-
-    </ListView>
+    </com.yumetsuki.bcu.androidutil.supports.DynamicListView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

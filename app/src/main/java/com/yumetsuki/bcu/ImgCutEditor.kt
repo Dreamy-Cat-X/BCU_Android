@@ -14,13 +14,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.ListView
 import android.widget.RelativeLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.get
+import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionValues
@@ -34,6 +34,7 @@ import com.yumetsuki.bcu.androidutil.animation.adapter.ImgcutListAdapter
 import com.yumetsuki.bcu.androidutil.fakeandroid.FIBM
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.supports.DynamicListView
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
@@ -182,6 +183,14 @@ class ImgCutEditor : AppCompatActivity() {
 
             val viewer = SpriteView(this@ImgCutEditor, anim).apply {
                 layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                postMove = fun(sav : String) {
+                    if (sav.isBlank()) {
+                        val list = this@ImgCutEditor.findViewById<DynamicListView>(R.id.imgcutvalList)
+                        if (list.size > sele)
+                            (list[sele].tag as ImgcutListAdapter.ViewHolder).setData(anim.imgcut.cuts[sele])
+                    } else
+                        unSave(anim, sav)
+                }
             }
             viewer.id = R.id.spriteView
             layout.addView(viewer)
@@ -192,7 +201,7 @@ class ImgCutEditor : AppCompatActivity() {
             addl.setOnClickListener {
                 anim.imgcut.addLine(-1)
                 refreshAdapter(anim)
-                anim.unSave("imgcut add line")
+                unSave(anim, "imgcut add line")
                 viewer.invalidate()
             }
             impr.setOnClickListener {
@@ -201,7 +210,7 @@ class ImgCutEditor : AppCompatActivity() {
                         return
                     anim.imgcut = f
                     refreshAdapter(anim)
-                    anim.unSave("Import imgcut")
+                    unSave(anim,"Import imgcut")
                     viewer.invalidate()
                 })
             }
@@ -215,6 +224,37 @@ class ImgCutEditor : AppCompatActivity() {
                     viewer.calculateSize(true)
                 })
             }
+
+            val undo = findViewById<FloatingActionButton>(R.id.anim_Undo)
+            val redo = findViewById<FloatingActionButton>(R.id.anim_Redo)
+            undo.setOnClickListener {
+                anim.undo()
+                undo.visibility = if (anim.undo == "initial")
+                    View.GONE
+                else
+                    View.VISIBLE
+                redo.visibility = View.VISIBLE
+                refreshAdapter(anim)
+                viewer.invalidate()
+            }
+            redo.setOnClickListener {
+                anim.redo()
+                redo.visibility = if (anim.getRedo() == "nothing")
+                    View.GONE
+                else
+                    View.VISIBLE
+                undo.visibility = View.VISIBLE
+                refreshAdapter(anim)
+                viewer.invalidate()
+            }
+            undo.visibility = if (anim.undo == "initial")
+                View.GONE
+            else
+                View.VISIBLE
+            redo.visibility = if (anim.getRedo() == "nothing")
+                View.GONE
+            else
+                View.VISIBLE
 
             val bck = findViewById<Button>(R.id.imgcutexit)
             bck.setOnClickListener {
@@ -252,13 +292,37 @@ class ImgCutEditor : AppCompatActivity() {
         }
     }
 
-    fun spriteMoved(ic : IntArray, i : Int) {
-        (findViewById<ListView>(R.id.imgcutvalList)[i].tag as ImgcutListAdapter.ViewHolder).setData(ic)
-    }
-
     fun refreshAdapter(anim : AnimCE) {
-        val list = findViewById<ListView>(R.id.imgcutvalList)
+        val list = findViewById<DynamicListView>(R.id.imgcutvalList)
         list.adapter = ImgcutListAdapter(this, anim)
+        list.setSwapListener { from, to ->
+            val s = anim.imgcut.strs
+            val tempe = s[from]
+            s[from] = s[to]
+            s[to] = tempe
+
+            val c = anim.imgcut.cuts
+            val temp = c[from]
+            c[from] = c[to]
+            c[to] = temp
+            for (p in anim.mamodel.parts) {
+                if (p[2] == from)
+                    p[2] = to
+                else if (p[2] == to)
+                    p[2] = from
+            }
+            for (ma in anim.anims)
+                for (pt in ma.parts)
+                    if (pt.ints[1] == 2)
+                        for (mov in pt.moves) {
+                            if (mov[1] == from)
+                                mov[1] = to
+                            else if (mov[1] == to)
+                                mov[1] = from
+                        }
+            unSave(anim,"imgcut sort")
+            //findViewById<SpriteView>(R.id.spriteView).sele = -1
+        }
     }
 
     private fun getImport(func: (f: Any) -> Unit) {
@@ -269,5 +333,14 @@ class ImgCutEditor : AppCompatActivity() {
 
         tempFunc = func
         resultLauncher.launch(Intent.createChooser(intent, "Choose Directory"))
+    }
+
+    fun unSave(a : AnimCE, str : String) {
+        a.unSave(str)
+
+        val undo = findViewById<FloatingActionButton>(R.id.anim_Undo)
+        val redo = findViewById<FloatingActionButton>(R.id.anim_Redo)
+        undo.visibility = View.VISIBLE
+        redo.visibility = View.GONE
     }
 }
