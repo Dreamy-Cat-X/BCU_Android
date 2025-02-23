@@ -3,13 +3,12 @@
 package com.yumetsuki.bcu.androidutil
 
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
-import java.util.*
+import java.util.Locale
 
 object LocaleManager {
     @SuppressLint("ObsoleteSdkInt")
@@ -60,7 +59,6 @@ object LocaleManager {
         config.locale = loc
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
     fun setSystemLocale(config: Configuration, loc: Locale) {
         config.setLocale(loc)
     }

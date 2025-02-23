@@ -56,23 +56,6 @@ class ErrorLogWriter(private val path: String?) : Thread.UncaughtExceptionHandle
     }
 
     companion object {
-        fun generateMessage(msg: String, obj: Any?) : String {
-            val result = StringBuilder(msg)
-
-            when (obj) {
-                is Array<*> -> {
-                    result.append(obj.contentDeepToString())
-                }
-                is IntArray -> {
-                    result.append(obj.contentToString())
-                }
-                null -> {
-                    result.append("null")
-                }
-            }
-
-            return result.toString()
-        }
 
         fun writeDriveLog(e: Exception) {
             try {

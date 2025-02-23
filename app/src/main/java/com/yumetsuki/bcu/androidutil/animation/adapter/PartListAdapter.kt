@@ -59,18 +59,21 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
         }
         val pa = p.moves[position]
         holder.iea.setPopupBackgroundResource(R.drawable.spinner_popup)
-        holder.iea.setBackgroundResource(androidx.appcompat.R.drawable.abc_spinner_mtrl_am_alpha)
         holder.iea.adapter = ArrayAdapter(activity, R.layout.spinneradapter, eases)
         holder.setData(pa)
 
         val voo = activity.findViewById<AnimationEditView>(R.id.animationView)
         holder.ifr.doAfterTextChanged {
+            if (!holder.ifr.hasFocus())
+                return@doAfterTextChanged
             pa[0] = CommonStatic.parseIntN(holder.ifr.text.toString())
             p.check(a)
             activity.unSave(a,"maanim change part move $position frame")
             voo.animationChanged()
         }
         holder.idat.doAfterTextChanged {
+            if (!holder.idat.hasFocus())
+                return@doAfterTextChanged
             pa[1] = CommonStatic.parseIntN(holder.idat.text.toString())
             p.check(a)
             activity.unSave(a,"maanim change part move $position effect")
@@ -78,6 +81,8 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
         }
         holder.iea.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
+                if (pa[2] == position)
+                    return
                 pa[2] = position
                 p.check(a)
                 activity.unSave(a,"maanim change part move $position easing")
@@ -90,6 +95,8 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
         holder.ipa.doAfterTextChanged {
+            if (!holder.ipa.hasFocus())
+                return@doAfterTextChanged
             pa[3] = CommonStatic.parseIntN(holder.ipa.text.toString())
             p.check(a)
             activity.unSave(a,"maanim change part move $position effect")

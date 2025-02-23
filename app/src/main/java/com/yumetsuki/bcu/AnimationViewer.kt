@@ -155,7 +155,7 @@ class AnimationViewer : AppCompatActivity() {
                             getString(R.string.pack_default)
                         }
                         is PackData.UserPack -> {
-                            StaticStore.getPackName(pack.desc.id)
+                            StaticStore.getPackName(pack.sid)
                         }
                         else -> {
                             ""

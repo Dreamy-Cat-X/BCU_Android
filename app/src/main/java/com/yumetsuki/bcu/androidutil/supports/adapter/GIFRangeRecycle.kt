@@ -9,8 +9,9 @@ import com.google.android.material.slider.RangeSlider
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticJava
-import com.yumetsuki.bcu.androidutil.animation.AnimationCView
+import com.yumetsuki.bcu.androidutil.animation.AnimationCView.AnimationType
 import common.pack.Identifier
+import common.util.anim.AnimCE
 import common.util.anim.EAnimD
 import common.util.pack.DemonSoul
 import common.util.pack.EffAnim
@@ -19,7 +20,7 @@ import common.util.pack.Soul
 import common.util.unit.Enemy
 import common.util.unit.Unit
 
-class GIFRangeRecycle(private val name: ArrayList<String>, private val ac: Activity, private val type: AnimationCView.AnimationType, private val content: Any, form: Int) : RecyclerView.Adapter<GIFRangeRecycle.ViewHolder>() {
+class GIFRangeRecycle(private val name: ArrayList<String>, private val ac: Activity, private val type: AnimationType, private val content: Any, form: Int) : RecyclerView.Adapter<GIFRangeRecycle.ViewHolder>() {
     private val data = ArrayList<Array<Int>>()
     private val enables = Array(name.size) {
         true
@@ -39,7 +40,7 @@ class GIFRangeRecycle(private val name: ArrayList<String>, private val ac: Activ
             })
         }
 
-        this.form = if (type == AnimationCView.AnimationType.UNIT) {
+        this.form = if (type == AnimationType.UNIT) {
             form
         } else {
             -1
@@ -106,7 +107,7 @@ class GIFRangeRecycle(private val name: ArrayList<String>, private val ac: Activ
 
     private fun getEAnimD(ind: Int) : EAnimD<*> {
         when(type) {
-            AnimationCView.AnimationType.UNIT -> {
+            AnimationType.UNIT -> {
                 if(content !is Identifier<*>)
                     throw IllegalStateException("Invalid content ${content::class.java.name} with type $type")
 
@@ -117,7 +118,7 @@ class GIFRangeRecycle(private val name: ArrayList<String>, private val ac: Activ
 
                 return StaticJava.generateEAnimD(content, form, ind)
             }
-            AnimationCView.AnimationType.ENEMY -> {
+            AnimationType.ENEMY -> {
                 if(content !is Identifier<*>)
                     throw IllegalStateException("Invalid content ${content::class.java.name} with type $type")
 
@@ -128,28 +129,33 @@ class GIFRangeRecycle(private val name: ArrayList<String>, private val ac: Activ
 
                 return StaticJava.generateEAnimD(content, -1, ind)
             }
-            AnimationCView.AnimationType.EFFECT -> {
+            AnimationType.EFFECT -> {
                 if(content !is EffAnim<*>)
                     throw IllegalStateException("Invalid content ${content::class.java.name} with type $type")
 
                 return StaticJava.generateEAnimD(content, -1, ind)
             }
-            AnimationCView.AnimationType.SOUL -> {
+            AnimationType.SOUL -> {
                 if(content !is Soul)
                     throw IllegalStateException("Invalid content ${content::class.java.name} with type $type")
 
                 return StaticJava.generateEAnimD(content, -1, ind)
             }
-            AnimationCView.AnimationType.CANNON -> {
+            AnimationType.CANNON -> {
                 if(content !is NyCastle)
                     throw IllegalStateException("Invalid content ${content::class.java.name} with type $type")
 
                 return StaticJava.generateEAnimD(content, -1, ind)
             }
-            AnimationCView.AnimationType.DEMON_SOUL -> {
+            AnimationType.DEMON_SOUL -> {
                 if(content !is DemonSoul)
                     throw IllegalStateException("Invalid content ${content::class.java.name} with type $type")
 
+                return StaticJava.generateEAnimD(content, -1, ind)
+            }
+            AnimationType.CUSTOM -> {
+                if(content !is AnimCE)
+                    throw IllegalStateException("Invalid data type : ${data::class.java.name} in AnimationCView with type $type")
                 return StaticJava.generateEAnimD(content, -1, ind)
             }
             else -> {

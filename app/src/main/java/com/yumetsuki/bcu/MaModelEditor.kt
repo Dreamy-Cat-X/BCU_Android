@@ -13,15 +13,18 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.View.OnTouchListener
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.ListView
 import android.widget.RelativeLayout
+import android.widget.Spinner
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.get
+import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionValues
@@ -44,11 +47,14 @@ import common.pack.Source.ResourceLocation
 import common.pack.UserProfile
 import common.system.P
 import common.system.files.FDFile
+import common.system.files.VFile
 import common.util.anim.AnimCE
 import common.util.anim.MaModel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -57,7 +63,8 @@ import kotlin.math.sin
 class MaModelEditor : AppCompatActivity() {
 
     companion object {
-        var tempFunc : ((input: MaModel) -> Unit)? = null
+        private var tempFunc : ((input: MaModel) -> Unit)? = null
+        private var tempFile : VFile? = null
     }
 
     val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -97,7 +104,58 @@ class MaModelEditor : AppCompatActivity() {
             }
         }
     }
-    var movePivot = false
+    private val exportLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if(result.resultCode == RESULT_OK) {
+            val data = result.data
+
+            if(data != null) {
+                val file = tempFile
+                val uri = data.data
+
+                if(uri == null || file == null) {
+                    StaticStore.showShortMessage(this, getString(R.string.file_extract_cant))
+                } else {
+                    val pfd = contentResolver.openFileDescriptor(uri, "w")
+
+                    if(pfd != null) {
+                        val fos = FileOutputStream(pfd.fileDescriptor)
+                        val ins = file.data.stream
+
+                        val b = ByteArray(65536)
+                        var len: Int
+                        while(ins.read(b).also { len = it } != -1)
+                            fos.write(b, 0, len)
+
+                        ins.close()
+                        fos.close()
+
+                        val path = uri.path
+                        if(path == null) {
+                            StaticStore.showShortMessage(this, getString(R.string.file_extract_semi).replace("_",file.name))
+                            return@registerForActivityResult
+                        }
+
+                        val f = File(path)
+                        if(f.absolutePath.contains(":")) {
+                            val p = f.absolutePath.split(":")[1]
+                            StaticStore.showShortMessage(this,
+                                getString(R.string.file_extract_success).replace("_", file.name)
+                                    .replace("-", p))
+                        } else
+                            StaticStore.showShortMessage(this, getString(R.string.file_extract_semi).replace("_",file.name))
+                    } else
+                        StaticStore.showShortMessage(this, getString(R.string.file_extract_cant))
+                }
+            }
+        }
+    }
+    enum class MOVEMODE {
+        NONE,
+        POSITION,
+        PIVOT,
+        ANGLE
+    }
+    var move = MOVEMODE.POSITION
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,6 +189,15 @@ class MaModelEditor : AppCompatActivity() {
             val cfgBtn = findViewById<FloatingActionButton>(R.id.mamodelCfgDisplay)
             val cfgMenu = findViewById<RelativeLayout>(R.id.mamodelMenu)
             val cfgHideBtn = findViewById<FloatingActionButton>(R.id.mamodelCfgHide)
+            val modeSel = findViewById<Spinner>(R.id.mamodelmode)
+            modeSel.adapter = ArrayAdapter(this@MaModelEditor, R.layout.spinneradapter, MOVEMODE.values())
+            modeSel.setSelection(1)
+            modeSel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    move = modeSel.adapter.getItem(position) as MOVEMODE
+                }
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
 
             StaticStore.setDisappear(cfgBtn, layout)
 
@@ -205,48 +272,53 @@ class MaModelEditor : AppCompatActivity() {
                     if (event.action == MotionEvent.ACTION_DOWN) {
                         scaleListener.updateScale = true
                         spriteSelected = false
-                        /*if (viewer.anim.sele != -1) {
-                            val mo = anim.mamodel.parts[viewer.anim.sele]
-                            val sx = -viewer.pos.x + (cut[0] * viewer.size - 1)
-                            val sy = -viewer.pos.y + (cut[1] * viewer.size - 1)
-                            val sw = sx + (cut[2] * viewer.size + 2)
-                            val sh = sy + (cut[3] * viewer.size + 2)
-                            if (!(x in sx..sw && y in sy..sh))
-                                viewer.anim.sele = -1
-                        } else {
-                            val mo = anim.mamodel
-                            for (i in 0 until mo.n) {
-                                val cut = mo.parts[i]
-                                val sx = -viewer.pos.x + (cut[0] * viewer.size - 1)
-                                val sy = -viewer.pos.y + (cut[1] * viewer.size - 1)
-                                val sw = sx + (cut[2] * viewer.size + 2)
-                                val sh = sy + (cut[3] * viewer.size + 2)
-
-                                if (x in sx..sw && y in sy..sh) {
-                                    viewer.anim.sele = i
-                                    spriteSelected = true
+                        if (move != MOVEMODE.NONE) {
+                            if (viewer.anim.sele != -1) {
+                                val r = viewer.getPartRect(viewer.anim.sele)
+                                if (!r.inBox(x, y)) {
+                                    viewer.anim.sele = -1
                                     viewer.invalidate()
-                                    break
+                                }
+                            } else {
+                                val mo = anim.mamodel
+                                for (i in 0 until mo.n) {
+                                    val r = viewer.getPartRect(i)
+                                    if (r.inBox(x, y)) {
+                                        viewer.anim.sele = i
+                                        spriteSelected = true
+                                        viewer.invalidate()
+                                        break
+                                    }
                                 }
                             }
-                        }*/
+                        }
                     } else if (event.action == MotionEvent.ACTION_MOVE) {
                         if (event.pointerCount == 1 && id == preid) {
                             var dx = x - preX
                             var dy = y - preY
 
-                            if (viewer.anim.sele == -1) {
+                            if (move == MOVEMODE.NONE || viewer.anim.sele == -1) {
                                 viewer.pos.x += dx
                                 viewer.pos.y += dy
                                 if (dx != 0f || dy != 0f)
                                     viewer.invalidate()
+                            } else if (move == MOVEMODE.ANGLE) {
+                                val part = anim.mamodel.parts[viewer.anim.sele]
+                                val ps = viewer.getPartPos(viewer.anim.sele)
+                                val sB = atan2(preY - ps.y, preX - ps.x)
+                                val sA = atan2(y - ps.y, x - ps.x)
+                                part[10] += ((sA - sB) * 1800 / Math.PI).toInt()
+                                part[10] %= 3600
+                                partMoved(anim.mamodel.parts[viewer.anim.sele], viewer.anim.sele)
+                                viewer.animationChanged()
                             } else {
                                 val mo = anim.mamodel
-                                val scale: P = realScale(mo.parts, mo.parts[viewer.anim.sele], !movePivot)
+                                val movePivot = move == MOVEMODE.PIVOT
+                                val scale: P = viewer.realScale(mo.parts, mo.parts[viewer.anim.sele], !movePivot)
                                 dx /= viewer.size / scale.x
                                 dy /= viewer.size / scale.y
 
-                                val angle: Double = getAngle(mo.parts, mo.parts[viewer.anim.sele], !movePivot) / 1800.0 * Math.PI
+                                val angle: Double = viewer.getAngle(mo.parts, mo.parts[viewer.anim.sele], !movePivot) / 1800.0 * Math.PI
                                 val sin = sin(angle)
                                 val cos = cos(angle)
                                 if (!movePivot || viewer.anim.sele == 0) {
@@ -265,27 +337,24 @@ class MaModelEditor : AppCompatActivity() {
                     } else if (event.action == MotionEvent.ACTION_UP) {
                         if (partMoved) {
                             partMoved = false
-                            unSave(anim,"mamodel move part ${viewer.anim.sele}")
-                        }/* else if (!spriteSelected) {
+                            unSave(anim, "mamodel move part ${viewer.anim.sele}")
+                        } else if (move == MOVEMODE.ANGLE) {
+                            unSave(anim, "mamodel rotate part ${viewer.anim.sele}")
+                        } else if (!spriteSelected) {
                             var selected = -1
-                            val ic = anim.imgcut
-                            for (i in 0 until ic.n) {
-                                if (sele == i)
+                            val mo = anim.mamodel
+                            for (i in 0 until mo.n) {
+                                if (viewer.anim.sele == i)
                                     continue
-                                val cut = ic.cuts[i]
-                                val sx = -pos.x + (cut[0] * zoom - 1)
-                                val sy = -pos.y + (cut[1] * zoom - 1)
-                                val sw = sx + (cut[2] * zoom + 2)
-                                val sh = sy + (cut[3] * zoom + 2)
-
-                                if (x in sx..sw && y in sy..sh) {
+                                val r = viewer.getPartRect(i)
+                                if (r.inBox(x, y)) {
                                     selected = i
                                     break
                                 }
                             }
-                            sele = selected
-                            limit()
-                        }*/else if (viewer.anim.sele != -1 && scaleListener.scaled())
+                            viewer.anim.sele = selected
+                            viewer.invalidate()
+                        } else if (move != MOVEMODE.NONE && viewer.anim.sele != -1 && scaleListener.scaled())
                             unSave(anim,"mamodel scale part ${viewer.anim.sele}")
                     }
 
@@ -320,6 +389,16 @@ class MaModelEditor : AppCompatActivity() {
                     viewer.animationChanged()
                 }
                 resultLauncher.launch(Intent.createChooser(intent, "Choose Directory"))
+            }
+            val expr = findViewById<Button>(R.id.mamodelexport)
+            expr.setOnClickListener {
+                anim.save()
+                tempFile = VFile.getFile(CommonStatic.ctx.getWorkspaceFile(anim.id.path.substring(1) + "/mamodel.txt"))
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .setType("*/*")
+                intent.putExtra(Intent.EXTRA_TITLE, tempFile?.name ?: "")
+                exportLauncher.launch(intent)
             }
 
             val undo = findViewById<FloatingActionButton>(R.id.anim_Undo)
@@ -356,8 +435,6 @@ class MaModelEditor : AppCompatActivity() {
             val bck = findViewById<Button>(R.id.mamodelexit)
             bck.setOnClickListener {
                 anim.save()
-                val intent = Intent(this@MaModelEditor, AnimationManagement::class.java)
-                startActivity(intent)
                 finish()
             }
             onBackPressedDispatcher.addCallback(this@MaModelEditor, object : OnBackPressedCallback(true) {
@@ -384,18 +461,30 @@ class MaModelEditor : AppCompatActivity() {
                 startActivity(intent)
                 finish()
             }
+            val viewBtn = findViewById<Button>(R.id.mamo_view_anim)
+            viewBtn.setOnClickListener {
+                anim.save()
+                val intent = Intent(this@MaModelEditor, ImageViewer::class.java)
+                intent.putExtra("Data", JsonEncoder.encode(anim.id).toString())
+                intent.putExtra("Img", ImageViewer.ViewerType.CUSTOM.name)
+
+                startActivity(intent)
+            }
 
             StaticStore.setAppear(cfgBtn, layout)
         }
     }
 
     fun partMoved(mo : IntArray, i : Int) {
-        (findViewById<DynamicListView>(R.id.mamodelvalList)[i].tag as MaModelListAdapter.ViewHolder).setData(mo)
+        val list = findViewById<DynamicListView>(R.id.mamodelvalList)
+        if (list.size > i)
+            (list[i].tag as MaModelListAdapter.ViewHolder).setData(mo)
     }
 
     fun refreshAdapter(anim : AnimCE) {
         val list = findViewById<DynamicListView>(R.id.mamodelvalList)
         list.adapter = MaModelListAdapter(this, anim)
+        val view = findViewById<AnimationEditView>(R.id.animationView)
         list.setSwapListener { from, to ->
             val s = anim.mamodel.strs0
             val tempe = s[from]
@@ -414,24 +503,8 @@ class MaModelEditor : AppCompatActivity() {
                         pt.ints[0] = from
                 }
             unSave(anim,"mamodel sort")
+            view.animationChanged()
         }
-    }
-
-    private fun realScale(parts : Array<IntArray>, part: IntArray, ignoreFirst: Boolean): P {
-        val scale = if (ignoreFirst)
-            P(1f, 1f)
-        else
-            P(part[8] / 1000f, part[9] / 1000f)
-        if (part[0] != -1)
-            scale.times(realScale(parts, parts[part[0]], false))
-        return scale
-    }
-
-    private fun getAngle(parts : Array<IntArray>, part: IntArray, ignoreDef: Boolean): Int {
-        var a = if (ignoreDef) 0 else part[10]
-        if (part[0] != -1)
-            a += getAngle(parts, parts[part[0]], false)
-        return a
     }
 
     fun unSave(a : AnimCE, str : String) {
@@ -444,7 +517,6 @@ class MaModelEditor : AppCompatActivity() {
     }
 
     inner class ScaleListener(private val cView : AnimationEditView, private val anim : AnimCE) : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-        val model = cView.context as MaModelEditor
         var updateScale = false
 
         private var realFX = 0f
@@ -456,7 +528,7 @@ class MaModelEditor : AppCompatActivity() {
         private var previousScale = 0f
 
         override fun onScale(detector: ScaleGestureDetector): Boolean {
-            if (cView.anim.sele != -1) {
+            if (move != MOVEMODE.NONE && cView.anim.sele != -1) {
                 val mo = anim.mamodel
                 mo.parts[cView.anim.sele][9] = (mo.parts[cView.anim.sele][9] * detector.scaleFactor).toInt()
                 mo.parts[cView.anim.sele][10] = (mo.parts[cView.anim.sele][10] * detector.scaleFactor).toInt()
@@ -473,7 +545,7 @@ class MaModelEditor : AppCompatActivity() {
 
         override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
             if (updateScale) {
-                if (cView.anim.sele != -1) {
+                if (move != MOVEMODE.NONE && cView.anim.sele != -1) {
                     val model = anim.mamodel.parts[cView.anim.sele]
                     realFX = model[9].toFloat()
                     realFY = model[10].toFloat()

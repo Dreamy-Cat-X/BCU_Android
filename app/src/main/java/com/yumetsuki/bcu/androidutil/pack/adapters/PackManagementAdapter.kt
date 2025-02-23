@@ -66,7 +66,7 @@ class PackManagementAdapter(private val ac: Activity, private val pList: ArrayLi
         } else p.sid + " [${p.desc.author}]"
 
         holder.id.text = title
-        holder.name.text = StaticStore.getPackName(p.sid)
+        holder.name.text = p.desc.names.toString().ifBlank { p.sid }
         if (p.icon == null)
             holder.icn.visibility = View.GONE
         else

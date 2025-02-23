@@ -69,7 +69,7 @@ import kotlin.math.ln
 object StaticStore {
     //System & IO variables
     /**Version of Application */
-    const val VER = "0.20.07"
+    const val VER = "0.20.08"
 
     /**Locale codes list */
     val lang = arrayOf("", "en", "zh", "ko", "ja", "ru", "de", "fr", "nl", "es", "it", "th")
@@ -144,9 +144,9 @@ object StaticStore {
     /** img15.png's parts  */
     var img15: Array<FakeImage>? = null
     /** Search filter format indexing */
-    val SF_NAME = 0
-    val SF_TYPE = 1
-    val SF_PROC = 2
+    const val SF_NAME = 0
+    const val SF_TYPE = 1
+    const val SF_PROC = 2
     /** imgcut index list of miscellaneous icons. Respectively belonging to Strong vs, Resist, Insane Res, Massive dmg, Insane dmg, And the rest to resistances.
      * @see Interpret.immune */
     val siinds = intArrayOf(203, 204, 122, 206, 114, 218, 43, 45, 47, 49, 51, 53, 109, 235, 241)
@@ -1097,20 +1097,14 @@ object StaticStore {
 
     /**
      * Get pack name from specified pack id
-     *
      * @param id ID of pack
-     *
      * @return If app can't find pack name with offered ID, it will return [id]
      */
     fun getPackName(id: String): String {
         return if (id == Identifier.DEF) {
             Identifier.DEF
-        } else if (UserProfile.getUserPack(id)?.desc?.names.toString().isNotEmpty()) {
-            var n = UserProfile.getUserPack(id)?.desc?.names.toString()
-
-            if(n.isBlank())
-                n = id
-            n
+        } else if (UserProfile.getUserPack(id)?.desc?.names.toString().isNotBlank()) {
+            UserProfile.getUserPack(id)?.desc?.names.toString()
         } else id
     }
 

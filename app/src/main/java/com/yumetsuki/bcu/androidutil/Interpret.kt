@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore.isEnglish
-import common.battle.data.MaskAtk
 import common.battle.data.MaskEntity
 import common.pack.SortedPackSet
 import common.util.Data

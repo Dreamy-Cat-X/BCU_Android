@@ -115,7 +115,6 @@ class AnimationListAdapter(private val activity: AnimationManagement, private va
 
                     dialog.setPositiveButton(R.string.remove) { _, _ ->
                         a.delete()
-                        activity.reloadAnimations()
 
                         notifyDataSetChanged()
                         StaticStore.showShortMessage(context, R.string.anim_manager_deleted)
@@ -141,21 +140,18 @@ class AnimationListAdapter(private val activity: AnimationManagement, private va
             intent.putExtra("Data", JsonEncoder.encode(a.id).toString())
 
             activity.startActivity(intent)
-            activity.finish()
         }
         holder.mamo.setOnClickListener {
             val intent = Intent(context, MaModelEditor::class.java)
             intent.putExtra("Data", JsonEncoder.encode(a.id).toString())
 
             activity.startActivity(intent)
-            activity.finish()
         }
         holder.maan.setOnClickListener {
             val intent = Intent(context, MaAnimEditor::class.java)
             intent.putExtra("Data", JsonEncoder.encode(a.id).toString())
 
             activity.startActivity(intent)
-            activity.finish()
         }
 
         holder.more.setOnClickListener(object : SingleClick() {

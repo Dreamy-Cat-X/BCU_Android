@@ -1107,4 +1107,8 @@
     <string name="anim_option_copyanim" translatable="false">Copy Animation</string>
     <string name="img_anim_spr_cop" translatable="false">Copying Animation</string>
     <string name="img_anim_spr_suc" translatable="false">Successfully Copied</string>
+    <string name="main_cus_pack" translatable="false">Pack Creator</string>
+    <string name="mapart_pid" translatable="false">Part ID</string>
+    <string name="mapart_mod" translatable="false">Modification</string>
+    <string name="mapart_lop" translatable="false">Loop</string>
 </resources>

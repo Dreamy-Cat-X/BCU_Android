@@ -5,15 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Spinner
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.MaModelEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
-import com.yumetsuki.bcu.androidutil.animation.adapter.ImgcutListAdapter.ViewHolder
 import com.yumetsuki.bcu.androidutil.supports.DynamicListView.StableArrayAdapter
 import common.CommonStatic
 import common.util.anim.AnimCE
@@ -24,6 +25,9 @@ import kotlin.math.max
 
 class MaModelListAdapter(private val activity: MaModelEditor, private val a : AnimCE) : StableArrayAdapter<IntArray>(activity, R.layout.mamodel_list_layout, a.mamodel.parts) {
 
+    companion object {
+        val glows = arrayOf("-1 - Substract", "0 - None", "1 - Add", "2 - Multiply", "3 - Screen")
+    }
     internal class ViewHolder(row: View) {
         val iid: Button = row.findViewById(R.id.mamodel_id)
         val ipar: EditText = row.findViewById(R.id.mamodel_par)
@@ -37,7 +41,7 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
         val isy: EditText = row.findViewById(R.id.mamodel_sy)
         val irot: EditText = row.findViewById(R.id.mamodel_rot)
         val iopa: EditText = row.findViewById(R.id.mamodel_opa)
-        val iglw: EditText = row.findViewById(R.id.mamodel_glw)
+        val iglw: Spinner = row.findViewById(R.id.mamodel_glw)
         val iname: EditText = row.findViewById(R.id.mamodel_name)
         val del: FloatingActionButton = row.findViewById(R.id.mamodel_part_delete)
 
@@ -53,7 +57,7 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
             isy.text = SpannableStringBuilder(ic[9].toString())
             irot.text = SpannableStringBuilder(ic[10].toString())
             iopa.text = SpannableStringBuilder(ic[11].toString())
-            iglw.text = SpannableStringBuilder(ic[12].toString())
+            iglw.setSelection(ic[12] + 1)
         }
     }
 
@@ -72,6 +76,8 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
         }
 
         val mo = a.mamodel.parts[position]
+        holder.iglw.setPopupBackgroundResource(R.drawable.spinner_popup)
+        holder.iglw.adapter = ArrayAdapter(activity, R.layout.spinneradapter, glows)
         holder.iid.text = position.toString()
 
         holder.setData(mo)
@@ -111,64 +117,67 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
             if (!holder.ix.hasFocus())
                 return@doAfterTextChanged
             mo[4] = CommonStatic.parseIntN(holder.ix.text.toString())
-            activity.unSave(a,"imgcut change $position x")
+            activity.unSave(a,"mamodel change $position x")
             voo.animationChanged()
         }
         holder.iy.doAfterTextChanged {
             if (!holder.iy.hasFocus())
                 return@doAfterTextChanged
             mo[5] = CommonStatic.parseIntN(holder.iy.text.toString())
-            activity.unSave(a,"imgcut change $position y")
+            activity.unSave(a,"mamodel change $position y")
             voo.animationChanged()
         }
         holder.ipx.doAfterTextChanged {
             if (!holder.ipx.hasFocus())
                 return@doAfterTextChanged
             mo[6] = CommonStatic.parseIntN(holder.ipx.text.toString())
-            activity.unSave(a,"imgcut change $position pivot x")
+            activity.unSave(a,"mamodel change $position pivot x")
             voo.animationChanged()
         }
         holder.ipy.doAfterTextChanged {
             if (!holder.ipy.hasFocus())
                 return@doAfterTextChanged
             mo[7] = CommonStatic.parseIntN(holder.ipy.text.toString())
-            activity.unSave(a,"imgcut change $position pivot y")
+            activity.unSave(a,"mamodel change $position pivot y")
             voo.animationChanged()
         }
         holder.isx.doAfterTextChanged {
             if (!holder.isx.hasFocus())
                 return@doAfterTextChanged
             mo[8] = CommonStatic.parseIntN(holder.isx.text.toString())
-            activity.unSave(a,"imgcut change $position scale x")
+            activity.unSave(a,"mamodel change $position scale x")
             voo.animationChanged()
         }
         holder.isy.doAfterTextChanged {
             if (!holder.isy.hasFocus())
                 return@doAfterTextChanged
             mo[9] = CommonStatic.parseIntN(holder.isy.text.toString())
-            activity.unSave(a,"imgcut change $position scale y")
+            activity.unSave(a,"mamodel change $position scale y")
             voo.animationChanged()
         }
         holder.irot.doAfterTextChanged {
             if (!holder.irot.hasFocus())
                 return@doAfterTextChanged
             mo[10] = CommonStatic.parseIntN(holder.irot.text.toString())
-            activity.unSave(a,"imgcut change $position angle")
+            activity.unSave(a,"mamodel change $position angle")
             voo.animationChanged()
         }
         holder.iopa.doAfterTextChanged {
             if (!holder.iopa.hasFocus())
                 return@doAfterTextChanged
             mo[11] = max(0, CommonStatic.parseIntN(holder.iopa.text.toString()))
-            activity.unSave(a,"imgcut change $position opacity")
+            activity.unSave(a,"mamodel change $position opacity")
             voo.animationChanged()
         }
-        holder.iglw.doAfterTextChanged {
-            if (!holder.iglw.hasFocus())
-                return@doAfterTextChanged
-            mo[12] = MathUtil.clip(CommonStatic.parseIntN(holder.iglw.text.toString()), -1, 3)
-            activity.unSave(a,"imgcut change $position glow")
-            voo.animationChanged()
+        holder.iglw.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
+                if (mo[12] == position - 1)
+                    return
+                mo[12] = position - 1
+                activity.unSave(a,"mamodel change $position glow")
+                voo.animationChanged()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
         holder.iid.setOnClickListener {
             voo.anim.sele = if (voo.anim.sele == position) -1 else position

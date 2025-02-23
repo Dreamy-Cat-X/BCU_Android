@@ -62,8 +62,10 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
                         val sy = -pos.y + (cut[1] * zoom - 1)
                         val sw = sx + (cut[2] * zoom + 2)
                         val sh = sy + (cut[3] * zoom + 2)
-                        if (!(x in sx..sw && y in sy..sh))
+                        if (!(x in sx..sw && y in sy..sh)) {
                             sele = -1
+                            limit()
+                        }
                     } else {
                         val ic = anim.imgcut
                         for (i in 0 until ic.n) {

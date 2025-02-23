@@ -4,6 +4,7 @@ import common.battle.data.MaskAtk;
 import common.battle.data.MaskEntity;
 import common.pack.Identifier;
 import common.pack.UserProfile;
+import common.util.anim.AnimCI;
 import common.util.anim.AnimU;
 import common.util.anim.EAnimD;
 import common.util.pack.DemonSoul;
@@ -18,7 +19,10 @@ public class StaticJava {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static EAnimD<?> generateEAnimD(Object data, int form, int dataId) {
         try {
-            if(data instanceof EffAnim<?>) {
+            if (data instanceof AnimCI) {
+                AnimCI d = (AnimCI)data;
+                return d.getEAnim(d.types()[dataId]);
+            } else if(data instanceof EffAnim<?>) {
                 ((EffAnim<?>) data).load();
 
                 return new EAnimD((EffAnim<?>) data, ((EffAnim<?>) data).mamodel, ((EffAnim<?>) data).anims[dataId], ((EffAnim<?>) data).types[dataId]);

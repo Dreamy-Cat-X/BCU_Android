@@ -102,11 +102,8 @@ class ImageViewer : AppCompatActivity() {
         EFFECT,
         SOUL,
         CANNON,
-        DEMON_SOUL
-    }
-
-    companion object {
-        private val animationTypeText = intArrayOf(R.string.anim_move, R.string.anim_wait, R.string.anim_atk, R.string.anim_kb, R.string.anim_burrow, R.string.anim_under, R.string.anim_burrowup, R.string.anim_entry, R.string.anim_retreat)
+        DEMON_SOUL,
+        CUSTOM
     }
 
     private val skyUpper = 0
@@ -369,6 +366,7 @@ class ImageViewer : AppCompatActivity() {
                         ViewerType.SOUL -> AnimationCView.AnimationType.SOUL
                         ViewerType.CANNON -> AnimationCView.AnimationType.CANNON
                         ViewerType.DEMON_SOUL -> AnimationCView.AnimationType.DEMON_SOUL
+                        ViewerType.CUSTOM -> AnimationCView.AnimationType.CUSTOM
                         else -> throw IllegalStateException("Invalid unreachable type $img found")
                     }
 
@@ -390,6 +388,16 @@ class ImageViewer : AppCompatActivity() {
                         }
                         AnimationCView.AnimationType.DEMON_SOUL -> {
                             CommonStatic.getBCAssets().demonSouls[index]
+                        }
+                        AnimationCView.AnimationType.CUSTOM -> {
+                            val res = JsonDecoder.decode(JsonParser.parseString(extra.getString("Data")), ResourceLocation::class.java) ?: return@launch
+                            val a = if (res.pack == ResourceLocation.LOCAL)
+                                AnimCE.map()[res.id]
+                            else
+                                UserProfile.getUserPack(res.pack)?.source?.loadAnimation(res.id, res.base)
+                            if (a == null)
+                                return@launch
+                            a
                         }
                     }
 
@@ -679,6 +687,7 @@ class ImageViewer : AppCompatActivity() {
                                     is Soul -> "${dateFormat.format(date)}-S-Default-${StaticStore.trio(index)}"
                                     is NyCastle -> "${dateFormat.format(date)}-C-Default-${StaticStore.trio(index)}"
                                     is DemonSoul -> "${dateFormat.format(date)}-DS-Default-${StaticStore.trio(index)}"
+                                    is AnimCE -> "${dateFormat.format(date)}-A-Default-${StaticStore.trio(index)}"
                                     else -> throw IllegalStateException("E/ImageViewer::onCreate - Invalid content type : ${content::class.java.name}")
                                 }
 
@@ -725,7 +734,8 @@ class ImageViewer : AppCompatActivity() {
                                     is EffAnim<*> -> "${dateFormat.format(date)}-EFF-Trans-Default-${StaticStore.trio(index)}"
                                     is Soul -> "${dateFormat.format(date)}-S-Trans-Default-${StaticStore.trio(index)}"
                                     is NyCastle -> "${dateFormat.format(date)}-C-Trans-Default-${StaticStore.trio(index)}"
-                                    is DemonSoul -> "${dateFormat.format(date)}-DS-Default-${StaticStore.trio(index)}"
+                                    is DemonSoul -> "${dateFormat.format(date)}-DS-Trans-Default-${StaticStore.trio(index)}"
+                                    is AnimCE -> "${dateFormat.format(date)}-A-Trans-Default-${StaticStore.trio(index)}"
                                     else -> throw IllegalStateException("E/ImageViewer::onCreate - Invalid content type : ${content::class.java.name}")
                                 }
 
@@ -1122,6 +1132,10 @@ class ImageViewer : AppCompatActivity() {
                     res.add(str)
                 }
             }
+            is AnimCE -> {
+                for (s in content.names())
+                    res.add(s)
+            }
             is EffAnim<*> -> {
                 for(t in content.names())
                     res.add(seekName(t))
@@ -1470,19 +1484,12 @@ class ImageViewer : AppCompatActivity() {
                 AnimationCView.AnimationType.UNIT -> {
                     return StaticJava.generateEAnimD(data, form, index)
                 }
-                AnimationCView.AnimationType.ENEMY -> {
-                    return StaticJava.generateEAnimD(data, -1, index)
-                }
-                AnimationCView.AnimationType.EFFECT -> {
-                    return StaticJava.generateEAnimD(data, -1, index)
-                }
-                AnimationCView.AnimationType.SOUL -> {
-                    return StaticJava.generateEAnimD(data, -1, index)
-                }
-                AnimationCView.AnimationType.CANNON -> {
-                    return StaticJava.generateEAnimD(data, -1, index)
-                }
-                AnimationCView.AnimationType.DEMON_SOUL -> {
+                AnimationCView.AnimationType.ENEMY,
+                AnimationCView.AnimationType.EFFECT,
+                AnimationCView.AnimationType.SOUL,
+                AnimationCView.AnimationType.CANNON,
+                AnimationCView.AnimationType.DEMON_SOUL,
+                AnimationCView.AnimationType.CUSTOM -> {
                     return StaticJava.generateEAnimD(data, -1, index)
                 }
                 else -> {
@@ -1507,6 +1514,10 @@ class ImageViewer : AppCompatActivity() {
                 }
                 is DemonSoul -> {
                     if(type != AnimationCView.AnimationType.DEMON_SOUL)
+                        throw IllegalStateException("Invalid data ${data::class.java.name} with type $type")
+                }
+                is AnimCE -> {
+                    if(type != AnimationCView.AnimationType.CUSTOM)
                         throw IllegalStateException("Invalid data ${data::class.java.name} with type $type")
                 }
                 is Identifier<*> -> {
@@ -1546,6 +1557,9 @@ class ImageViewer : AppCompatActivity() {
                 }
                 AnimationCView.AnimationType.DEMON_SOUL -> {
                     return dateFormat.format(date) + "-DS-" + id
+                }
+                AnimationCView.AnimationType.CUSTOM -> {
+                    return dateFormat.format(date) + "-A-" + id
                 }
                 else -> {
                     return dateFormat.format(date)

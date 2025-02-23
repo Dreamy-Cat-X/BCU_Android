@@ -47,7 +47,7 @@ import java.util.*
 class StageInfo : AppCompatActivity() {
     private var custom = false
 
-    @SuppressLint("SourceLockedOrientationActivity")
+    @SuppressLint("SourceLockedOrientationActivity", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

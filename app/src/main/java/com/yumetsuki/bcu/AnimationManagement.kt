@@ -214,7 +214,7 @@ class AnimationManagement : AppCompatActivity() {
         ac.createNew()
         AnimCE.map()[rl.id] = ac
         AnimGroup.workspaceGroup.renewGroup()
-        reloadAnimations()
+        (findViewById<ListView>(R.id.animmanlist).adapter as AnimationListAdapter).notifyDataSetChanged()
     }
 
     fun getImage(func: (f: Bitmap) -> Unit) {
@@ -225,11 +225,5 @@ class AnimationManagement : AppCompatActivity() {
 
         tempFunc = func
         resultLauncher.launch(Intent.createChooser(intent, "Choose Directory"))
-    }
-
-    fun reloadAnimations() {
-        val list = findViewById<ListView>(R.id.animmanlist)
-        val aList = ArrayList<AnimCE>(AnimCE.map().values)
-        list.adapter = AnimationListAdapter(this@AnimationManagement, aList)
     }
 }

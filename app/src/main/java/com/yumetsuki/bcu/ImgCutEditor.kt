@@ -43,19 +43,22 @@ import common.io.json.JsonEncoder
 import common.pack.Source.ResourceLocation
 import common.pack.UserProfile
 import common.system.files.FDFile
+import common.system.files.VFile
 import common.util.anim.AnimCE
 import common.util.anim.ImgCut
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.FileOutputStream
 
 class ImgCutEditor : AppCompatActivity() {
 
     companion object {
-        var tempFunc : ((input: Any) -> Unit)? = null
+        private var tempFunc : ((input: Any) -> Unit)? = null
+        private var tempFile : VFile? = null
     }
 
-    val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if(result.resultCode == RESULT_OK) {
             val path = result.data?.data ?: return@registerForActivityResult
 
@@ -96,6 +99,51 @@ class ImgCutEditor : AppCompatActivity() {
                     }
                 }
                 cursor.close()
+            }
+        }
+    }
+    private val exportLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if(result.resultCode == RESULT_OK) {
+            val data = result.data
+
+            if(data != null) {
+                val file = tempFile
+                val uri = data.data
+
+                if(uri == null || file == null) {
+                    StaticStore.showShortMessage(this, getString(R.string.file_extract_cant))
+                } else {
+                    val pfd = contentResolver.openFileDescriptor(uri, "w")
+
+                    if(pfd != null) {
+                        val fos = FileOutputStream(pfd.fileDescriptor)
+                        val ins = file.data.stream
+
+                        val b = ByteArray(65536)
+                        var len: Int
+                        while(ins.read(b).also { len = it } != -1)
+                            fos.write(b, 0, len)
+
+                        ins.close()
+                        fos.close()
+
+                        val path = uri.path
+                        if(path == null) {
+                            StaticStore.showShortMessage(this, getString(R.string.file_extract_semi).replace("_",file.name))
+                            return@registerForActivityResult
+                        }
+
+                        val f = File(path)
+                        if(f.absolutePath.contains(":")) {
+                            val p = f.absolutePath.split(":")[1]
+                            StaticStore.showShortMessage(this,
+                                getString(R.string.file_extract_success).replace("_", file.name)
+                                    .replace("-", p))
+                        } else
+                            StaticStore.showShortMessage(this, getString(R.string.file_extract_semi).replace("_",file.name))
+                    } else
+                        StaticStore.showShortMessage(this, getString(R.string.file_extract_cant))
+                }
             }
         }
     }
@@ -197,6 +245,7 @@ class ImgCutEditor : AppCompatActivity() {
 
             val addl = findViewById<Button>(R.id.imgcutpadd)
             val impr = findViewById<Button>(R.id.imgcutimport)
+            val expr = findViewById<Button>(R.id.imgcutexport)
             val spri = findViewById<Button>(R.id.imgcutsprimp)
             addl.setOnClickListener {
                 anim.imgcut.addLine(-1)
@@ -213,6 +262,15 @@ class ImgCutEditor : AppCompatActivity() {
                     unSave(anim,"Import imgcut")
                     viewer.invalidate()
                 })
+            }
+            expr.setOnClickListener {
+                anim.save()
+                tempFile = VFile.getFile(CommonStatic.ctx.getWorkspaceFile(anim.id.path.substring(1) + "/imgcut.txt"))
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .setType("*/*")
+                intent.putExtra(Intent.EXTRA_TITLE, tempFile?.name ?: "")
+                exportLauncher.launch(intent)
             }
             spri.setOnClickListener {
                 getImport(fun(f : Any) {
@@ -259,8 +317,6 @@ class ImgCutEditor : AppCompatActivity() {
             val bck = findViewById<Button>(R.id.imgcutexit)
             bck.setOnClickListener {
                 anim.save()
-                val intent = Intent(this@ImgCutEditor, AnimationManagement::class.java)
-                startActivity(intent)
                 finish()
             }
             onBackPressedDispatcher.addCallback(this@ImgCutEditor, object : OnBackPressedCallback(true) {
@@ -286,6 +342,15 @@ class ImgCutEditor : AppCompatActivity() {
 
                 startActivity(intent)
                 finish()
+            }
+            val viewBtn = findViewById<Button>(R.id.imgc_view_anim)
+            viewBtn.setOnClickListener {
+                anim.save()
+                val intent = Intent(this@ImgCutEditor, ImageViewer::class.java)
+                intent.putExtra("Data", JsonEncoder.encode(anim.id).toString())
+                intent.putExtra("Img", ImageViewer.ViewerType.CUSTOM.name)
+
+                startActivity(intent)
             }
 
             StaticStore.setAppear(cfgBtn, layout)
@@ -321,7 +386,11 @@ class ImgCutEditor : AppCompatActivity() {
                                 mov[1] = from
                         }
             unSave(anim,"imgcut sort")
-            //findViewById<SpriteView>(R.id.spriteView).sele = -1
+            val view = findViewById<SpriteView>(R.id.spriteView)
+            if (view.sele == from)
+                view.sele = to
+            else if (view.sele == to)
+                view.sele = from
         }
     }
 

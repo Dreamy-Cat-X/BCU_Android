@@ -181,7 +181,8 @@ class GifSession(val recorder: ImageViewer.GifRecorder, private val type: Animat
             AnimationCView.AnimationType.EFFECT,
             AnimationCView.AnimationType.SOUL,
             AnimationCView.AnimationType.CANNON,
-            AnimationCView.AnimationType.DEMON_SOUL -> {
+            AnimationCView.AnimationType.DEMON_SOUL,
+            AnimationCView.AnimationType.CUSTOM-> {
                 animation = StaticJava.generateEAnimD(data, -1, animationType)
 
                 currentAnimationType = animationType

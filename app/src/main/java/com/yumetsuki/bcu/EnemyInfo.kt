@@ -1,5 +1,6 @@
 package com.yumetsuki.bcu
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences.Editor
@@ -45,6 +46,7 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 
 class EnemyInfo : AppCompatActivity() {
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

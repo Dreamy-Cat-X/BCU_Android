@@ -13,6 +13,7 @@ import com.yumetsuki.bcu.androidutil.fakeandroid.CVGraphics
 import common.CommonStatic
 import common.pack.Identifier
 import common.system.P
+import common.util.anim.AnimCE
 import common.util.anim.EAnimD
 import common.util.pack.DemonSoul
 import common.util.pack.EffAnim
@@ -37,7 +38,8 @@ class AnimationCView(
         EFFECT,
         SOUL,
         CANNON,
-        DEMON_SOUL
+        DEMON_SOUL,
+        CUSTOM
     }
     val data: Any
 
@@ -89,6 +91,11 @@ class AnimationCView(
             }
             AnimationType.DEMON_SOUL -> {
                 if(data !is DemonSoul)
+                    throw IllegalStateException("Invalid data type : ${data::class.java.name} in AnimationCView with type $type")
+                this.data = data
+            }
+            AnimationType.CUSTOM -> {
+                if(data !is AnimCE)
                     throw IllegalStateException("Invalid data type : ${data::class.java.name} in AnimationCView with type $type")
                 this.data = data
             }

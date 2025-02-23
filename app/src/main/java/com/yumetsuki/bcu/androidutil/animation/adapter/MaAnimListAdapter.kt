@@ -27,7 +27,6 @@ import common.util.anim.MaAnim
 import common.util.anim.Part
 import org.jcodec.common.tools.MathUtil
 import kotlin.math.max
-import kotlin.math.min
 
 
 class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : AnimCE) : StableArrayAdapter<Part>(activity, R.layout.maanim_list_layout, activity.getAnim(a).parts) {
@@ -79,7 +78,6 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
 
         val ma = parts[position]
         holder.imod.setPopupBackgroundResource(R.drawable.spinner_popup)
-        holder.imod.setBackgroundResource(androidx.appcompat.R.drawable.abc_spinner_mtrl_am_alpha)
         holder.imod.adapter = ArrayAdapter(activity, R.layout.spinneradapter, mods)
 
         holder.setData(a, ma)
@@ -87,6 +85,8 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
 
         val voo = activity.findViewById<AnimationEditView>(R.id.animationView)
         holder.ipid.doAfterTextChanged {
+            if (!holder.ipid.hasFocus())
+                return@doAfterTextChanged
             ma.ints[0] = MathUtil.clip(CommonStatic.parseIntN(holder.ipid.text.toString()), 0, a.mamodel.n - 1)
             ma.check(a)
             activity.unSave(a,"maanim change $position ID")
@@ -98,6 +98,8 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
                     position + 35
                 else
                     position
+                if (ma.ints[1] == ind)
+                    return
                 ma.ints[1] = ind
                 ma.check(a)
                 activity.unSave(a,"maanim change $position Modification")
@@ -106,6 +108,8 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
         holder.ilop.doAfterTextChanged {
+            if (!holder.ilop.hasFocus())
+                return@doAfterTextChanged
             ma.ints[2] = max(CommonStatic.parseIntN(holder.ilop.text.toString()), -1)
             ma.check(a)
             activity.unSave(a,"maanim change $position loop count")

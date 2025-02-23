@@ -17,11 +17,9 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.ListView
 import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.Spinner
-import android.widget.TableRow
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,7 +33,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.gson.JsonParser
-import com.yumetsuki.bcu.androidutil.StaticJava
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
 import com.yumetsuki.bcu.androidutil.animation.adapter.MaAnimListAdapter
@@ -50,11 +47,9 @@ import common.io.json.JsonEncoder
 import common.pack.Source
 import common.pack.Source.ResourceLocation
 import common.pack.UserProfile
-import common.system.P
 import common.system.files.FDFile
+import common.system.files.VFile
 import common.util.anim.AnimCE
-import common.util.anim.AnimU
-import common.util.anim.AnimU.UType
 import common.util.anim.MaAnim
 import common.util.anim.Part
 import kotlinx.coroutines.Dispatchers
@@ -63,17 +58,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
-import kotlin.math.cos
+import java.io.FileOutputStream
 import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.sin
 import kotlin.system.measureTimeMillis
 
 @SuppressLint("ClickableViewAccessibility")
 class MaAnimEditor : AppCompatActivity() {
 
     companion object {
-        var tempFunc : ((input: MaAnim) -> Unit)? = null
+        private var tempFunc : ((input: MaAnim, n : String) -> Unit)? = null
+        private var tempFile : VFile? = null
     }
 
     val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -105,11 +99,56 @@ class MaAnimEditor : AppCompatActivity() {
                         val fl = File(StaticStore.getExternalPack(this), name)
                         if (fl.exists()) {
                             val imc = MaAnim.newIns(FDFile(fl), false)
-                            tempFunc?.invoke(imc)
+                            tempFunc?.invoke(imc, name.substring(0, name.indexOf('.')))
                         }
                     }
                 }
                 cursor.close()
+            }
+        }
+    }
+    private val exportLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if(result.resultCode == RESULT_OK) {
+            val data = result.data
+
+            if(data != null) {
+                val file = tempFile
+                val uri = data.data
+
+                if(uri == null || file == null) {
+                    StaticStore.showShortMessage(this, getString(R.string.file_extract_cant))
+                } else {
+                    val pfd = contentResolver.openFileDescriptor(uri, "w")
+
+                    if(pfd != null) {
+                        val fos = FileOutputStream(pfd.fileDescriptor)
+                        val ins = file.data.stream
+
+                        val b = ByteArray(65536)
+                        var len: Int
+                        while(ins.read(b).also { len = it } != -1)
+                            fos.write(b, 0, len)
+
+                        ins.close()
+                        fos.close()
+
+                        val path = uri.path
+                        if(path == null) {
+                            StaticStore.showShortMessage(this, getString(R.string.file_extract_semi).replace("_",file.name))
+                            return@registerForActivityResult
+                        }
+
+                        val f = File(path)
+                        if(f.absolutePath.contains(":")) {
+                            val p = f.absolutePath.split(":")[1]
+                            StaticStore.showShortMessage(this,
+                                getString(R.string.file_extract_success).replace("_", file.name)
+                                    .replace("-", p))
+                        } else
+                            StaticStore.showShortMessage(this, getString(R.string.file_extract_semi).replace("_",file.name))
+                    } else
+                        StaticStore.showShortMessage(this, getString(R.string.file_extract_cant))
+                }
             }
         }
     }
@@ -257,21 +296,37 @@ class MaAnimEditor : AppCompatActivity() {
                 refreshAdapter(anim)
                 viewer.animationChanged()
             }
-            //val impr = findViewById<Button>(R.id.maanimimport)
-            //impr.setOnClickListener {
-            //    val intent = Intent(Intent.ACTION_GET_CONTENT)
-            //    intent.addCategory(Intent.CATEGORY_DEFAULT)
-            //    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            //    intent.type = "*/*"
+            val impr = findViewById<Button>(R.id.maanimimport)
+            impr.setOnClickListener {
+                val intent = Intent(Intent.ACTION_GET_CONTENT)
+                intent.addCategory(Intent.CATEGORY_DEFAULT)
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                intent.type = "*/*"
 
-            //    tempFunc = fun(f : MaAnim) {
-            //        //anim.mamodel = f //TODO - It's more complex than this
-            //        //refreshAdapter(anim)
-            //        //anim.unSave("Import maanim")
-            //        //viewer.animationChanged()
-            //    }
-            //    resultLauncher.launch(Intent.createChooser(intent, "Choose Directory"))
-            //}
+                tempFunc = fun(a : MaAnim, n : String) {
+                    for (i in anim.types.indices)
+                        if (anim.types[i].toString() == n) {
+                            anim.anims[i] = a
+                            anim.unSave("Import maanim")
+                            if (anim.types[i] == viewer.getType()) {
+                                refreshAdapter(anim)
+                                viewer.animationChanged()
+                            }
+                            break
+                        }
+                }
+                resultLauncher.launch(Intent.createChooser(intent, "Choose Directory"))
+            }
+            val expr = findViewById<Button>(R.id.maanimexport)
+            expr.setOnClickListener {
+                anim.save()
+                tempFile = VFile.getFile(CommonStatic.ctx.getWorkspaceFile(anim.id.path.substring(1) + "/maanim_${viewer.getType()}.txt"))
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .setType("*/*")
+                intent.putExtra(Intent.EXTRA_TITLE, tempFile?.name ?: "")
+                exportLauncher.launch(intent)
+            }
 
             val anims = findViewById<Spinner>(R.id.maanimselect)
             val controller = findViewById<SeekBar>(R.id.maanimframeseek)
@@ -360,7 +415,7 @@ class MaAnimEditor : AppCompatActivity() {
                     View.VISIBLE
                 redo.visibility = View.VISIBLE
                 refreshAdapter(anim)
-                viewer.invalidate()
+                viewer.animationChanged()
             }
             redo.setOnClickListener {
                 anim.redo()
@@ -370,7 +425,7 @@ class MaAnimEditor : AppCompatActivity() {
                     View.VISIBLE
                 undo.visibility = View.VISIBLE
                 refreshAdapter(anim)
-                viewer.invalidate()
+                viewer.animationChanged()
             }
             undo.visibility = if (anim.undo == "initial")
                 View.GONE
@@ -384,8 +439,6 @@ class MaAnimEditor : AppCompatActivity() {
             val bck = findViewById<Button>(R.id.maanimexit)
             bck.setOnClickListener {
                 anim.save()
-                val intent = Intent(this@MaAnimEditor, AnimationManagement::class.java)
-                startActivity(intent)
                 finish()
             }
             onBackPressedDispatcher.addCallback(this@MaAnimEditor, object : OnBackPressedCallback(true) {
@@ -411,6 +464,15 @@ class MaAnimEditor : AppCompatActivity() {
 
                 startActivity(intent)
                 finish()
+            }
+            val viewBtn = findViewById<Button>(R.id.maan_view_anim)
+            viewBtn.setOnClickListener {
+                anim.save()
+                val intent = Intent(this@MaAnimEditor, ImageViewer::class.java)
+                intent.putExtra("Data", JsonEncoder.encode(anim.id).toString())
+                intent.putExtra("Img", ImageViewer.ViewerType.CUSTOM.name)
+
+                startActivity(intent)
             }
 
             StaticStore.setAppear(cfgBtn, layout)
@@ -466,7 +528,7 @@ class MaAnimEditor : AppCompatActivity() {
     }
     fun getAnim(a : AnimCE) : MaAnim {
         val viewer = findViewById<AnimationEditView>(R.id.animationView)
-        return a.getMaAnim(viewer.type[viewer.aind])
+        return a.getMaAnim(viewer.getType())
     }
 
     fun unSave(a : AnimCE, str : String) {
