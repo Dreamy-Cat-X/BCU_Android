@@ -266,7 +266,8 @@
             android:layout_below="@id/imgcutvalues"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="4dp"
+            android:choiceMode="singleChoice" />
 
         <TableRow
             android:id="@+id/imgcutTable"

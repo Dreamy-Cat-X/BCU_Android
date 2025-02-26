@@ -447,7 +447,7 @@ public interface BattleBox {
                         g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 0, 255, 0, 100);
 
                     if (bf.sb.elu.validSpirit(i, j)) {
-                        if (!bf.sb.elu.readySpirit(i, j) || (bf.sb.elu.smnd[i][j] != null && bf.sb.elu.smnd[i][j].anim.dead >= 0)) {
+                        if (!bf.sb.elu.readySpirit(i, j)) {
                             g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 64, 0, 0, 160);
                         } else {
                             if (bf.sb.elu.sGlow[i][j] % 2 == 0) {
@@ -548,7 +548,7 @@ public interface BattleBox {
                     g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 0, 255, 0, 100);
 
                 if (bf.sb.elu.validSpirit(index, i % 5)) {
-                    if (!bf.sb.elu.readySpirit(index,i % 5) || (bf.sb.elu.smnd[index][i % 5] != null && bf.sb.elu.smnd[index][i % 5].anim.dead >= 0)) {
+                    if (!bf.sb.elu.readySpirit(index,i % 5)) {
                         g.colRect((int) (x - (imw - iw) / 2.0), (int) (y - (imh - ih) / 2.0), imw, imh, 64, 0, 0, 160);
                     } else {
                         if ((bf.sb.elu.sGlow[index][i % 5] - bf.sb.time) % 2 == 0) {

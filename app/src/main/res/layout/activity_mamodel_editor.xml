@@ -339,7 +339,8 @@
             android:layout_height="match_parent"
             android:layout_above="@id/mamodeltable"
             android:layout_below="@id/mamodelvalues"
-            android:layout_marginBottom="4dp">
+            android:layout_marginBottom="4dp"
+            android:choiceMode="singleChoice">
 
         </com.yumetsuki.bcu.androidutil.supports.DynamicListView>
 

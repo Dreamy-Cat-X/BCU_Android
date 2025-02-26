@@ -308,6 +308,7 @@ class MaModelEditor : AppCompatActivity() {
                                     val r = viewer.getPartRect(i)
                                     if (r.inBox(x, y)) {
                                         viewer.anim.sele = i
+                                        list.smoothScrollToPosition(i)
                                         spriteSelected = true
                                         viewer.invalidate()
                                         break
@@ -315,6 +316,7 @@ class MaModelEditor : AppCompatActivity() {
                                 }
                             }
                         }
+                        list.setSelection(viewer.anim.sele)
                     } else if (event.action == MotionEvent.ACTION_MOVE) {
                         if (event.pointerCount == 1 && id == preid) {
                             var dx = x - preX
@@ -376,6 +378,9 @@ class MaModelEditor : AppCompatActivity() {
                                 }
                             }
                             viewer.anim.sele = selected
+                            if (selected != -1)
+                                list.smoothScrollToPosition(selected)
+                            list.setSelection(selected)
                             viewer.invalidate()
                         } else if (move != MOVEMODE.NONE && viewer.anim.sele != -1 && scaleListener.scaled())
                             unSave(anim,"mamodel scale part ${viewer.anim.sele}")

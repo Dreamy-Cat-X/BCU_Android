@@ -272,6 +272,12 @@ class ImgCutEditor : AppCompatActivity() {
                     } else
                         unSave(anim, sav)
                 }
+                selectionChanged = fun() {
+                    if (sele != -1) {
+                        list.smoothScrollToPosition(sele)
+                        list.setSelection(sele)
+                    }
+                }
             }
             viewer.id = R.id.spriteView
             layout.addView(viewer)

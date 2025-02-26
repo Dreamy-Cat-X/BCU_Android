@@ -33,6 +33,7 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
     }
     val m: Matrix = Matrix()
     lateinit var postMove : (sav : String) -> Unit
+    lateinit var selectionChanged : () -> Unit
 
     init {
         val scaleListener = ScaleListener(this@SpriteView)
@@ -64,6 +65,7 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
                         val sh = sy + (cut[3] * zoom + 2)
                         if (!(x in sx..sw && y in sy..sh)) {
                             sele = -1
+                            selectionChanged()
                             limit()
                         }
                     } else {
@@ -77,6 +79,7 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
 
                             if (x in sx..sw && y in sy..sh) {
                                 sele = i
+                                selectionChanged()
                                 spriteSelected = true
                                 limit()
                                 break
@@ -126,6 +129,7 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
                             }
                         }
                         sele = selected
+                        selectionChanged()
                         limit()
                     } else if (sele != -1 && scaleListener.scaled())
                         postMove("imgcut scale part $sele")

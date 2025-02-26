@@ -163,6 +163,17 @@ class StEnListRecycle(private val activity: Activity, private val st: Stage, pri
         viewHolder.respawn.text = s.getRespawn(data[viewHolder.bindingAdapterPosition] ?: SCDef.Line(), frse)
 
         viewHolder.killcount.text = (data[viewHolder.bindingAdapterPosition] ?: SCDef.Line()).kill_count.toString()
+
+        val build = StringBuilder((data[viewHolder.bindingAdapterPosition] ?: SCDef.Line()).doorchance.toString()).append("%")
+        if ((data[viewHolder.bindingAdapterPosition] ?: SCDef.Line()).doorchance > 0) {
+            build.append(": ").append((data[viewHolder.bindingAdapterPosition] ?: SCDef.Line()).doordis_0).append("%")
+            if ((data[viewHolder.bindingAdapterPosition] ?: SCDef.Line()).doordis_0 != (data[viewHolder.bindingAdapterPosition] ?: SCDef.Line()).doordis_1)
+                build.append(" ~ ").append((data[viewHolder.bindingAdapterPosition] ?: SCDef.Line()).doordis_1).append("%")
+        } else {
+            viewHolder.edor.visibility = View.GONE
+            viewHolder.edoor.visibility = View.GONE
+        }
+        viewHolder.edoor.text = build.toString()
     }
 
     override fun getItemCount(): Int {
@@ -184,6 +195,8 @@ class StEnListRecycle(private val activity: Activity, private val st: Stage, pri
         val respawn = row.findViewById<TextView>(R.id.enemlistresr)!!
         val moreinfo = row.findViewById<TableLayout>(R.id.stgenlistmi)!!
         val killcount = row.findViewById<TextView>(R.id.enemlistkilcr)!!
+        val edor = row.findViewById<TextView>(R.id.enemlistedoor)!!
+        val edoor = row.findViewById<TextView>(R.id.enemlistevrdr)!!
     }
 
     private fun reverse(data: Array<SCDef.Line>): Array<SCDef.Line?> {
