@@ -1111,4 +1111,8 @@
     <string name="mapart_pid" translatable="false">Part ID</string>
     <string name="mapart_mod" translatable="false">Modification</string>
     <string name="mapart_lop" translatable="false">Loop</string>
+    <string name="mapart_uses" translatable="false">Part is used by:</string>
+    <string name="mapart_remtree" translatable="false">Remove Anyway</string>
+    <string name="mapart_unremovable" translatable="false">This part can\'t be removed</string>
+    <string name="def_part" translatable="false">Part</string>
 </resources>

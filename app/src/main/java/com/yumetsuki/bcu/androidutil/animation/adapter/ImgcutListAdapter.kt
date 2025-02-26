@@ -97,9 +97,9 @@ class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : Anim
             voo.invalidate()
         }
         holder.del.setOnClickListener {
+            remove(position)
             a.removeICline(position)
             activity.unSave(a, "initial")
-            activity.refreshAdapter(a)
             voo.invalidate()
         }
         for (mod in a.mamodel.parts)

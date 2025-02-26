@@ -227,13 +227,46 @@ class ImgCutEditor : AppCompatActivity() {
                     cfgMenu.visibility = View.GONE
                 }
             })
-            refreshAdapter(anim)
+            val list = findViewById<DynamicListView>(R.id.imgcutvalList)
+            val adp = ImgcutListAdapter(this@ImgCutEditor, anim)
+            list.adapter = adp
+            list.setSwapListener { from, to ->
+                val s = anim.imgcut.strs
+                val tempe = s[from]
+                s[from] = s[to]
+                s[to] = tempe
+
+                val c = anim.imgcut.cuts
+                val temp = c[from]
+                c[from] = c[to]
+                c[to] = temp
+                for (p in anim.mamodel.parts) {
+                    if (p[2] == from)
+                        p[2] = to
+                    else if (p[2] == to)
+                        p[2] = from
+                }
+                for (ma in anim.anims)
+                    for (pt in ma.parts)
+                        if (pt.ints[1] == 2)
+                            for (mov in pt.moves) {
+                                if (mov[1] == from)
+                                    mov[1] = to
+                                else if (mov[1] == to)
+                                    mov[1] = from
+                            }
+                unSave(anim,"imgcut sort")
+                val view = findViewById<SpriteView>(R.id.spriteView)
+                if (view.sele == from)
+                    view.sele = to
+                else if (view.sele == to)
+                    view.sele = from
+            }
 
             val viewer = SpriteView(this@ImgCutEditor, anim).apply {
                 layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                 postMove = fun(sav : String) {
                     if (sav.isBlank()) {
-                        val list = this@ImgCutEditor.findViewById<DynamicListView>(R.id.imgcutvalList)
                         if (list.size > sele)
                             (list[sele].tag as ImgcutListAdapter.ViewHolder).setData(anim.imgcut.cuts[sele])
                     } else
@@ -248,8 +281,8 @@ class ImgCutEditor : AppCompatActivity() {
             val expr = findViewById<Button>(R.id.imgcutexport)
             val spri = findViewById<Button>(R.id.imgcutsprimp)
             addl.setOnClickListener {
-                anim.imgcut.addLine(-1)
-                refreshAdapter(anim)
+                anim.imgcut.addLine(viewer.sele)
+                adp.add(anim.imgcut.cuts[anim.imgcut.n - 1])
                 unSave(anim, "imgcut add line")
                 viewer.invalidate()
             }
@@ -258,7 +291,7 @@ class ImgCutEditor : AppCompatActivity() {
                     if (f !is ImgCut)
                         return
                     anim.imgcut = f
-                    refreshAdapter(anim)
+                    adp.setTo(*f.cuts)
                     unSave(anim,"Import imgcut")
                     viewer.invalidate()
                 })
@@ -292,7 +325,7 @@ class ImgCutEditor : AppCompatActivity() {
                 else
                     View.VISIBLE
                 redo.visibility = View.VISIBLE
-                refreshAdapter(anim)
+                adp.setTo(*anim.imgcut.cuts)
                 viewer.invalidate()
             }
             redo.setOnClickListener {
@@ -302,7 +335,7 @@ class ImgCutEditor : AppCompatActivity() {
                 else
                     View.VISIBLE
                 undo.visibility = View.VISIBLE
-                refreshAdapter(anim)
+                adp.setTo(*anim.imgcut.cuts)
                 viewer.invalidate()
             }
             undo.visibility = if (anim.undo == "initial")
@@ -354,43 +387,6 @@ class ImgCutEditor : AppCompatActivity() {
             }
 
             StaticStore.setAppear(cfgBtn, layout)
-        }
-    }
-
-    fun refreshAdapter(anim : AnimCE) {
-        val list = findViewById<DynamicListView>(R.id.imgcutvalList)
-        list.adapter = ImgcutListAdapter(this, anim)
-        list.setSwapListener { from, to ->
-            val s = anim.imgcut.strs
-            val tempe = s[from]
-            s[from] = s[to]
-            s[to] = tempe
-
-            val c = anim.imgcut.cuts
-            val temp = c[from]
-            c[from] = c[to]
-            c[to] = temp
-            for (p in anim.mamodel.parts) {
-                if (p[2] == from)
-                    p[2] = to
-                else if (p[2] == to)
-                    p[2] = from
-            }
-            for (ma in anim.anims)
-                for (pt in ma.parts)
-                    if (pt.ints[1] == 2)
-                        for (mov in pt.moves) {
-                            if (mov[1] == from)
-                                mov[1] = to
-                            else if (mov[1] == to)
-                                mov[1] = from
-                        }
-            unSave(anim,"imgcut sort")
-            val view = findViewById<SpriteView>(R.id.spriteView)
-            if (view.sele == from)
-                view.sele = to
-            else if (view.sele == to)
-                view.sele = from
         }
     }
 

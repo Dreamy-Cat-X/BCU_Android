@@ -144,9 +144,9 @@ object StaticStore {
     /** img15.png's parts  */
     var img15: Array<FakeImage>? = null
     /** Search filter format indexing */
-    const val SF_NAME = 0
-    const val SF_TYPE = 1
-    const val SF_PROC = 2
+    val SF_NAME = 0
+    val SF_TYPE = 1
+    val SF_PROC = 2
     /** imgcut index list of miscellaneous icons. Respectively belonging to Strong vs, Resist, Insane Res, Massive dmg, Insane dmg, And the rest to resistances.
      * @see Interpret.immune */
     val siinds = intArrayOf(203, 204, 122, 206, 114, 218, 43, 45, 47, 49, 51, 53, 109, 235, 241)

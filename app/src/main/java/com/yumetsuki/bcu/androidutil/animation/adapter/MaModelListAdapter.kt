@@ -1,5 +1,6 @@
 package com.yumetsuki.bcu.androidutil.animation.adapter
 
+import android.app.Dialog
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.MaModelEditor
@@ -184,50 +186,64 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
             voo.animationChanged()
         }
         holder.del.setOnClickListener {
-            val mm : MaModel = a.mamodel
-            val data = mm.parts
-            val inds = IntArray(data.size)
-            val move = IntArray(--mm.n)
-            data[position] = null
-            var ind = 0
-            for (i in data.indices)
-                if (data[i] != null) {
-                    move[ind] = i
-                    inds[i] = ind
-                    ind++
-                } else
-                    inds[i] = -1
-            for (ma in a.anims)
-                for (part in ma.parts)
-                    if (part.ints[1] == 0)
-                        for (ints in part.moves)
-                            if (ints[1] > position)
-                                ints[1]--
-
-            a.reorderModel(inds)
-            mm.reorder(move)
-            activity.unSave(a,"mamodel remove line")
-            activity.refreshAdapter(a)
-            voo.invalidate()
-        }
-        if (a.mamodel.n == 1)
-            holder.del.isEnabled = false
-        else
-            for (mod in a.mamodel.parts)
-                if (mod[0] == position) {
-                    holder.del.isEnabled = false
-                    break
-                }
-        if (holder.del.isEnabled)
-            for (ma in a.anim.anims) {
-                for (part in ma.parts)
+            val parts = StringBuilder()
+            for (i in a.mamodel.parts.indices)
+                if (a.mamodel.parts[i][0] == position)
+                    parts.append("MaModel ").append(activity.getString(R.string.def_part)).append(" $i (").append(a.mamodel.strs0[i]).append(")\n")
+            for (i in a.anims.indices)
+                for (part in a.anims[i].parts)
                     if (part.ints[0] == position) {
-                        holder.del.isEnabled = false
+                        parts.append("MaAnim: ${a.types[i]}").append("\n")
                         break
                     }
-                if (!holder.del.isEnabled)
-                    break
+            if (parts.isBlank())
+                removePart(voo, position)
+            else {
+                val delPop = Dialog(context)
+                delPop.setContentView(R.layout.animation_part_delete_confirm)
+                delPop.setCancelable(true)
+
+                val parList = delPop.findViewById<TextView>(R.id.usedPartList)
+                parList.text = parts.toString()
+                val del = delPop.findViewById<Button>(R.id.part_delete_tree)
+                del.setOnClickListener {
+                    removePart(voo, position)
+                    delPop.dismiss()
+                }
+                val cancel = delPop.findViewById<Button>(R.id.part_nodelete)
+                cancel.setOnClickListener { delPop.dismiss() }
+                if (!activity.isDestroyed && !activity.isFinishing)
+                    delPop.show()
             }
+        }
+        holder.del.visibility = if (a.mamodel.n == 1 || position == 0)
+            View.INVISIBLE
+        else
+            View.VISIBLE
         return row
+    }
+
+    private fun removePart(voo : AnimationEditView, position : Int) {
+        val mm : MaModel = a.mamodel
+
+        val bs = BooleanArray(mm.n)
+        bs[position] = true
+        val total = 1 + mm.getChild(bs)
+        mm.clearAnim(bs, a.anims)
+        val inds = IntArray(mm.n)
+        val move = IntArray(mm.n - total)
+        var j = 0
+        for (i in 0 until mm.n)
+            if (!bs[i]) {
+                move[j] = i
+                inds[i] = j
+                j++
+            } else
+                remove(j)
+        a.reorderModel(inds)
+        mm.n = move.size
+        mm.reorder(move)
+        activity.unSave(a,"mamodel remove part $position")
+        voo.animationChanged()
     }
 }

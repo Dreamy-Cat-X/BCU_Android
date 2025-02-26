@@ -79,7 +79,7 @@ class PackCreation : AppCompatActivity() {
                     val str = Workspace.validateWorkspace(Workspace.generatePackID())
                     val pac = UserProfile.initJsonPack(str)
                     pac.desc.author = "WIP"
-                    adp.rebuildPackList()
+                    adp.add(pac)
                 }
             })
             prog.isIndeterminate = true

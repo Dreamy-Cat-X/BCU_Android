@@ -244,7 +244,30 @@ class MaModelEditor : AppCompatActivity() {
                     cfgMenu.visibility = View.GONE
                 }
             })
-            refreshAdapter(anim)
+            val list = findViewById<DynamicListView>(R.id.mamodelvalList)
+            val adp = MaModelListAdapter(this@MaModelEditor, anim)
+            list.adapter = adp
+            val view = findViewById<AnimationEditView>(R.id.animationView)
+            list.setSwapListener { from, to ->
+                val s = anim.mamodel.strs0
+                val tempe = s[from]
+                s[from] = s[to]
+                s[to] = tempe
+
+                val p = anim.mamodel.parts
+                val temp = p[from]
+                p[from] = p[to]
+                p[to] = temp
+                for (ma in anim.anims)
+                    for (pt in ma.parts) {
+                        if (pt.ints[0] == from)
+                            pt.ints[0] = to
+                        else if (pt.ints[0] == to)
+                            pt.ints[0] = from
+                    }
+                unSave(anim,"mamodel sort")
+                view.animationChanged()
+            }
 
             val viewer = AnimationEditView(this@MaModelEditor, anim, !shared.getBoolean("theme", false), shared.getBoolean("Axis", true)).apply {
                 layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
@@ -370,8 +393,9 @@ class MaModelEditor : AppCompatActivity() {
 
             val addl = findViewById<Button>(R.id.mamodelpadd)
             addl.setOnClickListener {
-                anim.addMMline(viewer.anim.sele + 1, 0)
-                refreshAdapter(anim)
+                val ind = if (viewer.anim.sele == -1) anim.mamodel.n else viewer.anim.sele
+                anim.addMMline(ind, 0)
+                adp.insert(anim.mamodel.parts[ind], ind)
                 unSave(anim,"initial")
                 viewer.animationChanged()
             }
@@ -384,7 +408,7 @@ class MaModelEditor : AppCompatActivity() {
 
                 tempFunc = fun(f : MaModel) {
                     anim.mamodel = f
-                    refreshAdapter(anim)
+                    adp.setTo(*f.parts)
                     unSave(anim,"Import mamodel")
                     viewer.animationChanged()
                 }
@@ -410,7 +434,7 @@ class MaModelEditor : AppCompatActivity() {
                 else
                     View.VISIBLE
                 redo.visibility = View.VISIBLE
-                refreshAdapter(anim)
+                adp.setTo(*anim.mamodel.parts)
                 viewer.animationChanged()
             }
             redo.setOnClickListener {
@@ -420,7 +444,7 @@ class MaModelEditor : AppCompatActivity() {
                 else
                     View.VISIBLE
                 undo.visibility = View.VISIBLE
-                refreshAdapter(anim)
+                adp.setTo(*anim.mamodel.parts)
                 viewer.animationChanged()
             }
             undo.visibility = if (anim.undo == "initial")
@@ -479,32 +503,6 @@ class MaModelEditor : AppCompatActivity() {
         val list = findViewById<DynamicListView>(R.id.mamodelvalList)
         if (list.size > i)
             (list[i].tag as MaModelListAdapter.ViewHolder).setData(mo)
-    }
-
-    fun refreshAdapter(anim : AnimCE) {
-        val list = findViewById<DynamicListView>(R.id.mamodelvalList)
-        list.adapter = MaModelListAdapter(this, anim)
-        val view = findViewById<AnimationEditView>(R.id.animationView)
-        list.setSwapListener { from, to ->
-            val s = anim.mamodel.strs0
-            val tempe = s[from]
-            s[from] = s[to]
-            s[to] = tempe
-
-            val p = anim.mamodel.parts
-            val temp = p[from]
-            p[from] = p[to]
-            p[to] = temp
-            for (ma in anim.anims)
-                for (pt in ma.parts) {
-                    if (pt.ints[0] == from)
-                        pt.ints[0] = to
-                    else if (pt.ints[0] == to)
-                        pt.ints[0] = from
-                }
-            unSave(anim,"mamodel sort")
-            view.animationChanged()
-        }
     }
 
     fun unSave(a : AnimCE, str : String) {

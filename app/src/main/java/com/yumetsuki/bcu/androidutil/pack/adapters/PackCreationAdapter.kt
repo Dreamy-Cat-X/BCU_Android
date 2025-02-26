@@ -32,7 +32,10 @@ class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList
     var dialog = AlertDialog.Builder(context)
 
     init {
-        rebuildPackList()
+        for(pack in UserProfile.getUserPacks())
+            if (pack.editable)
+                pList.add(pack)
+        notifyDataSetChanged()
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -93,7 +96,7 @@ class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList
                         UserProfile.unloadPack(p)
                         p.delete()
 
-                        rebuildPackList()
+                        pList.remove(p)
                         notifyDataSetChanged()
                         StaticStore.showShortMessage(context, R.string.pack_remove_result)
 
@@ -154,15 +157,6 @@ class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList
                 }
             }
         }
-
         return false
-    }
-
-    fun rebuildPackList() {
-        pList.clear()
-        for(pack in UserProfile.getUserPacks())
-            if (pack.editable)
-                pList.add(pack)
-        notifyDataSetChanged()
     }
 }

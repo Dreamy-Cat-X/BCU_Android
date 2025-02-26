@@ -19,7 +19,7 @@ import common.util.anim.AnimCE
 import common.util.anim.MaAnim
 import common.util.anim.Part
 
-class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE, private val p : Part, private val ref : () -> Unit) : StableArrayAdapter<IntArray>(activity, R.layout.maanim_part_list_layout, p.moves) {
+class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE, private val p : Part) : StableArrayAdapter<IntArray>(activity, R.layout.maanim_part_list_layout, p.moves) {
 
     companion object {
         val eases = arrayOf("0 - Linear", "1 - Instant", "2 - Exponential", "3 - Polynomial", "4 - Sinusoidal")
@@ -113,7 +113,7 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
                     ma.parts[ind++] = datum
             ma.validate()
             activity.unSave(a,"maanim remove part")
-            ref()
+            remove(position)
             voo.animationChanged()
         }
         return row

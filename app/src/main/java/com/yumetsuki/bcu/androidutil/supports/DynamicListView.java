@@ -22,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -565,7 +566,7 @@ public class DynamicListView extends ListView {
         HashMap<T, Integer> mIdMap = new HashMap<>();
 
         public StableArrayAdapter(Context context, int textViewResourceId, T[] objects) {
-            this(context, textViewResourceId, Arrays.asList(objects));
+            this(context, textViewResourceId, new ArrayList<>(Arrays.asList(objects)));
         }
         public StableArrayAdapter(Context context, int textViewResourceId, List<T> objects) {
             super(context, textViewResourceId, objects);
@@ -580,6 +581,50 @@ public class DynamicListView extends ListView {
             }
             T item = getItem(position);
             return mIdMap.get(item);
+        }
+        @Override
+        public void add(T obj) {
+            mIdMap.put(obj, mIdMap.size());
+            super.add(obj);
+        }
+        @Override
+        @SafeVarargs
+        public final void addAll(T... objs) {
+            int siz = mIdMap.size();
+            for (int i = 0; i < objs.length; ++i)
+                mIdMap.put(objs[i], i + siz);
+            super.addAll(objs);
+        }
+        @Override
+        public void insert(T obj, int position) {
+            mIdMap.replaceAll((k, v) -> v >= position ? v + 1 : v);
+            mIdMap.put(obj, position);
+            super.add(obj);
+        }
+        @Override
+        public void remove(T obj) {
+            int ps = getPosition(obj);
+            if (ps == -1)
+                return;
+            mIdMap.replaceAll((k, v) -> v >= ps ? v - 1 : v);
+            mIdMap.remove(obj);
+            super.remove(obj);
+        }
+        public void remove(int ps) {
+            remove(getItem(ps));
+        }
+        @Override
+        public void clear() {
+            mIdMap.clear();
+            super.clear();
+        }
+
+        @SafeVarargs
+        public final void setTo(T... objs) {
+            setNotifyOnChange(false);
+            clear();
+            setNotifyOnChange(true);
+            addAll(objs);
         }
 
         @Override

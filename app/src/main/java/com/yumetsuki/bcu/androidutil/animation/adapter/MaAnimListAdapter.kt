@@ -59,8 +59,6 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
             iname.hint = hint
         }
     }
-    private val manim: MaAnim = activity.getAnim(a)
-    val parts: Array<Part> = manim.parts
 
     override fun getView(position: Int, view: View?, parent: ViewGroup): View {
         val holder: ViewHolder
@@ -75,8 +73,8 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
             row = view
             holder = row.tag as ViewHolder
         }
-
-        val ma = parts[position]
+        val manim = activity.getAnim(a)
+        val ma = manim.parts[position]
         holder.imod.setPopupBackgroundResource(R.drawable.spinner_popup)
         holder.imod.adapter = ArrayAdapter(activity, R.layout.spinneradapter, mods)
 
@@ -146,7 +144,8 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
                     manim.parts[ind++] = datum
             manim.validate()
             activity.unSave(a,"maanim remove part")
-            activity.refreshAdapter(a)
+            remove(position)
+            setList(holder.ilist, ma)
         }
         holder.ilist.setSwapListener { from, to ->
             val temp = ma.moves[from]
@@ -163,7 +162,7 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
             list[0].height * p.n
         else
             TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, p.n * 60f, activity.resources.displayMetrics).toInt()
-        list.adapter = PartListAdapter(activity, a, p, fun() {setList(list, p)})
+        list.adapter = PartListAdapter(activity, a, p)
         list.layoutParams.height = n
     }
 
@@ -187,6 +186,6 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
         if (si == 0)
             p.moves[0] = newPart
         p.validate()
-        manim.validate()
+        activity.getAnim(a).validate()
     }
 }

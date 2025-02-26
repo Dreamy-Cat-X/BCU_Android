@@ -276,7 +276,16 @@ class MaAnimEditor : AppCompatActivity() {
                 }
             })
             layout.addView(viewer)
-            refreshAdapter(anim)
+            val list = findViewById<DynamicListView>(R.id.maanimvalList)
+            val adp = MaAnimListAdapter(this@MaAnimEditor, anim)
+            list.adapter = adp
+            list.setSwapListener { from, to ->
+                val p = getAnim(anim).parts
+                val temp = p[from]
+                p[from] = p[to]
+                p[to] = temp
+                anim.unSave("maanim sort")
+            }
 
             val addl = findViewById<Button>(R.id.maanimpadd)
             addl.setOnClickListener {
@@ -293,7 +302,7 @@ class MaAnimEditor : AppCompatActivity() {
                 ma.parts[ind] = np
                 ma.validate()
                 unSave(anim,"maanim add line")
-                refreshAdapter(anim)
+                adp.insert(np, ind)
                 viewer.animationChanged()
             }
             val impr = findViewById<Button>(R.id.maanimimport)
@@ -309,7 +318,7 @@ class MaAnimEditor : AppCompatActivity() {
                             anim.anims[i] = a
                             anim.unSave("Import maanim")
                             if (anim.types[i] == viewer.getType()) {
-                                refreshAdapter(anim)
+                                adp.setTo(*a.parts)
                                 viewer.animationChanged()
                             }
                             break
@@ -346,7 +355,7 @@ class MaAnimEditor : AppCompatActivity() {
                         if (viewer.aind != position) {
                             viewer.aind = position
                             viewer.animationChanged()
-                            refreshAdapter(anim)
+                            adp.setTo(*getAnim(anim).parts)
                             controller.max = CommonStatic.fltFpsMul(viewer.anim.len().toFloat()).toInt()
 
                             controller.progress = 0
@@ -414,7 +423,7 @@ class MaAnimEditor : AppCompatActivity() {
                 else
                     View.VISIBLE
                 redo.visibility = View.VISIBLE
-                refreshAdapter(anim)
+                adp.setTo(*getAnim(anim).parts)
                 viewer.animationChanged()
             }
             redo.setOnClickListener {
@@ -424,7 +433,7 @@ class MaAnimEditor : AppCompatActivity() {
                 else
                     View.VISIBLE
                 undo.visibility = View.VISIBLE
-                refreshAdapter(anim)
+                adp.setTo(*getAnim(anim).parts)
                 viewer.animationChanged()
             }
             undo.visibility = if (anim.undo == "initial")
@@ -515,17 +524,6 @@ class MaAnimEditor : AppCompatActivity() {
         }
     }
 
-    fun refreshAdapter(anim : AnimCE) {
-        val list = findViewById<DynamicListView>(R.id.maanimvalList)
-        list.adapter = MaAnimListAdapter(this, anim)
-        list.setSwapListener { from, to ->
-            val p = getAnim(anim).parts
-            val temp = p[from]
-            p[from] = p[to]
-            p[to] = temp
-            anim.unSave("maanim sort")
-        }
-    }
     fun getAnim(a : AnimCE) : MaAnim {
         val viewer = findViewById<AnimationEditView>(R.id.animationView)
         return a.getMaAnim(viewer.getType())
