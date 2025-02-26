@@ -623,9 +623,9 @@ class GetStrings(private val c: Context) {
 
     fun getMultiply(data: SCDef.Line, multi: Int): String {
         return if(data.multiple == data.mult_atk) {
-            (data.multiple.toFloat() * multi.toFloat() / 100.toFloat()).toInt().toString() + "%"
+            (data.multiple.toFloat() * multi.toFloat() / 100f).toInt().toString() + "%"
         } else {
-            (data.multiple.toFloat() * multi.toFloat() / 100.toFloat()).toInt().toString() + " / " + (data.mult_atk.toFloat() * multi.toFloat() / 100.toFloat()).toInt().toString() + "%"
+            (data.multiple.toFloat() * multi.toFloat() / 100f).toInt().toString() + " / " + (data.mult_atk.toFloat() * multi.toFloat() / 100.toFloat()).toInt().toString() + "%"
         }
     }
 

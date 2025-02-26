@@ -15,10 +15,12 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.tabs.TabLayout
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
 import common.CommonStatic
 import common.pack.PackData
+import common.pack.Source.Workspace
 import common.pack.UserProfile
 
 class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList<PackData.UserPack>) : ArrayAdapter<PackData.UserPack>(ac, R.layout.pack_create_list_layout, pList) {
@@ -27,6 +29,7 @@ class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList
         val name = v.findViewById<EditText>(R.id.pcusname)!!
         val more = v.findViewById<FloatingActionButton>(R.id.pcusmore)!!
         val icn = v.findViewById<ImageView>(R.id.userpackIcon)!!
+        val opts = v.findViewById<TabLayout>(R.id.pcusOptions)
     }
 
     var dialog = AlertDialog.Builder(context)
@@ -112,21 +115,7 @@ class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList
                     }
                 }
                 R.id.packshare -> {
-                    //TODO - Export packs
-                    /*if(!f.exists()) {
-                        StaticStore.showShortMessage(context, R.string.pack_share_notfound)
-
-                        return@setOnMenuItemClickListener  false
-                    }
-                    val uri = FileProvider.getUriForFile(context,"com.yumetsuki.bcu.provider",f)
-
-                    val intent = Intent()
-                    intent.action = Intent.ACTION_SEND*/
-                    //intent.type = "*/*"
-                    //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
-                    //intent.putExtra(Intent.EXTRA_STREAM, uri)
-                    //val i = Intent.createChooser(intent, context.getString(R.string.pack_manage_share))
-                    //ac.startActivity(i)
+                    //(p.source as Workspace).export(p, "", "", false, null);
                 }
             }
 
@@ -138,6 +127,9 @@ class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList
         holder.more.setOnLongClickListener {
             popup.show()//Click will be to show the option buttons
             false
+        }
+        holder.more.setOnClickListener {
+            holder.opts.visibility = View.GONE - holder.opts.visibility
         }
 
         return row

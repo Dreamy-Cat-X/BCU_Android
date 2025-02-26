@@ -16,7 +16,6 @@ import common.io.json.JsonEncoder
 import common.pack.Identifier
 import common.util.lang.MultiLangCont
 import common.util.unit.AbUnit
-import common.util.unit.Unit
 
 class DynamicExplanation : Fragment() {
     companion object {

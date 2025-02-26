@@ -10,11 +10,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentContainerView
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.yumetsuki.bcu.EnemyInfo
 import com.yumetsuki.bcu.R
@@ -127,8 +132,8 @@ class StEnListRecycle(private val activity: Activity, private val st: Stage, pri
             override fun onSingleClick(v: View?) {
                 val intent = Intent(activity, EnemyInfo::class.java)
                 intent.putExtra("Data", JsonEncoder.encode(em.id).toString())
-                intent.putExtra("Multiply", ((data[viewHolder.bindingAdapterPosition]?.multiple?.toFloat() ?: 0f) * multi.toFloat() / 100.toFloat()).toInt())
-                intent.putExtra("AMultiply", ((data[viewHolder.bindingAdapterPosition]?.mult_atk?.toFloat() ?: 0f) * multi.toFloat() / 100.toFloat()).toInt())
+                intent.putExtra("Multiply", ((data[viewHolder.bindingAdapterPosition]?.multiple?.toFloat() ?: 0f) * multi.toFloat() / 100f).toInt())
+                intent.putExtra("AMultiply", ((data[viewHolder.bindingAdapterPosition]?.mult_atk?.toFloat() ?: 0f) * multi.toFloat() / 100f).toInt())
                 activity.startActivity(intent)
             }
         })
@@ -174,6 +179,59 @@ class StEnListRecycle(private val activity: Activity, private val st: Stage, pri
             viewHolder.edoor.visibility = View.GONE
         }
         viewHolder.edoor.text = build.toString()
+
+        if ((data[viewHolder.bindingAdapterPosition] ?: SCDef.Line()).rev != null) {
+            viewHolder.erevc.layoutManager = LinearLayoutManager(activity)
+            val adp = StEnRevival(activity, viewHolder.erevc, (data[viewHolder.bindingAdapterPosition] ?: SCDef.Line()).rev, multi.toFloat() / 100f)
+            viewHolder.erevc.adapter = adp
+            viewHolder.erev.setOnClickListener(View.OnClickListener {
+                if (SystemClock.elapsedRealtime() - StaticStore.infoClick < StaticStore.INFO_INTERVAL)
+                    return@OnClickListener
+
+                StaticStore.infoClick = SystemClock.elapsedRealtime()
+
+                if (adp.expansions == 0) {
+                    adp.expansions++
+                    viewHolder.erevc.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+                    val height = viewHolder.erevc.measuredHeight
+                    val anim = ValueAnimator.ofInt(0, height)
+
+                    anim.addUpdateListener { animation ->
+                        val `val` = animation.animatedValue as Int
+                        val layout = viewHolder.erevc.layoutParams
+                        layout.height = `val`
+                        viewHolder.erevc.layoutParams = layout
+                    }
+                    anim.duration = 300
+                    anim.interpolator = DecelerateInterpolator()
+                    anim.start()
+
+                    viewHolder.erev.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_expand_more_black_24dp))
+                } else {
+                    viewHolder.erevc.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    val height = viewHolder.erevc.measuredHeight
+                    val anim = ValueAnimator.ofInt(height, 0)
+                    anim.addUpdateListener { animation ->
+                        val `val` = animation.animatedValue as Int
+                        val layout = viewHolder.erevc.layoutParams
+                        layout.height = `val`
+                        viewHolder.erevc.layoutParams = layout
+                    }
+                    anim.doOnEnd {
+                        adp.expansions = 0
+                    }
+                    anim.duration = 300
+                    anim.interpolator = DecelerateInterpolator()
+                    anim.start()
+                    viewHolder.erev.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_expand_less_black_24dp))
+                }
+            })
+        } else {
+            viewHolder.erv.visibility = View.GONE
+            viewHolder.erev.visibility = View.GONE
+            viewHolder.erevc.visibility = View.GONE
+        }
     }
 
     override fun getItemCount(): Int {
@@ -197,6 +255,9 @@ class StEnListRecycle(private val activity: Activity, private val st: Stage, pri
         val killcount = row.findViewById<TextView>(R.id.enemlistkilcr)!!
         val edor = row.findViewById<TextView>(R.id.enemlistedoor)!!
         val edoor = row.findViewById<TextView>(R.id.enemlistevrdr)!!
+        val erv = row.findViewById<TextView>(R.id.enemlistrv)!!
+        val erev = row.findViewById<ImageButton>(R.id.enemlistrev)!!
+        val erevc = row.findViewById<RecyclerView>(R.id.enemlistrevcont)!!
     }
 
     private fun reverse(data: Array<SCDef.Line>): Array<SCDef.Line?> {

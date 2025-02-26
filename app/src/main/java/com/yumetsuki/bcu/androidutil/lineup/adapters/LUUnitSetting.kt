@@ -26,6 +26,7 @@ import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
 import common.battle.BasisSet
 import common.io.json.JsonEncoder
+import common.util.unit.AbForm
 import common.util.unit.Form
 import common.util.unit.Level
 
@@ -49,7 +50,7 @@ class LUUnitSetting : Fragment() {
 
     private var fid = 0
 
-    var f: Form? = null
+    var f: AbForm? = null
 
     override fun onCreateView(inflater: LayoutInflater, group: ViewGroup?, bundle: Bundle?): View {
         val view = inflater.inflate(R.layout.lineup_unit_set, group, false)
@@ -80,8 +81,8 @@ class LUUnitSetting : Fragment() {
         else {
             line.lu.fs[StaticStore.position[0]][StaticStore.position[1]]
         }
-        if (af != null)//TODO - Should add randomUnit support but getting this crap to work is bigger prio
-            f = af as Form
+        if (af == null)
+            return
 
         if (f == null) {
             setDisappear(spinners[0], spinners[1], plus, row, t, tal, supernprow, chform, levt)
@@ -93,7 +94,8 @@ class LUUnitSetting : Fragment() {
 
             level = BasisSet.current().sele.lu.getLv(f) ?: return
 
-            BasisSet.synchronizeOrb(f.unit)
+            if (f is Form)
+                BasisSet.synchronizeOrb(f.unit)
 
             setAppear(spinners[0], spinners[1], plus, row, t, tal, supernprow, chform, levt)
 
@@ -101,7 +103,7 @@ class LUUnitSetting : Fragment() {
 
             fid = f.fid
 
-            if (f.unit.maxp == 0)
+            if (f.unit().maxPLv == 0)
                 setDisappear(spinners[1], plus)
 
             if(this::talent.isInitialized && talent.isNotEmpty()) {
@@ -114,7 +116,7 @@ class LUUnitSetting : Fragment() {
                 superTalentIndex.clear()
             }
 
-            if (f.du.pCoin != null) {
+            if (f is Form && f.du.pCoin != null) {
                 val max = f.du.pCoin.max
 
                 for(i in f.du.pCoin.info.indices) {
@@ -204,17 +206,18 @@ class LUUnitSetting : Fragment() {
 
             info.setOnClickListener(object : SingleClick() {
                 override fun onSingleClick(v: View?) {
-                    val uid = f.unit.id
+                    if (f !is Form)
+                        return
+                    val uid = f.unit().id
 
                     val intent = Intent(context, UnitInfo::class.java)
-
                     intent.putExtra("Data", JsonEncoder.encode(uid).toString())
                     requireContext().startActivity(intent)
                 }
             })
 
             val levels = ArrayList<Int>()
-            for (i in 1 until (f.unit.max) + 1)
+            for (i in 1 until (f.unit().maxLv) + 1)
                 levels.add(i)
 
             val adapter = ArrayAdapter(requireContext(), R.layout.spinneradapter, levels)
@@ -228,14 +231,14 @@ class LUUnitSetting : Fragment() {
 
                     if(CommonStatic.getConfig().realLevel)
                         for(i in superTalent.indices)
-                            changeSpinner(superTalent[i], lev + levp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
+                            changeSpinner(superTalent[i], lev + levp >= (f as Form).du.pCoin.getReqLv(superTalentIndex[i]))
                     setAtkText(t, hp, atk, s)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>) {}
             }
             val plusLevels = ArrayList<Int>()
-            for (i in 0 until (f.unit.maxp) + 1)
+            for (i in 0 until (f.unit().maxPLv) + 1)
                 plusLevels.add(i)
 
             val adapter1 = ArrayAdapter(requireContext(), R.layout.spinneradapter, plusLevels)
@@ -249,14 +252,16 @@ class LUUnitSetting : Fragment() {
 
                     if(CommonStatic.getConfig().realLevel)
                         for(i in superTalent.indices)
-                            changeSpinner(superTalent[i], lev + levp >= f.du.pCoin.getReqLv(superTalentIndex[i]))
+                            changeSpinner(superTalent[i], lev + levp >= (f as Form).du.pCoin.getReqLv(superTalentIndex[i]))
                     setAtkText(t, hp, atk, s)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>) {}
             }
-            hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-            atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level, f.du.firstAtk())
+            if (f is Form) {
+                hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
+                atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level, f.du.firstAtk())
+            }
 
             t.setOnCheckedChangeListener { _, isChecked ->
                 val siz = StaticStore.dptopx(64f, requireContext())
@@ -276,7 +281,7 @@ class LUUnitSetting : Fragment() {
                 setAtkText(t, hp, atk, s)
             }
 
-            if (f.du.pCoin != null) {
+            if (f is Form && f.du.pCoin != null) {
                 var talentExist = false
 
                 for(i in level.talents.indices)
@@ -304,13 +309,16 @@ class LUUnitSetting : Fragment() {
 
             chform.setOnClickListener {
                 fid++
+                if (f !is Form)
+                    return@setOnClickListener
+                var ff = f as Form
 
                 if (StaticStore.position[0] != 100 && StaticStore.position[1] != 100 && StaticStore.position[0] != -1 && StaticStore.position[1] != -1)
-                    BasisSet.current().sele.lu.fs[StaticStore.position[0]][StaticStore.position[1]] = f.unit.forms[fid % f.unit.forms.size]
+                    BasisSet.current().sele.lu.fs[StaticStore.position[0]][StaticStore.position[1]] = ff.unit.forms[fid % ff.unit.forms.size]
                 else
-                    line.repform = f.unit.forms[fid % f.unit.forms.size]
+                    line.repform = ff.unit.forms[fid % ff.unit.forms.size]
 
-                this.f = f.unit.forms[fid % f.unit.forms.size]
+                this.f = ff.unit.forms[fid % ff.unit.forms.size]
 
                 line.updateLineUp()
                 line.syncLineUp()
@@ -322,11 +330,12 @@ class LUUnitSetting : Fragment() {
                 level.setPlusLevel(levp1)
 
                 f = this.f ?: return@setOnClickListener
+                ff = f as Form
 
-                hp.text = s.getHP(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level)
-                atk.text = s.getAtk(f, BasisSet.current().t(), f.du.pCoin != null && t.isChecked, level, f.du.firstAtk())
+                hp.text = s.getHP(ff, BasisSet.current().t(), ff.du.pCoin != null && t.isChecked, level)
+                atk.text = s.getAtk(ff, BasisSet.current().t(), ff.du.pCoin != null && t.isChecked, level, ff.du.firstAtk())
 
-                if (f.du.pCoin == null) {
+                if (ff.du.pCoin == null) {
                     setDisappear(t, tal, supernprow)
                 } else {
                     setAppear(t, tal)
@@ -334,10 +343,10 @@ class LUUnitSetting : Fragment() {
                     if (superTalentIndex.isNotEmpty())
                         setAppear(supernprow)
 
-                    val max = f.du.pCoin.max
+                    val max = ff.du.pCoin.max
                     for(i in talentIndex.indices) {
                         if (talentIndex[i] >= max.size)
-                            println("Max : ${max.contentToString()} | Talent Index : $talentIndex | Super Talent Index : $superTalentIndex\nUnit : $f - ${f.uid}")
+                            println("Max : ${max.contentToString()} | Talent Index : $talentIndex | Super Talent Index : $superTalentIndex\nUnit : $f - ${ff.uid}")
 
                         val list = ArrayList<Int>()
                         for (j in 0 until max[talentIndex[i]] + 1)
@@ -348,7 +357,7 @@ class LUUnitSetting : Fragment() {
                         talent[i].setSelection(getIndex(talent[i], level.talents[talentIndex[i]]))
                         talent[i].setOnLongClickListener {
                             talent[i].isClickable = false
-                            StaticStore.showShortMessage(context, s.getTalentName(talentIndex[i], f, requireActivity()))
+                            StaticStore.showShortMessage(context, s.getTalentName(talentIndex[i], ff, requireActivity()))
                             true
                         }
                         talent[i].onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -369,7 +378,7 @@ class LUUnitSetting : Fragment() {
                         superTalent[i].setSelection(getIndex(superTalent[i], level.talents[superTalentIndex[i]]))
                         superTalent[i].setOnLongClickListener {
                             superTalent[i].isClickable = false
-                            StaticStore.showShortMessage(context, s.getTalentName(superTalentIndex[i], f, requireActivity()))
+                            StaticStore.showShortMessage(context, s.getTalentName(superTalentIndex[i], ff, requireActivity()))
                             true
                         }
                         superTalent[i].onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -380,7 +389,7 @@ class LUUnitSetting : Fragment() {
                         }
 
                         if(CommonStatic.getConfig().realLevel) {
-                            changeSpinner(superTalent[i], level.totalLv >= f.du.pCoin.getReqLv(superTalentIndex[i]))
+                            changeSpinner(superTalent[i], level.totalLv >= ff.du.pCoin.getReqLv(superTalentIndex[i]))
                         }
                     }
 
@@ -460,17 +469,20 @@ class LUUnitSetting : Fragment() {
     }
 
     private fun setAtkText(t : CheckBox, hp : TextView, atk : TextView, s : GetStrings) {
-        BasisSet.current().sele.lu.setLv(f?.unit, level)
+        BasisSet.current().sele.lu.setLv(f?.unit(), level)
         if(this@LUUnitSetting::line.isInitialized)
             line.updateUnitOrb()
+        val fr  = f
+        if (fr !is Form)
+            return
 
         if (t.isChecked) {
-            hp.text = s.getHP(f, BasisSet.current().t(), f?.du?.pCoin != null && t.isChecked, level)
-            atk.text = s.getAtk(f, BasisSet.current().t(), f?.du?.pCoin != null && t.isChecked, level, f?.du?.firstAtk() ?: 0)
+            hp.text = s.getHP(fr, BasisSet.current().t(), fr.du?.pCoin != null && t.isChecked, level)
+            atk.text = s.getAtk(fr, BasisSet.current().t(), fr.du?.pCoin != null && t.isChecked, level, fr.du?.firstAtk() ?: 0)
         } else {
             removePCoin()
-            hp.text = s.getHP(f, BasisSet.current().t(), f?.du?.pCoin != null && t.isChecked, level)
-            atk.text = s.getAtk(f, BasisSet.current().t(), f?.du?.pCoin != null && t.isChecked, level, f?.du?.firstAtk() ?: 0)
+            hp.text = s.getHP(fr, BasisSet.current().t(), fr.du?.pCoin != null && t.isChecked, level)
+            atk.text = s.getAtk(fr, BasisSet.current().t(), fr.du?.pCoin != null && t.isChecked, level, fr.du?.firstAtk() ?: 0)
         }
     }
 }

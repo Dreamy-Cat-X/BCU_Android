@@ -29,7 +29,6 @@ class LimitRecycle(private val activity: Activity, val l: Limit?) : RecyclerView
             collapsed[i] = !collapsed[i]
             val text = if (collapsed[i]) collapseText[i]+" ("+activity.getText(R.string.stg_info_expand)+")"
                 else limits[i]
-            println(i)
             holder.limit.text = text
         }
         ind++
