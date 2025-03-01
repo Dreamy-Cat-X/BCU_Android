@@ -81,8 +81,8 @@ class LUUnitSetting : Fragment() {
         else {
             line.lu.fs[StaticStore.position[0]][StaticStore.position[1]]
         }
-        if (af == null)
-            return
+        if (af != null)
+            f = af
 
         if (f == null) {
             setDisappear(spinners[0], spinners[1], plus, row, t, tal, supernprow, chform, levt)
@@ -94,10 +94,12 @@ class LUUnitSetting : Fragment() {
 
             level = BasisSet.current().sele.lu.getLv(f) ?: return
 
-            if (f is Form)
+            if (f is Form) {
                 BasisSet.synchronizeOrb(f.unit)
-
-            setAppear(spinners[0], spinners[1], plus, row, t, tal, supernprow, chform, levt)
+                setAppear(chform)
+            } else
+                setDisappear(chform)
+            setAppear(spinners[0], spinners[1], plus, row, t, tal, supernprow, levt)
 
             val s = GetStrings(requireContext())
 
