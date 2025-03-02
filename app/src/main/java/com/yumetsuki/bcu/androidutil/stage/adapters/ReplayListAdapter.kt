@@ -13,7 +13,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.TableLayout
+import android.widget.TableRow
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.yumetsuki.bcu.BattleSimulation
@@ -34,7 +34,7 @@ class ReplayListAdapter(private val activity: ReplayList, private val replays : 
         var stgName: TextView = row.findViewById(R.id.rplystgname)
         var battle: Button = row.findViewById(R.id.rplystart)
         var expand: ImageButton = row.findViewById(R.id.rplyexpand)
-        val moreinfo: TableLayout = row.findViewById(R.id.rplymoreinfo)
+        val moreinfo: TableRow = row.findViewById(R.id.rplymoreinfo)
         val delete: Button = row.findViewById(R.id.rplydelete)
     }
 
@@ -116,7 +116,8 @@ class ReplayListAdapter(private val activity: ReplayList, private val replays : 
             val t = "${replay.st} (Corrupted)"
             holder.stgName.text = t
         } else {
-            holder.stgName.text = "$stage"
+            val t = "${stage.cont}: $stage"
+            holder.stgName.text = t
             holder.battle.setOnClickListener {
                 val intent = Intent(activity, BattleSimulation::class.java)
 

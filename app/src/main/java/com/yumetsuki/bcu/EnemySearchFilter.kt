@@ -42,7 +42,7 @@ open class EnemySearchFilter : AppCompatActivity() {
 
     private val abils = arrayOf(intArrayOf(R.string.sch_abi_we, 1, Data.P_WEAK.toInt()), intArrayOf(R.string.sch_abi_fr, 1, Data.P_STOP.toInt()),
         intArrayOf(R.string.sch_abi_sl, 1, Data.P_SLOW.toInt()), intArrayOf(R.string.sch_abi_kb, 1, Data.P_KB.toInt()), intArrayOf(R.string.sch_abi_wa, 1, Data.P_WARP.toInt()),
-        intArrayOf(R.string.sch_abi_cu, 1, Data.P_CURSE.toInt()), intArrayOf(R.string.sch_abi_iv, 1, Data.P_IMUATK.toInt()), intArrayOf(R.string.sch_abi_str, 1, Data.P_STRONG.toInt()),
+        intArrayOf(R.string.sch_abi_cu, 1, Data.P_CURSE.toInt()), intArrayOf(R.string.sch_abi_iv, 1, Data.P_IMUATK.toInt()), intArrayOf(R.string.sch_abi_str, 1, Data.P_STRONG.toInt()), intArrayOf(R.string.sch_abi_speedup, 1, Data.P_SPEEDUP.toInt()),
         intArrayOf(R.string.sch_abi_su, 1, Data.P_LETHAL.toInt()), intArrayOf(R.string.sch_abi_bd, 1, Data.P_ATKBASE.toInt()), intArrayOf(R.string.sch_abi_cr, 1, Data.P_CRIT.toInt()),
         intArrayOf(R.string.sch_abi_mk, 1, Data.P_METALKILL.toInt()), intArrayOf(R.string.sch_abi_ck, 0, Data.AB_CKILL.toInt()), intArrayOf(R.string.sch_abi_bb, 1, Data.P_BREAK.toInt()),
         intArrayOf(R.string.sch_abi_shb, 1, Data.P_SHIELDBREAK.toInt()), intArrayOf(R.string.sch_abi_mw, 1, Data.P_MINIWAVE.toInt()), intArrayOf(R.string.sch_abi_wv, 1, Data.P_WAVE.toInt()),

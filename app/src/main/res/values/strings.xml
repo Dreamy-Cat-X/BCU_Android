@@ -1121,4 +1121,6 @@
     <string name="anim_resize" translatable="false">Resize</string>
     <string name="anim_resizep" translatable="false">Resizing imgcut</string>
     <string name="replay_create" translatable="false">Create Replay</string>
+    <string name="sch_abi_speedup" translatable="false">Adrenaline</string>
+    <string name="limit_dpspwn" translatable="false">Duplicate spawn Amount / Delay</string>
 </resources>

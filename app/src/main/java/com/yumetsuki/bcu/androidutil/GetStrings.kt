@@ -141,7 +141,9 @@ class GetStrings(private val c: Context) {
             R.string.sch_abi_st,
             R.string.sch_abi_re,
             R.string.sch_abi_tps,
-            R.string.sch_abi_ss
+            R.string.sch_abi_ss,
+            R.string.abi_drn,
+            R.string.sch_abi_speedup
         )
         private lateinit var talTool: Array<String>
         private val mapcolcid = arrayOf("N", "S", "C", "CH", "E", "T", "V", "R", "M", "A", "B", "RA", "H", "CA", "Q", "L", "ND", "SR", "G")
@@ -741,6 +743,13 @@ class GetStrings(private val c: Context) {
                         if (l.stageLimit.rarityDeployLimit[i] != 100)
                             str.append(c.getString(rid[i])).append(": ").append(l.stageLimit.rarityDeployLimit[i]).append(", ")
                     limits[c.getString(R.string.limit_rspn)] = str.substring(0, str.length - 2) + "]"
+                }
+                if (!l.stageLimit.defDupe()) {
+                    val str = StringBuilder(c.getString(R.string.limit_dpspwn)).append(" : [")
+                    for (i in rid.indices)
+                        if (l.stageLimit.deployDuplicationTimes[i] != 0)
+                            str.append(c.getString(rid[i])).append(": ").append(l.stageLimit.deployDuplicationTimes[i]).append(" / ").append(l.stageLimit.deployDuplicationDelay[i]).append("f, ")
+                    limits[c.getString(R.string.limit_dpspwn)] = str.substring(0, str.length - 2) + "]"
                 }
             }
         }

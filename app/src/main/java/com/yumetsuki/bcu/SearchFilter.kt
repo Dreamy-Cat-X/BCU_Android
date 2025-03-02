@@ -55,7 +55,7 @@ class SearchFilter : AppCompatActivity() {
         intArrayOf(R.string.sch_abi_sl, 1, Data.P_SLOW.toInt()), intArrayOf(R.string.sch_abi_ao, 0, Data.AB_ONLY.toInt()), intArrayOf(R.string.sch_abi_st, 1, Data.P_DMGINC.toInt(), 0, 100, 300),
         intArrayOf(R.string.sch_abi_re,1, Data.P_DEFINC.toInt(), 0, 400, 600), intArrayOf(R.string.sch_abi_it, 1, Data.P_DEFINC.toInt(), 0, 600), intArrayOf(R.string.sch_abi_md, 1, Data.P_DMGINC.toInt(), 0, 300, 500),
         intArrayOf(R.string.sch_abi_id,  1, Data.P_DMGINC.toInt(), 0, 500), intArrayOf(R.string.sch_abi_kb, 1, Data.P_KB.toInt()), intArrayOf(R.string.sch_abi_wa, 1, Data.P_WARP.toInt()),
-        intArrayOf(R.string.sch_abi_cu, 1, Data.P_CURSE.toInt()), intArrayOf(R.string.sch_abi_iv, 1, Data.P_IMUATK.toInt()), intArrayOf(R.string.sch_abi_str, 1, Data.P_STRONG.toInt()),
+        intArrayOf(R.string.sch_abi_cu, 1, Data.P_CURSE.toInt()), intArrayOf(R.string.sch_abi_iv, 1, Data.P_IMUATK.toInt()), intArrayOf(R.string.sch_abi_str, 1, Data.P_STRONG.toInt()), intArrayOf(R.string.sch_abi_speedup, 1, Data.P_SPEEDUP.toInt()),
         intArrayOf(R.string.sch_abi_su, 1, Data.P_LETHAL.toInt()), intArrayOf(R.string.sch_abi_bd, 1, Data.P_ATKBASE.toInt()), intArrayOf(R.string.sch_abi_cr, 1, Data.P_CRIT.toInt()), intArrayOf(R.string.sch_abi_mk, 1, Data.P_METALKILL.toInt()),
         intArrayOf(R.string.sch_abi_zk, 0, Data.AB_ZKILL.toInt()), intArrayOf(R.string.sch_abi_ck, 0, Data.AB_CKILL.toInt()), intArrayOf(R.string.sch_abi_bb, 1, Data.P_BREAK.toInt()),
         intArrayOf(R.string.sch_abi_shb, 1, Data.P_SHIELDBREAK.toInt()), intArrayOf(R.string.sch_abi_sb, 1, Data.P_SATK.toInt()), intArrayOf(R.string.sch_abi_em, 1, Data.P_BOUNTY.toInt()),

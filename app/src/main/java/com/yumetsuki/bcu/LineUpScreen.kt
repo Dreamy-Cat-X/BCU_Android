@@ -165,11 +165,10 @@ class LineUpScreen : AppCompatActivity() {
                     StaticStore.ludata.clear()
 
                     for(p in UserProfile.getAllPacks()) {
-                        for(i in p.units.list.indices) {
-                            val unit = p.units.list[i]
-
+                        for(unit in p.units.list)
                             StaticStore.ludata.add(unit.id)
-                        }
+                        for (runi in p.randUnits.list)
+                            StaticStore.ludata.add(runi.id)
                     }
                 }
             }
