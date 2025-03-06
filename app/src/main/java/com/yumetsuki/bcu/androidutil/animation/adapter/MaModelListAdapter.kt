@@ -12,12 +12,12 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
-import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.MaModelEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
 import com.yumetsuki.bcu.androidutil.supports.DynamicListView.StableArrayAdapter
+import com.yumetsuki.bcu.androidutil.supports.WatcherEditText
 import common.CommonStatic
 import common.util.anim.AnimCE
 import common.util.anim.MaModel
@@ -32,17 +32,17 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
     }
     internal class ViewHolder(row: View) {
         val iid: Button = row.findViewById(R.id.mamodel_id)
-        val ipar: EditText = row.findViewById(R.id.mamodel_par)
-        val ispr: EditText = row.findViewById(R.id.mamodel_spr)
-        val iz: EditText = row.findViewById(R.id.mamodel_z)
-        val ix: EditText = row.findViewById(R.id.mamodel_x)
-        val iy: EditText = row.findViewById(R.id.mamodel_y)
-        val ipx: EditText = row.findViewById(R.id.mamodel_px)
-        val ipy: EditText = row.findViewById(R.id.mamodel_py)
-        val isx: EditText = row.findViewById(R.id.mamodel_sx)
-        val isy: EditText = row.findViewById(R.id.mamodel_sy)
-        val irot: EditText = row.findViewById(R.id.mamodel_rot)
-        val iopa: EditText = row.findViewById(R.id.mamodel_opa)
+        val ipar: WatcherEditText = row.findViewById(R.id.mamodel_par)
+        val ispr: WatcherEditText = row.findViewById(R.id.mamodel_spr)
+        val iz: WatcherEditText = row.findViewById(R.id.mamodel_z)
+        val ix: WatcherEditText = row.findViewById(R.id.mamodel_x)
+        val iy: WatcherEditText = row.findViewById(R.id.mamodel_y)
+        val ipx: WatcherEditText = row.findViewById(R.id.mamodel_px)
+        val ipy: WatcherEditText = row.findViewById(R.id.mamodel_py)
+        val isx: WatcherEditText = row.findViewById(R.id.mamodel_sx)
+        val isy: WatcherEditText = row.findViewById(R.id.mamodel_sy)
+        val irot: WatcherEditText = row.findViewById(R.id.mamodel_rot)
+        val iopa: WatcherEditText = row.findViewById(R.id.mamodel_opa)
         val iglw: Spinner = row.findViewById(R.id.mamodel_glw)
         val iname: EditText = row.findViewById(R.id.mamodel_name)
         val del: FloatingActionButton = row.findViewById(R.id.mamodel_part_delete)
@@ -86,87 +86,87 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
         holder.iname.text = SpannableStringBuilder(a.mamodel.strs0[position])
         holder.iname.hint = a.imgcut.strs[mo[2]]
         holder.iname.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId != EditorInfo.IME_ACTION_DONE)
+            if (actionId == EditorInfo.IME_ACTION_NONE || a.mamodel.strs0[position] == holder.iname.text.toString())
                 return@setOnEditorActionListener false
             a.mamodel.strs0[position] = holder.iname.text.toString()
             false
         }
 
         val voo = activity.findViewById<AnimationEditView>(R.id.animationView)
-        holder.ipar.doAfterTextChanged {
+        holder.ipar.setWatcher {
             if (!holder.ipar.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             mo[0] = MathUtil.clip(CommonStatic.parseIntN(holder.ipar.text.toString()), -1, a.mamodel.n - 1)
             a.mamodel.check(a)
             activity.unSave(a,"mamodel change $position Parent")
             voo.animationChanged()
         }
-        holder.ispr.doAfterTextChanged {
+        holder.ispr.setWatcher {
             if (!holder.ispr.hasFocus())
-                return@doAfterTextChanged
-            mo[2] = MathUtil.clip(CommonStatic.parseIntN(holder.ispr.text.toString()), 0, a.imgcut.n - 1)
+                return@setWatcher
+            mo[2] = MathUtil.clip(CommonStatic.parseIntN(holder.ispr.text.toString()),0,a.imgcut.n - 1)
             activity.unSave(a,"mamodel change $position Sprite")
             voo.animationChanged()
         }
-        holder.iz.doAfterTextChanged {
+        holder.iz.setWatcher {
             if (!holder.iz.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             mo[3] = CommonStatic.parseIntN(holder.iz.text.toString())
             activity.unSave(a,"mamodel change $position Z-Order")
             voo.animationChanged()
         }
-        holder.ix.doAfterTextChanged {
+        holder.ix.setWatcher {
             if (!holder.ix.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             mo[4] = CommonStatic.parseIntN(holder.ix.text.toString())
             activity.unSave(a,"mamodel change $position x")
             voo.animationChanged()
         }
-        holder.iy.doAfterTextChanged {
+        holder.iy.setWatcher {
             if (!holder.iy.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             mo[5] = CommonStatic.parseIntN(holder.iy.text.toString())
             activity.unSave(a,"mamodel change $position y")
             voo.animationChanged()
         }
-        holder.ipx.doAfterTextChanged {
+        holder.ipx.setWatcher {
             if (!holder.ipx.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             mo[6] = CommonStatic.parseIntN(holder.ipx.text.toString())
             activity.unSave(a,"mamodel change $position pivot x")
             voo.animationChanged()
         }
-        holder.ipy.doAfterTextChanged {
+        holder.ipy.setWatcher {
             if (!holder.ipy.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             mo[7] = CommonStatic.parseIntN(holder.ipy.text.toString())
             activity.unSave(a,"mamodel change $position pivot y")
             voo.animationChanged()
         }
-        holder.isx.doAfterTextChanged {
+        holder.isx.setWatcher {
             if (!holder.isx.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             mo[8] = CommonStatic.parseIntN(holder.isx.text.toString())
             activity.unSave(a,"mamodel change $position scale x")
             voo.animationChanged()
         }
-        holder.isy.doAfterTextChanged {
+        holder.isy.setWatcher {
             if (!holder.isy.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             mo[9] = CommonStatic.parseIntN(holder.isy.text.toString())
             activity.unSave(a,"mamodel change $position scale y")
             voo.animationChanged()
         }
-        holder.irot.doAfterTextChanged {
+        holder.irot.setWatcher {
             if (!holder.irot.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             mo[10] = CommonStatic.parseIntN(holder.irot.text.toString())
             activity.unSave(a,"mamodel change $position angle")
             voo.animationChanged()
         }
-        holder.iopa.doAfterTextChanged {
+        holder.iopa.setWatcher {
             if (!holder.iopa.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             mo[11] = max(0, CommonStatic.parseIntN(holder.iopa.text.toString()))
             activity.unSave(a,"mamodel change $position opacity")
             voo.animationChanged()

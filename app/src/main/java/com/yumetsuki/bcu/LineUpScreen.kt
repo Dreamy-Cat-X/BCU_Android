@@ -82,10 +82,8 @@ class LineUpScreen : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val shared = getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
-        val ed: Editor
-
         if (!shared.contains("initial")) {
-            ed = shared.edit()
+            val ed = shared.edit()
             ed.putBoolean("initial", true)
             ed.putBoolean("theme", true)
             ed.apply()
@@ -110,17 +108,10 @@ class LineUpScreen : AppCompatActivity() {
         val result = intent
         val extra = result.extras
 
-        val stage = if (extra != null) {
-            if (extra.containsKey("stage")) {
-                val data = StaticStore.transformIdentifier<Stage>(extra.getString("stage"))
-
-                data?.get()
-            } else {
-                null
-            }
-        } else {
+        val stage = if (extra != null && extra.containsKey("stage"))
+            StaticStore.transformIdentifier<Stage>(extra.getString("stage"))?.get()
+        else
             null
-        }
 
         val star = extra?.getInt("star", 0) ?: 0
 

@@ -1123,4 +1123,6 @@
     <string name="replay_create" translatable="false">Create Replay</string>
     <string name="sch_abi_speedup" translatable="false">Adrenaline</string>
     <string name="limit_dpspwn" translatable="false">Duplicate spawn Amount / Delay</string>
+    <string name="packcus_mapcreate" translatable="false">Level Editor</string>
+    <string name="packcus_entcreate" translatable="false">Entity Editor</string>
 </resources>

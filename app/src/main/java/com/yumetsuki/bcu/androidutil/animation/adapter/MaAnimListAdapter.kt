@@ -1,7 +1,6 @@
 package com.yumetsuki.bcu.androidutil.animation.adapter
 
 import android.text.SpannableStringBuilder
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,9 +11,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.Spinner
-import androidx.core.view.get
-import androidx.core.view.size
-import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.MaAnimEditor
 import com.yumetsuki.bcu.R
@@ -22,9 +18,9 @@ import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
 import com.yumetsuki.bcu.androidutil.supports.DynamicListView
 import com.yumetsuki.bcu.androidutil.supports.DynamicListView.StableArrayAdapter
+import com.yumetsuki.bcu.androidutil.supports.WatcherEditText
 import common.CommonStatic
 import common.util.anim.AnimCE
-import common.util.anim.MaAnim
 import common.util.anim.Part
 import org.jcodec.common.tools.MathUtil
 import kotlin.math.max
@@ -37,9 +33,9 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
             "10 - Scale Y", "11 - Angle", "12 - Opacity", "13 - H Flip", "14 - V Flip", "50 - Extend X", "51 - Random Extend X", "52 - Extend Y", "53 - Global Scale", "54 - Random Extend Y")
     }
     internal class ViewHolder(row: View) {
-        val ipid: EditText = row.findViewById(R.id.maanim_pid)
+        val ipid: WatcherEditText = row.findViewById(R.id.maanim_pid)
         val imod: Spinner = row.findViewById(R.id.maanim_mod)
-        val ilop: EditText = row.findViewById(R.id.maanim_lop)
+        val ilop: WatcherEditText = row.findViewById(R.id.maanim_lop)
         val iname: EditText = row.findViewById(R.id.maanim_name)
         val iplus: FloatingActionButton = row.findViewById(R.id.maanim_part_display)
 
@@ -83,9 +79,9 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
         setList(holder.ilist, ma)
 
         val voo = activity.findViewById<AnimationEditView>(R.id.animationView)
-        holder.ipid.doAfterTextChanged {
+        holder.ipid.setWatcher {
             if (!holder.ipid.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             ma.ints[0] = MathUtil.clip(CommonStatic.parseIntN(holder.ipid.text.toString()), 0, a.mamodel.n - 1)
             ma.check(a)
             activity.unSave(a,"maanim change $position ID")
@@ -106,9 +102,9 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
-        holder.ilop.doAfterTextChanged {
+        holder.ilop.setWatcher {
             if (!holder.ilop.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             ma.ints[2] = max(CommonStatic.parseIntN(holder.ilop.text.toString()), -1)
             ma.check(a)
             activity.unSave(a,"maanim change $position loop count")

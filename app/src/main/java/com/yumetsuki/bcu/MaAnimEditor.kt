@@ -426,6 +426,14 @@ class MaAnimEditor : AppCompatActivity() {
                 adp.setTo(*getAnim(anim).parts)
                 viewer.animationChanged()
             }
+            undo.setOnLongClickListener {
+                StaticStore.showShortMessage(this@MaAnimEditor, anim.undo)
+                false
+            }
+            undo.visibility = if (anim.undo == "initial")
+                View.GONE
+            else
+                View.VISIBLE
             redo.setOnClickListener {
                 anim.redo()
                 redo.visibility = if (anim.getRedo() == "nothing")
@@ -436,10 +444,10 @@ class MaAnimEditor : AppCompatActivity() {
                 adp.setTo(*getAnim(anim).parts)
                 viewer.animationChanged()
             }
-            undo.visibility = if (anim.undo == "initial")
-                View.GONE
-            else
-                View.VISIBLE
+            redo.setOnLongClickListener {
+                StaticStore.showShortMessage(this@MaAnimEditor, anim.getRedo())
+                false
+            }
             redo.visibility = if (anim.getRedo() == "nothing")
                 View.GONE
             else

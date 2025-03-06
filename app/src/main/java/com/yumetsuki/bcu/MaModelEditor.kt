@@ -308,6 +308,7 @@ class MaModelEditor : AppCompatActivity() {
                                     val r = viewer.getPartRect(i)
                                     if (r.inBox(x, y)) {
                                         viewer.anim.sele = i
+                                        scaleListener.setModel(mo.parts[i])
                                         list.smoothScrollToPosition(i)
                                         spriteSelected = true
                                         viewer.invalidate()
@@ -442,6 +443,14 @@ class MaModelEditor : AppCompatActivity() {
                 adp.setTo(*anim.mamodel.parts)
                 viewer.animationChanged()
             }
+            undo.setOnLongClickListener {
+                StaticStore.showShortMessage(this@MaModelEditor, anim.undo)
+                false
+            }
+            undo.visibility = if (anim.undo == "initial")
+                View.GONE
+            else
+                View.VISIBLE
             redo.setOnClickListener {
                 anim.redo()
                 redo.visibility = if (anim.getRedo() == "nothing")
@@ -452,10 +461,10 @@ class MaModelEditor : AppCompatActivity() {
                 adp.setTo(*anim.mamodel.parts)
                 viewer.animationChanged()
             }
-            undo.visibility = if (anim.undo == "initial")
-                View.GONE
-            else
-                View.VISIBLE
+            redo.setOnLongClickListener {
+                StaticStore.showShortMessage(this@MaModelEditor, anim.getRedo())
+                false
+            }
             redo.visibility = if (anim.getRedo() == "nothing")
                 View.GONE
             else
@@ -549,9 +558,7 @@ class MaModelEditor : AppCompatActivity() {
         override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
             if (updateScale) {
                 if (move != MOVEMODE.NONE && cView.anim.sele != -1) {
-                    val model = anim.mamodel.parts[cView.anim.sele]
-                    realFX = model[9].toFloat()
-                    realFY = model[10].toFloat()
+                    setModel(anim.mamodel.parts[cView.anim.sele])
                 } else {
                     realFX = detector.focusX - cView.width / 2f
                     previousX = cView.pos.x
@@ -563,6 +570,11 @@ class MaModelEditor : AppCompatActivity() {
                 updateScale = false
             }
             return super.onScaleBegin(detector)
+        }
+
+        fun setModel(model : IntArray) {
+            realFX = model[9].toFloat()
+            realFY = model[10].toFloat()
         }
 
         fun scaled() : Boolean {

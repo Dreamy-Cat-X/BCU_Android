@@ -2,6 +2,7 @@ package com.yumetsuki.bcu.androidutil.pack.adapters
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.text.SpannableStringBuilder
@@ -10,17 +11,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.PopupMenu
+import android.widget.TableLayout
 import android.widget.TextView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.tabs.TabLayout
+import com.yumetsuki.bcu.PackChapterManager
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
 import common.CommonStatic
 import common.pack.PackData
-import common.pack.Source.Workspace
 import common.pack.UserProfile
 
 class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList<PackData.UserPack>) : ArrayAdapter<PackData.UserPack>(ac, R.layout.pack_create_list_layout, pList) {
@@ -29,7 +31,9 @@ class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList
         val name = v.findViewById<EditText>(R.id.pcusname)!!
         val more = v.findViewById<FloatingActionButton>(R.id.pcusmore)!!
         val icn = v.findViewById<ImageView>(R.id.userpackIcon)!!
-        val opts = v.findViewById<TabLayout>(R.id.pcusOptions)
+        val opts = v.findViewById<TableLayout>(R.id.pcusOptions)!!
+        val chap = v.findViewById<Button>(R.id.pk_chapterEdit)!!
+        val uni = v.findViewById<Button>(R.id.pk_unitEdit)!!
     }
 
     var dialog = AlertDialog.Builder(context)
@@ -132,6 +136,18 @@ class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList
             holder.opts.visibility = View.GONE - holder.opts.visibility
         }
 
+        holder.chap.setOnClickListener {
+            val intent = Intent(context, PackChapterManager::class.java)
+            intent.putExtra("pack", p.sid)
+
+            ac.startActivity(intent)
+        }
+        //holder.uni.setOnClickListener {
+            //val intent = Intent(context, PackEntityManager::class.java)
+            //intent.putExtra("pack", p.sid)
+
+            //ac.startActivity(intent)
+        //}
         return row
     }
 

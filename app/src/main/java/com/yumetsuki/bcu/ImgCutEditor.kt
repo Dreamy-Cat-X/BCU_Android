@@ -367,6 +367,14 @@ class ImgCutEditor : AppCompatActivity() {
                 adp.setTo(*anim.imgcut.cuts)
                 viewer.invalidate()
             }
+            undo.setOnLongClickListener {
+                StaticStore.showShortMessage(this@ImgCutEditor, anim.undo)
+                false
+            }
+            undo.visibility = if (anim.undo == "initial")
+                View.GONE
+            else
+                View.VISIBLE
             redo.setOnClickListener {
                 anim.redo()
                 redo.visibility = if (anim.getRedo() == "nothing")
@@ -377,10 +385,10 @@ class ImgCutEditor : AppCompatActivity() {
                 adp.setTo(*anim.imgcut.cuts)
                 viewer.invalidate()
             }
-            undo.visibility = if (anim.undo == "initial")
-                View.GONE
-            else
-                View.VISIBLE
+            redo.setOnLongClickListener {
+                StaticStore.showShortMessage(this@ImgCutEditor, anim.getRedo())
+                false
+            }
             redo.visibility = if (anim.getRedo() == "nothing")
                 View.GONE
             else

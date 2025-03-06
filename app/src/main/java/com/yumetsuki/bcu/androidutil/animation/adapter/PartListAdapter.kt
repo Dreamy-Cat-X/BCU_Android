@@ -6,14 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.EditText
 import android.widget.Spinner
-import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.MaAnimEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
 import com.yumetsuki.bcu.androidutil.supports.DynamicListView.StableArrayAdapter
+import com.yumetsuki.bcu.androidutil.supports.WatcherEditText
 import common.CommonStatic
 import common.util.anim.AnimCE
 import common.util.anim.MaAnim
@@ -25,10 +24,10 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
         val eases = arrayOf("0 - Linear", "1 - Instant", "2 - Exponential", "3 - Polynomial", "4 - Sinusoidal")
     }
     internal class ViewHolder(row: View) {
-        val ifr: EditText = row.findViewById(R.id.mapart_frame)
-        val idat: EditText = row.findViewById(R.id.mapart_mod)
+        val ifr: WatcherEditText = row.findViewById(R.id.mapart_frame)
+        val idat: WatcherEditText = row.findViewById(R.id.mapart_mod)
         val iea: Spinner = row.findViewById(R.id.mapart_ease)
-        val ipa: EditText = row.findViewById(R.id.mapart_param)
+        val ipa: WatcherEditText = row.findViewById(R.id.mapart_param)
         val ire: FloatingActionButton = row.findViewById(R.id.mapart_delete)
 
         fun setData(ma : IntArray) {
@@ -63,17 +62,17 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
         holder.setData(pa)
 
         val voo = activity.findViewById<AnimationEditView>(R.id.animationView)
-        holder.ifr.doAfterTextChanged {
+        holder.ifr.setWatcher {
             if (!holder.ifr.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             pa[0] = CommonStatic.parseIntN(holder.ifr.text.toString())
             p.check(a)
             activity.unSave(a,"maanim change part move $position frame")
             voo.animationChanged()
         }
-        holder.idat.doAfterTextChanged {
+        holder.idat.setWatcher {
             if (!holder.idat.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             pa[1] = CommonStatic.parseIntN(holder.idat.text.toString())
             p.check(a)
             activity.unSave(a,"maanim change part move $position effect")
@@ -94,9 +93,9 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
-        holder.ipa.doAfterTextChanged {
+        holder.ipa.setWatcher {
             if (!holder.ipa.hasFocus())
-                return@doAfterTextChanged
+                return@setWatcher
             pa[3] = CommonStatic.parseIntN(holder.ipa.text.toString())
             p.check(a)
             activity.unSave(a,"maanim change part move $position effect")
