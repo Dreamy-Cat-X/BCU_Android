@@ -40,8 +40,7 @@
         app:layout_constraintBottom_toTopOf="@+id/pcusOptions"
         app:layout_constraintEnd_toStartOf="@+id/pcusmore"
         app:layout_constraintStart_toStartOf="@id/pcusid"
-        app:layout_constraintTop_toBottomOf="@+id/pcusid"
-        tools:textColorHint="?attr/TextPrimary" />
+        app:layout_constraintTop_toBottomOf="@+id/pcusid" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/pcusmore"

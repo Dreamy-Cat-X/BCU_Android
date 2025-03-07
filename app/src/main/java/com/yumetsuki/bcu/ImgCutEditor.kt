@@ -106,51 +106,6 @@ class ImgCutEditor : AppCompatActivity() {
             }
         }
     }
-    private val exportLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if(result.resultCode == RESULT_OK) {
-            val data = result.data
-
-            if(data != null) {
-                val file = tempFile
-                val uri = data.data
-
-                if(uri == null || file == null) {
-                    StaticStore.showShortMessage(this, getString(R.string.file_extract_cant))
-                } else {
-                    val pfd = contentResolver.openFileDescriptor(uri, "w")
-
-                    if(pfd != null) {
-                        val fos = FileOutputStream(pfd.fileDescriptor)
-                        val ins = file.data.stream
-
-                        val b = ByteArray(65536)
-                        var len: Int
-                        while(ins.read(b).also { len = it } != -1)
-                            fos.write(b, 0, len)
-
-                        ins.close()
-                        fos.close()
-
-                        val path = uri.path
-                        if(path == null) {
-                            StaticStore.showShortMessage(this, getString(R.string.file_extract_semi).replace("_",file.name))
-                            return@registerForActivityResult
-                        }
-
-                        val f = File(path)
-                        if(f.absolutePath.contains(":")) {
-                            val p = f.absolutePath.split(":")[1]
-                            StaticStore.showShortMessage(this,
-                                getString(R.string.file_extract_success).replace("_", file.name)
-                                    .replace("-", p))
-                        } else
-                            StaticStore.showShortMessage(this, getString(R.string.file_extract_semi).replace("_",file.name))
-                    } else
-                        StaticStore.showShortMessage(this, getString(R.string.file_extract_cant))
-                }
-            }
-        }
-    }
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -288,7 +243,6 @@ class ImgCutEditor : AppCompatActivity() {
 
             val addl = findViewById<Button>(R.id.imgcutpadd)
             val impr = findViewById<Button>(R.id.imgcutimport)
-            val expr = findViewById<Button>(R.id.imgcutexport)
             val spri = findViewById<Button>(R.id.imgcutsprimp)
             val resi = findViewById<Button>(R.id.imgcutresize)
             addl.setOnClickListener {
@@ -306,15 +260,6 @@ class ImgCutEditor : AppCompatActivity() {
                     unSave(anim,"Import imgcut")
                     viewer.invalidate()
                 })
-            }
-            expr.setOnClickListener {
-                anim.save()
-                tempFile = VFile.getFile(CommonStatic.ctx.getWorkspaceFile(anim.id.path.substring(1) + "/imgcut.txt"))
-                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-                    .addCategory(Intent.CATEGORY_OPENABLE)
-                    .setType("*/*")
-                intent.putExtra(Intent.EXTRA_TITLE, tempFile?.name ?: "")
-                exportLauncher.launch(intent)
             }
             spri.setOnClickListener {
                 getImport(fun(f : Any) {

@@ -3,6 +3,7 @@ package com.yumetsuki.bcu
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
@@ -12,10 +13,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.stage.adapters.CustomChapterListAdapter
+import com.yumetsuki.bcu.androidutil.supports.DynamicListView
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import common.CommonStatic
 import common.pack.Source.Workspace
 import common.pack.UserProfile
+import common.util.stage.StageMap
 import kotlinx.coroutines.launch
 
 class PackChapterManager : AppCompatActivity() {
@@ -55,6 +59,21 @@ class PackChapterManager : AppCompatActivity() {
             val st = findViewById<TextView>(R.id.status)
             val prog = findViewById<ProgressBar>(R.id.prog)
 
+            val addc = findViewById<Button>(R.id.cuschapteradd)
+            val chlist = findViewById<DynamicListView>(R.id.chapterList)
+            StaticStore.setDisappear(addc, chlist)
+
+            val adp = CustomChapterListAdapter(pack, this@PackChapterManager)
+            chlist.setSwapListener { from, to ->
+                pack.mc.maps.reorder(from, to)
+            }
+            chlist.adapter = adp
+
+            addc.setOnClickListener {
+                val map = pack.mc.add{ StageMap(it) }
+                adp.add(map)
+            }
+
             bck.setOnClickListener {
                 Workspace.saveWorkspace(false)
                 finish()
@@ -65,6 +84,7 @@ class PackChapterManager : AppCompatActivity() {
                 }
             })
 
+            StaticStore.setAppear(addc, chlist)
             StaticStore.setDisappear(st, prog)
         }
     }

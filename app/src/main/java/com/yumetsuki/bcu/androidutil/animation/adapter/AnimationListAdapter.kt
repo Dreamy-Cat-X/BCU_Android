@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
+import android.os.Environment
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
@@ -28,6 +29,9 @@ import common.io.json.JsonEncoder
 import common.pack.Source.BasePath
 import common.system.VImg
 import common.util.anim.AnimCE
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 class AnimationListAdapter(private val activity: AnimationManagement, private val anims: ArrayList<AnimCE>) : ArrayAdapter<AnimCE>(activity, R.layout.animation_list_layout, anims) {
 
@@ -114,8 +118,8 @@ class AnimationListAdapter(private val activity: AnimationManagement, private va
                     dialog.setMessage(R.string.anim_manager_delwarn)
 
                     dialog.setPositiveButton(R.string.remove) { _, _ ->
+                        anims.remove(a)
                         a.delete()
-
                         notifyDataSetChanged()
                         StaticStore.showShortMessage(context, R.string.anim_manager_deleted)
                         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR
@@ -127,6 +131,31 @@ class AnimationListAdapter(private val activity: AnimationManagement, private va
                     if (!activity.isDestroyed && !activity.isFinishing) {
                         dialog.show()
                     }
+                }
+                R.id.anim_btn_export -> {
+                    val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString()+"/bcu/exports/anim_${a.id.id}"
+                    val g = File(path)
+                    if(!g.exists())
+                        g.mkdirs()
+
+                    val data = CommonStatic.ctx.getWorkspaceFile(a.id.path)
+                    for (f in data.listFiles()!!) {
+                        val dest = File(g,f.name)
+                        if (!dest.exists())
+                            dest.createNewFile()
+
+                        val fos = FileOutputStream(dest)
+                        val ins = FileInputStream(f)
+
+                        val b = ByteArray(65536)
+                        var len: Int
+                        while(ins.read(b).also { l -> len = l } != -1)
+                            fos.write(b, 0, len)
+
+                        ins.close()
+                        fos.close()
+                    }
+                    StaticStore.showShortMessage(activity, activity.getString(R.string.file_extract_semi).replace("_", g.name))
                 }
             }
             false

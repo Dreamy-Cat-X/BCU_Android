@@ -1090,7 +1090,7 @@
     <string name="anim_type_desc" translatable="false">Choose Animation Type (Cannot be changed later)</string>
     <string name="imgcut_import" translatable="false">Import Imgcut</string>
     <string name="sprite_import" translatable="false">Import Sprites</string>
-    <string name="imgcut_export" translatable="false">Export Imgcut</string>
+    <string name="def_export" translatable="false">Export</string>
     <string name="img_anim_spr_exp" translatable="false">Exporting Spritesheet</string>
     <string name="password_wrong" translatable="false">Incorrect Password</string>
     <string name="password_hint" translatable="false">Enter Pack\'s Password</string>
@@ -1125,4 +1125,6 @@
     <string name="limit_dpspwn" translatable="false">Duplicate spawn Amount / Delay</string>
     <string name="packcus_mapcreate" translatable="false">Level Editor</string>
     <string name="packcus_entcreate" translatable="false">Entity Editor</string>
+    <string name="packcus_addchap" translatable="false">Add Subchapter</string>
+    <string name="chapter_name" translatable="false">Subchapter Name</string>
 </resources>
