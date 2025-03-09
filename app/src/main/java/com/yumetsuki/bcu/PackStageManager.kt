@@ -3,7 +3,6 @@ package com.yumetsuki.bcu
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
@@ -13,16 +12,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
-import com.yumetsuki.bcu.androidutil.stage.adapters.CustomChapterListAdapter
-import com.yumetsuki.bcu.androidutil.supports.DynamicListView
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import common.CommonStatic
 import common.pack.Source.Workspace
-import common.pack.UserProfile
 import common.util.stage.StageMap
 import kotlinx.coroutines.launch
 
-class PackChapterManager : AppCompatActivity() {
+class PackStageManager : AppCompatActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,47 +43,31 @@ class PackChapterManager : AppCompatActivity() {
         DefineItf.check(this)
         AContext.check()
         (CommonStatic.ctx as AContext).updateActivity(this)
-        setContentView(R.layout.activity_pack_chapter)
+        setContentView(R.layout.activity_pack_stage)
 
         val result = intent
         val extra = result.extras
 
-        val pack = UserProfile.getUserPack(extra?.getString("pack")) ?: return
+        val map = StaticStore.transformIdentifier<StageMap>(extra?.getString("map"))?.get() ?: return
 
         lifecycleScope.launch {
-            val bck = findViewById<FloatingActionButton>(R.id.cuschapterbck)
+            val bck = findViewById<FloatingActionButton>(R.id.cusstagebck)
             val st = findViewById<TextView>(R.id.status)
             val prog = findViewById<ProgressBar>(R.id.prog)
 
-            val addc = findViewById<Button>(R.id.cuschapteradd)
-            val chlist = findViewById<DynamicListView>(R.id.chapterList)
-            StaticStore.setDisappear(addc, chlist)
-
-            val chname = findViewById<TextView>(R.id.cuschaptername)
-            chname.text = pack.toString()
-
-            val adp = CustomChapterListAdapter(pack, this@PackChapterManager)
-            chlist.setSwapListener { from, to ->
-                pack.mc.maps.reorder(from, to)
-            }
-            chlist.adapter = adp
-
-            addc.setOnClickListener {
-                val map = pack.mc.add{ StageMap(it) }
-                adp.add(map)
-            }
+            val chname = findViewById<TextView>(R.id.cusstagename)
+            chname.text = map.toString()
 
             bck.setOnClickListener {
                 Workspace.saveWorkspace(false)
                 finish()
             }
-            onBackPressedDispatcher.addCallback(this@PackChapterManager, object : OnBackPressedCallback(true) {
+            onBackPressedDispatcher.addCallback(this@PackStageManager, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     bck.performClick()
                 }
             })
 
-            StaticStore.setAppear(addc, chlist)
             StaticStore.setDisappear(st, prog)
         }
     }

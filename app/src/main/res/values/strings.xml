@@ -1127,4 +1127,5 @@
     <string name="packcus_entcreate" translatable="false">Entity Editor</string>
     <string name="packcus_addchap" translatable="false">Add Subchapter</string>
     <string name="chapter_name" translatable="false">Subchapter Name</string>
+    <string name="cuschapter_cost" translatable="false">Chapter Cost</string>
 </resources>
