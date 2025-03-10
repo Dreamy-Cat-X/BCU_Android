@@ -1,34 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/cuschapter_name_box"
+    <EditText
+        android:id="@+id/stagename"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textColorHint="?attr/TextPrimary"
-        app:layout_constraintEnd_toStartOf="@id/cuschapter_expand"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/def_stage_name"
+        android:textColor="?attr/TextPrimary"
+        app:layout_constraintEnd_toStartOf="@id/cusstage_expand"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/cuschapter_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/chapter_name"
-            android:minHeight="48dp"
-            android:textColor="?attr/TextPrimary"
-            android:textColorHint="?attr/TextPrimary" />
-    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/enemicon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:descendantFocusability="blocksDescendants"
+        app:alignContent="stretch"
+        app:alignItems="stretch"
+        app:flexWrap="wrap"
+        app:layout_constraintEnd_toStartOf="@id/cusstage_expand"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/stagename" />
 
     <ImageButton
-        android:id="@+id/cuschapter_expand"
+        android:id="@+id/cusstage_expand"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
@@ -38,27 +40,38 @@
         android:background="@drawable/cell_shape"
         android:contentDescription="@string/def_description"
         android:minWidth="48dp"
-        app:layout_constraintBottom_toTopOf="@id/cuschapter_info"
+        app:layout_constraintBottom_toTopOf="@id/cusstage_info"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_expand_less_black_24dp"
         app:tint="?attr/iconPrimary" />
 
     <TableLayout
-        android:id="@+id/cuschapter_info"
+        android:id="@+id/cusstage_info"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cuschapter_name_box">
+        app:layout_constraintTop_toBottomOf="@id/enemicon">
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <Button
-                android:id="@+id/pk_stageEdit"
+                android:id="@+id/ch_stagePlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/button"
+                android:gravity="center"
+                android:minHeight="32dip"
+                android:text="@string/battle_preparation"
+                android:textAllCaps="false"
+                android:textColor="?attr/TextPrimary" />
+
+            <Button
+                android:id="@+id/ch_stageLimit"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -70,9 +83,10 @@
                 android:textColor="?attr/TextPrimary" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/pk_deleteChapter"
+                android:id="@+id/ch_deleteStage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.0001"
                 android:clickable="true"
                 android:tint="@color/iconPrimaryN"
                 app:backgroundTint="@color/colorAccent"
@@ -80,11 +94,11 @@
         </TableRow>
 
         <TableRow
-            android:id="@+id/pk_chapterStarRow"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <EditText
+                android:id="@+id/ch_sthealth"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -94,68 +108,76 @@
                 android:minHeight="36dp" />
 
             <EditText
+                android:id="@+id/ch_stwidth"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/cell_shape"
                 android:ems="10"
-                android:inputType="number" />
+                android:inputType="number"
+                android:minHeight="36dp" />
 
             <EditText
+                android:id="@+id/ch_stmaxEne"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/cell_shape"
                 android:ems="10"
-                android:inputType="number" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/cell_shape"
-                android:ems="10"
-                android:inputType="number" />
+                android:inputType="number"
+                android:minHeight="36dp" />
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <EditText
-                android:id="@+id/pk_chapterCost"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/cell_shape"
-                android:ems="10"
-                android:inputType="number"
-                android:minHeight="36dp" />
+                android:gravity="center"
+                android:minHeight="48dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:text="@string/stage_dojo"
+                android:textColor="?attr/TextPrimary" />
 
-            <Button
-                android:id="@+id/pk_limitAdd"
+            <ToggleButton
+                android:id="@+id/ch_dojo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:background="@drawable/button"
+                android:textAllCaps="false"
+                android:textColor="?attr/TextPrimary" />
+
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/button"
+                android:background="@drawable/cell_shape"
                 android:gravity="center"
-                android:minHeight="32dip"
-                android:text="@string/packcus_mapcreate"
+                android:minHeight="48dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:text="@string/boss_guard"
+                android:textColor="?attr/TextPrimary" />
+
+            <ToggleButton
+                android:id="@+id/ch_bossguard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:background="@drawable/button"
+                android:text="@string/boss_guard"
                 android:textAllCaps="false"
                 android:textColor="?attr/TextPrimary" />
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ListView
-                android:id="@+id/pk_limitList"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2" />
-
-        </TableRow>
-
+            android:layout_height="match_parent" />
     </TableLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

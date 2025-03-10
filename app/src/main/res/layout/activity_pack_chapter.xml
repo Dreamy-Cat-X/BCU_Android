@@ -112,10 +112,10 @@
     <com.yumetsuki.bcu.androidutil.supports.DynamicListView
         android:id="@+id/chapterList"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cuschapteradd">
-    </com.yumetsuki.bcu.androidutil.supports.DynamicListView>
+        app:layout_constraintTop_toBottomOf="@id/cuschapteradd"></com.yumetsuki.bcu.androidutil.supports.DynamicListView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

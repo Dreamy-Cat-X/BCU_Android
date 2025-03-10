@@ -155,7 +155,7 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
     }
 
     private fun setList(list : ListView, p : Part) {
-        val h = StaticStore.dptopx(p.n * 60f, context)
+        val h = StaticStore.dptopx(p.n * 57f, context)
         list.adapter = PartListAdapter(activity, a, p)
         list.layoutParams.height = h
     }
