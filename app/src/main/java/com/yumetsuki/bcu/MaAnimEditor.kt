@@ -27,6 +27,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionValues
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -38,7 +41,6 @@ import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
 import com.yumetsuki.bcu.androidutil.animation.adapter.MaAnimListAdapter
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
-import com.yumetsuki.bcu.androidutil.supports.DynamicListView
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
@@ -58,7 +60,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
-import java.io.FileOutputStream
 import kotlin.math.max
 import kotlin.system.measureTimeMillis
 
@@ -231,16 +232,43 @@ class MaAnimEditor : AppCompatActivity() {
                 }
             })
             layout.addView(viewer)
-            val list = findViewById<DynamicListView>(R.id.maanimvalList)
+            val list = findViewById<RecyclerView>(R.id.maanimvalList)
+            list.layoutManager = LinearLayoutManager(this@MaAnimEditor)
             val adp = MaAnimListAdapter(this@MaAnimEditor, anim)
             list.adapter = adp
-            list.setSwapListener { from, to ->
-                val p = getAnim(anim).parts
-                val temp = p[from]
-                p[from] = p[to]
-                p[to] = temp
-                anim.unSave("maanim sort")
-            }
+            val touch = ItemTouchHelper(object: ItemTouchHelper.Callback() {
+                override fun getMovementFlags(p0: RecyclerView, p1: RecyclerView.ViewHolder): Int {
+                    return makeMovementFlags(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.END)
+                }
+                override fun onMove(view: RecyclerView, src: RecyclerView.ViewHolder, dest: RecyclerView.ViewHolder): Boolean {
+                    val from = src.bindingAdapterPosition
+                    val to = dest.bindingAdapterPosition
+                    val p = getAnim(anim).parts
+                    val temp = p[from]
+                    p[from] = p[to]
+                    p[to] = temp
+                    anim.unSave("maanim sort")
+                    viewer.animationChanged()
+                    adp.notifyItemMoved(from, to)
+                    return false
+                }
+                override fun onSwiped(holder: RecyclerView.ViewHolder, j: Int) {
+                    val pos = holder.bindingAdapterPosition
+                    val manim = getAnim(anim)
+                    val data: Array<Part?> = manim.parts
+                    data[pos] = null
+                    manim.parts = arrayOfNulls(--manim.n)
+                    var ind = 0
+                    for (datum in data)
+                        if (datum != null)
+                            manim.parts[ind++] = datum
+                    manim.validate()
+                    unSave(anim,"maanim remove part")
+                    adp.notifyItemRemoved(pos)
+                    adp.notifyDataSetChanged()
+                }
+            })
+            touch.attachToRecyclerView(list)
 
             val addl = findViewById<Button>(R.id.maanimpadd)
             addl.setOnClickListener {
@@ -257,7 +285,7 @@ class MaAnimEditor : AppCompatActivity() {
                 ma.parts[ind] = np
                 ma.validate()
                 unSave(anim,"maanim add line")
-                adp.insert(np, ind)
+                adp.notifyItemInserted(ind)
                 viewer.animationChanged()
             }
             val impr = findViewById<Button>(R.id.maanimimport)
@@ -273,8 +301,8 @@ class MaAnimEditor : AppCompatActivity() {
                             anim.anims[i] = a
                             anim.unSave("Import maanim")
                             if (anim.types[i] == viewer.getType()) {
-                                adp.setTo(*a.parts)
                                 viewer.animationChanged()
+                                adp.notifyDataSetChanged()
                             }
                             break
                         }
@@ -300,7 +328,7 @@ class MaAnimEditor : AppCompatActivity() {
                         if (viewer.aind != position) {
                             viewer.aind = position
                             viewer.animationChanged()
-                            adp.setTo(*getAnim(anim).parts)
+                            adp.notifyDataSetChanged()
                             controller.max = CommonStatic.fltFpsMul(viewer.anim.len().toFloat()).toInt()
 
                             controller.progress = 0
@@ -368,7 +396,7 @@ class MaAnimEditor : AppCompatActivity() {
                 else
                     View.VISIBLE
                 redo.visibility = View.VISIBLE
-                adp.setTo(*getAnim(anim).parts)
+                adp.notifyDataSetChanged()
                 viewer.animationChanged()
             }
             undo.setOnLongClickListener {
@@ -386,7 +414,7 @@ class MaAnimEditor : AppCompatActivity() {
                 else
                     View.VISIBLE
                 undo.visibility = View.VISIBLE
-                adp.setTo(*getAnim(anim).parts)
+                adp.notifyDataSetChanged()
                 viewer.animationChanged()
             }
             redo.setOnLongClickListener {

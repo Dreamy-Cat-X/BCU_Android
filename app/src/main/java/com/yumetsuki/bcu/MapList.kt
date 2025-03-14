@@ -122,7 +122,7 @@ class MapList : AppCompatActivity() {
                             try {
                                 for (i in mc.maps.list.indices) {
                                     val stm = mc.maps.list[i]
-                                    if (mc.getSave(false)?.unlocked(stm) != false || mc.getSave(true).nearUnlock(stm))
+                                    if (mc.getSave(false)?.unlocked(stm) != false || mc.getSave(true)?.nearUnlock(stm) == true)
                                         names.add(stm.id)
                                 }
                             } catch (e : java.lang.IndexOutOfBoundsException) {

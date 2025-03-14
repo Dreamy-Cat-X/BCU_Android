@@ -66,14 +66,5 @@
             android:hint="@string/stg_sch_name"
             android:inputType="text" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/imgcut_part_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:tint="@color/iconPrimaryN"
-            app:backgroundTint="@color/colorAccent"
-            app:srcCompat="@drawable/ic_baseline_delete_24" />
-
     </TableRow>
 </androidx.constraintlayout.widget.ConstraintLayout>

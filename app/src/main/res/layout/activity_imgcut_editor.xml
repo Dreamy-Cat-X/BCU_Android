@@ -185,7 +185,7 @@
 
         </TableRow>
 
-        <com.yumetsuki.bcu.androidutil.supports.DynamicListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/imgcutvalList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

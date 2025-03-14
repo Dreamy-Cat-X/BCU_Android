@@ -7,27 +7,25 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.recyclerview.widget.RecyclerView
 import com.yumetsuki.bcu.ImgCutEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.animation.SpriteView
-import com.yumetsuki.bcu.androidutil.supports.DynamicListView.StableArrayAdapter
 import com.yumetsuki.bcu.androidutil.supports.WatcherEditText
 import common.CommonStatic
 import common.util.anim.AnimCE
 import kotlin.math.max
 
 
-class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : AnimCE) : StableArrayAdapter<IntArray>(activity, R.layout.imgcut_list_layout, a.imgcut.cuts) {
+class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : AnimCE) : RecyclerView.Adapter<ImgcutListAdapter.ViewHolder>() {
 
-    internal class ViewHolder(row: View) {
+    class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
         val iid: Button = row.findViewById(R.id.imgcut_id)
         val ix: WatcherEditText = row.findViewById(R.id.imgcut_x)
         val iy: WatcherEditText = row.findViewById(R.id.imgcut_y)
         val iw: WatcherEditText = row.findViewById(R.id.imgcut_w)
         val ih: WatcherEditText = row.findViewById(R.id.imgcut_h)
         val iname: EditText = row.findViewById(R.id.imgcut_name)
-        val del: FloatingActionButton = row.findViewById(R.id.imgcut_part_delete)
 
         fun setData(ic : IntArray) {
             ix.text = SpannableStringBuilder(ic[0].toString())
@@ -37,29 +35,26 @@ class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : Anim
         }
     }
 
-    override fun getView(position: Int, view: View?, parent: ViewGroup): View {
-        val holder: ViewHolder
-        val row: View
+    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
+        val row = LayoutInflater.from(activity).inflate(R.layout.imgcut_list_layout, viewGroup, false)
+        return ViewHolder(row)
+    }
 
-        if (view == null) {
-            val inf = LayoutInflater.from(context)
-            row = inf.inflate(R.layout.imgcut_list_layout, parent, false)
-            holder = ViewHolder(row)
-            row.tag = holder
-        } else {
-            row = view
-            holder = row.tag as ViewHolder
-        }
+    override fun getItemCount(): Int {
+        return a.imgcut.n
+    }
 
-        val ic = a.imgcut.cuts[position]
-        holder.iid.text = position.toString()
+    override fun onBindViewHolder(holder: ViewHolder, i: Int) {
+        val pos = holder.bindingAdapterPosition
+        val ic = a.imgcut.cuts[pos]
+        holder.iid.text = pos.toString()
 
         holder.setData(ic)
-        holder.iname.text = SpannableStringBuilder(a.imgcut.strs[position])
+        holder.iname.text = SpannableStringBuilder(a.imgcut.strs[pos])
         holder.iname.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId != EditorInfo.IME_ACTION_DONE)
+            if (actionId == EditorInfo.IME_ACTION_NONE)
                 return@setOnEditorActionListener false
-            a.imgcut.strs[position] = holder.iname.text.toString()
+            a.imgcut.strs[pos] = holder.iname.text.toString()
             false
         }
 
@@ -68,62 +63,33 @@ class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : Anim
             if (!holder.ix.hasFocus())
                 return@setWatcher
             ic[0] = CommonStatic.parseIntN(holder.ix.text.toString())
-            activity.unSave(a,"imgcut change $position x")
+            activity.unSave(a,"imgcut change $pos x")
             voo.invalidate()
         }
         holder.iy.setWatcher {
             if (!holder.iy.hasFocus())
                 return@setWatcher
             ic[1] = CommonStatic.parseIntN(holder.iy.text.toString())
-            activity.unSave(a,"imgcut change $position y")
+            activity.unSave(a,"imgcut change $pos y")
             voo.invalidate()
         }
         holder.iw.setWatcher {
             if (!holder.iw.hasFocus())
                 return@setWatcher
             ic[2] = max(1, CommonStatic.parseIntN(holder.iw.text.toString()))
-            activity.unSave(a,"imgcut change $position w")
+            activity.unSave(a,"imgcut change $pos w")
             voo.invalidate()
         }
         holder.ih.setWatcher {
             if (!holder.ih.hasFocus())
                 return@setWatcher
             ic[3] = max(1, CommonStatic.parseIntN(holder.ih.text.toString()))
-            activity.unSave(a,"imgcut change $position h")
+            activity.unSave(a,"imgcut change $pos h")
             voo.invalidate()
         }
         holder.iid.setOnClickListener {
-            voo.sele = if (voo.sele == position) -1 else position
+            voo.sele = if (voo.sele == pos) -1 else pos
             voo.invalidate()
         }
-        holder.del.setOnClickListener {
-            remove(position)
-            a.removeICline(position)
-            activity.unSave(a, "initial")
-            voo.invalidate()
-        }
-        for (mod in a.mamodel.parts)
-            if (mod[2] == position) {
-                holder.del.isEnabled = false
-                break
-            }
-        if (holder.del.isEnabled) {
-            for (ma in a.anim.anims) {
-                for (part in ma.parts) {
-                    if (part.ints[1] == 2)
-                        for (mov in part.moves)
-                            if (mov[1] == position) {
-                                holder.del.isEnabled = false
-                                break
-                            }
-                    if (!holder.del.isEnabled)
-                        break
-                }
-                if (!holder.del.isEnabled)
-                    break
-            }
-        }
-
-        return row
     }
 }

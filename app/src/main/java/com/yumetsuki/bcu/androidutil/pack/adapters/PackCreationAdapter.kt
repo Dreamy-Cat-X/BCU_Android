@@ -75,7 +75,7 @@ class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList
             holder.icn.setImageBitmap(p.icon.img.bimg() as Bitmap)
 
         holder.name.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId != EditorInfo.IME_ACTION_DONE)
+            if (actionId == EditorInfo.IME_ACTION_NONE || holder.name.text.toString() == p.desc.names.toString())
                 return@setOnEditorActionListener false
             p.desc.names.put(holder.name.text.toString())
             false

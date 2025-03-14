@@ -150,14 +150,12 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
                     viewHolder.limitscroll.visibility = View.VISIBLE
                     viewHolder.limitNone.visibility = View.GONE
 
-                    if (data.id == l.sid || l.sid == -1) {
-                        if (viewHolder.star.selectedItemPosition == l.star || l.star == -1) {
-                            viewHolder.limitrec.layoutManager = LinearLayoutManager(activity)
+                    if (viewHolder.star.selectedItemPosition == l.star || l.star == -1) {
+                        viewHolder.limitrec.layoutManager = LinearLayoutManager(activity)
 
-                            ViewCompat.setNestedScrollingEnabled(viewHolder.limitrec, false)
-                            val limitRecycle = LimitRecycle(activity, l)
-                            viewHolder.limitrec.adapter = limitRecycle
-                        }
+                        ViewCompat.setNestedScrollingEnabled(viewHolder.limitrec, false)
+                        val limitRecycle = LimitRecycle(activity, l)
+                        viewHolder.limitrec.adapter = limitRecycle
                     }
                 }
             }
@@ -376,16 +374,13 @@ class StageRecycle(private val activity: Activity, private val data: Identifier<
             viewHolder.limitscroll.visibility = View.VISIBLE
             viewHolder.limitNone.visibility = View.GONE
 
-            if (data.id == l.sid || l.sid == -1) {
-                if (viewHolder.star.selectedItemPosition == l.star || l.star == -1) {
-                    viewHolder.limitrec.layoutManager = LinearLayoutManager(activity)
+            if (viewHolder.star.selectedItemPosition == l.star || l.star == -1) {
+                viewHolder.limitrec.layoutManager = LinearLayoutManager(activity)
 
-                    ViewCompat.setNestedScrollingEnabled(viewHolder.limitrec, false)
+                ViewCompat.setNestedScrollingEnabled(viewHolder.limitrec, false)
+                val limitRecycle = LimitRecycle(activity, l)
 
-                    val limitRecycle = LimitRecycle(activity, l)
-
-                    viewHolder.limitrec.adapter = limitRecycle
-                }
+                viewHolder.limitrec.adapter = limitRecycle
             }
         }
 

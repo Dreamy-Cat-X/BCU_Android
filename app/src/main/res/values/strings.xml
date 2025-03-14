@@ -1128,4 +1128,8 @@
     <string name="packcus_addchap" translatable="false">Add Subchapter</string>
     <string name="chapter_name" translatable="false">Subchapter Name</string>
     <string name="cuschapter_cost" translatable="false">Chapter Cost</string>
+    <string name="packcus_addstage" translatable="false">Add Stage</string>
+    <string name="packcus_limitEdit" translatable="false">Limit Editor</string>
+    <string name="packcus_addlimit" translatable="false">Add Limit</string>
+    <string name="def_time_limit" translatable="false">Time Limit</string>
 </resources>

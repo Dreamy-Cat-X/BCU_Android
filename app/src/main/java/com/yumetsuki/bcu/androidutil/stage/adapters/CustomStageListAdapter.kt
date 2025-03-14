@@ -16,33 +16,29 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TableLayout
-import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayout
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.BattlePrepare
+import com.yumetsuki.bcu.LimitEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
-import com.yumetsuki.bcu.androidutil.supports.DynamicListView.StableArrayAdapter
 import common.CommonStatic
 import common.io.json.JsonEncoder
 import common.pack.Identifier
 import common.util.lang.MultiLangCont
-import common.util.stage.MapColc.PackMapColc
 import common.util.stage.SCDef
-import common.util.stage.Stage
 import common.util.stage.StageMap
-import common.util.stage.info.CustomStageInfo
 import common.util.unit.AbEnemy
 
-class CustomStageListAdapter(private val activity: Activity, private val map: StageMap) : StableArrayAdapter<Stage>(activity, R.layout.stage_list_layout, map.list.list) {
+class CustomStageListAdapter(private val ctx: Activity, private val map: StageMap) : RecyclerView.Adapter<CustomStageListAdapter.ViewHolder>() {
 
-    private class ViewHolder constructor(row: View) {
+    class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
         val name: EditText = row.findViewById(R.id.stagename)
         val icons: FlexboxLayout = row.findViewById(R.id.enemicon)
         val play: Button = row.findViewById(R.id.ch_stagePlay)
-        val delete: FloatingActionButton = row.findViewById(R.id.ch_deleteStage)
+        val limit: Button = row.findViewById(R.id.ch_stageLimit)
 
         val info: TableLayout = row.findViewById(R.id.cusstage_info)
         val expand: ImageButton = row.findViewById(R.id.cusstage_expand)
@@ -54,21 +50,18 @@ class CustomStageListAdapter(private val activity: Activity, private val map: St
         val bossguard: ToggleButton = row.findViewById(R.id.ch_bossguard)
     }
 
-    override fun getView(position: Int, view: View?, parent: ViewGroup): View {
-        val holder: ViewHolder
-        val row: View
+    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
+        val row = LayoutInflater.from(ctx).inflate(R.layout.cus_stage_info_layout, viewGroup, false)
+        return ViewHolder(row)
+    }
 
-        if(view == null) {
-            val inf = LayoutInflater.from(context)
-            row = inf.inflate(R.layout.cus_stage_info_layout,parent,false)
-            holder = ViewHolder(row)
-            row.tag = holder
-        } else {
-            row = view
-            holder = row.tag as ViewHolder
-        }
+    override fun getItemCount(): Int {
+        return map.list.size()
+    }
 
-        val st = map.list[position] ?: return row
+    override fun onBindViewHolder(holder: ViewHolder, indx: Int) {
+        val pos = holder.bindingAdapterPosition
+        val st = map.list[pos] ?: return
 
         holder.expand.setOnClickListener(View.OnClickListener {
             if (SystemClock.elapsedRealtime() - StaticStore.infoClick < StaticStore.INFO_INTERVAL)
@@ -89,7 +82,7 @@ class CustomStageListAdapter(private val activity: Activity, private val map: St
                 anim.duration = 300
                 anim.interpolator = DecelerateInterpolator()
                 anim.start()
-                holder.expand.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_expand_more_black_24dp))
+                holder.expand.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_expand_more_black_24dp))
             } else {
                 holder.info.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 val height = holder.info.measuredHeight
@@ -103,7 +96,7 @@ class CustomStageListAdapter(private val activity: Activity, private val map: St
                 anim.duration = 300
                 anim.interpolator = DecelerateInterpolator()
                 anim.start()
-                holder.expand.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_expand_less_black_24dp))
+                holder.expand.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_expand_less_black_24dp))
             }
         })
 
@@ -116,7 +109,7 @@ class CustomStageListAdapter(private val activity: Activity, private val map: St
             st.names.put(holder.name.text.toString())
             false
         }
-        holder.width.hint = "${activity.getString(R.string.def_stg_length)}: ${st.len}"
+        holder.width.hint = "${ctx.getString(R.string.def_stg_length)}: ${st.len}"
         holder.width.setOnEditorActionListener { _, actionId, _ ->
             val wid = CommonStatic.parseIntN(holder.width.text.toString())
             if (wid < 2000 || actionId == EditorInfo.IME_ACTION_NONE || wid == st.len)
@@ -125,9 +118,9 @@ class CustomStageListAdapter(private val activity: Activity, private val map: St
             false
         }
         holder.health.hint = if (st.trail)
-            "${activity.getString(R.string.def_base_health)}: ${st.timeLimit}"
+            "${ctx.getString(R.string.def_base_health)}: ${st.timeLimit}"
         else
-            "${activity.getString(R.string.def_base_health)}: ${st.health}"
+            "${ctx.getString(R.string.def_base_health)}: ${st.health}"
         holder.health.setOnEditorActionListener { _, actionId, _ ->
             val wid = CommonStatic.parseIntN(holder.health.text.toString())
             if (wid <= 0 || actionId == EditorInfo.IME_ACTION_NONE || wid == st.health)
@@ -138,7 +131,7 @@ class CustomStageListAdapter(private val activity: Activity, private val map: St
                 st.health = wid
             false
         }
-        holder.maxEne.hint = "${activity.getString(R.string.def_max_enemy)}: ${st.max}"
+        holder.maxEne.hint = "${ctx.getString(R.string.def_max_enemy)}: ${st.max}"
         holder.maxEne.setOnEditorActionListener { _, actionId, _ ->
             val wid = CommonStatic.parseIntN(holder.maxEne.text.toString())
             if (wid <= 0 || actionId == EditorInfo.IME_ACTION_NONE || wid == st.max)
@@ -150,9 +143,9 @@ class CustomStageListAdapter(private val activity: Activity, private val map: St
         holder.dojo.setOnClickListener {
             st.trail = holder.dojo.isChecked
             holder.health.hint = if (st.trail)
-                "${activity.getString(R.string.def_base_health)}: ${st.timeLimit}"
+                "${ctx.getString(R.string.def_time_limit)}: ${st.timeLimit}"
             else
-                "${activity.getString(R.string.def_base_health)}: ${st.health}"
+                "${ctx.getString(R.string.def_base_health)}: ${st.health}"
         }
         holder.bossguard.isChecked = st.bossGuard
         holder.bossguard.setOnClickListener {
@@ -164,38 +157,32 @@ class CustomStageListAdapter(private val activity: Activity, private val map: St
         if (ids.isNotEmpty())
             for (i in ids.indices) {
                 val icn = getIcon(ids[i])
-                val icon = ImageView(activity)
+                val icon = ImageView(ctx)
                 icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 icon.setImageBitmap(icn)
-                icon.setPadding(StaticStore.dptopx(12f, activity), StaticStore.dptopx(4f, activity), 0, StaticStore.dptopx(4f, activity))
+                icon.setPadding(StaticStore.dptopx(12f, ctx), StaticStore.dptopx(4f, ctx), 0, StaticStore.dptopx(4f, ctx))
                 holder.icons.addView(icon)
             }
 
-        holder.delete.setOnClickListener {
-            map.list.remove(st)
-            if (st.info != null)
-                (st.info as CustomStageInfo).destroy(false)
-            for (si in (st.mc as PackMapColc).si)
-                si.remove(st)
-            remove(st)
-        }
-        st.health
-
         holder.play.setOnClickListener {
-            val intent = Intent(activity, BattlePrepare::class.java)
+            val intent = Intent(ctx, BattlePrepare::class.java)
             intent.putExtra("Data", JsonEncoder.encode(st.id).toString())
             intent.putExtra("selection",0)
-            activity.startActivity(intent)
+            ctx.startActivity(intent)
         }
+        holder.limit.setOnClickListener {
+            LimitEditor.lim = st.lim
+            val intent = Intent(ctx, LimitEditor::class.java)
 
-        return row
+            ctx.startActivity(intent)
+        }
     }
     private fun getIcon(ene : Identifier<AbEnemy>) : Bitmap {
         if (ene.pack == Identifier.DEF) {
-            return if (ene.id < (StaticStore.eicons?.size ?: 0)) StaticStore.eicons?.get(ene.id) ?: StaticStore.empty(context, 18f, 18f)
-            else StaticStore.empty(context, 18f, 18f)
+            return if (ene.id < (StaticStore.eicons?.size ?: 0)) StaticStore.eicons?.get(ene.id) ?: StaticStore.empty(ctx, 18f, 18f)
+            else StaticStore.empty(ctx, 18f, 18f)
         }
-        return (ene.get().preview?.img?.bimg() ?: StaticStore.empty(context, 18f, 18f)) as Bitmap
+        return (ene.get().preview?.img?.bimg() ?: StaticStore.empty(ctx, 18f, 18f)) as Bitmap
     }
 
     private fun getid(stage: SCDef): List<Identifier<AbEnemy>> {

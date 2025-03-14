@@ -3,29 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:minHeight="48dp">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/cuschapter_name_box"
+    <EditText
+        android:id="@+id/cuschapter_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:textColorHint="?attr/TextPrimary"
+        android:layout_weight="1"
+        android:ems="10"
+        android:inputType="text"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toStartOf="@id/cuschapter_expand"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/cuschapter_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/chapter_name"
-            android:minHeight="48dp"
-            android:textColor="?attr/TextPrimary"
-            android:textColorHint="?attr/TextPrimary" />
-    </com.google.android.material.textfield.TextInputLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/cuschapter_expand"
@@ -48,10 +42,11 @@
         android:id="@+id/cuschapter_info"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cuschapter_name_box">
+        app:layout_constraintTop_toBottomOf="@id/cuschapter_name">
 
         <TableRow
             android:layout_width="match_parent"
@@ -68,15 +63,6 @@
                 android:text="@string/packcus_mapcreate"
                 android:textAllCaps="false"
                 android:textColor="?attr/TextPrimary" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/pk_deleteChapter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:tint="@color/iconPrimaryN"
-                app:backgroundTint="@color/colorAccent"
-                app:srcCompat="@drawable/ic_baseline_delete_24" />
         </TableRow>
 
         <TableRow
@@ -140,7 +126,7 @@
                 android:background="@drawable/button"
                 android:gravity="center"
                 android:minHeight="32dip"
-                android:text="@string/packcus_mapcreate"
+                android:text="@string/packcus_addlimit"
                 android:textAllCaps="false"
                 android:textColor="?attr/TextPrimary" />
         </TableRow>

@@ -240,9 +240,7 @@
             android:layout_below="@id/maanimCfgHide"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="8dp">
+            android:layout_marginTop="2dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -298,16 +296,14 @@
 
         </TableRow>
 
-        <com.yumetsuki.bcu.androidutil.supports.DynamicListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/maanimvalList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/maanimtable"
             android:layout_below="@id/maanimvalues"
             android:layout_marginBottom="4dp"
-            android:choiceMode="singleChoice">
-
-        </com.yumetsuki.bcu.androidutil.supports.DynamicListView>
+            android:choiceMode="singleChoice" />
 
         <TableRow
             android:id="@+id/maanimtable"

@@ -1,6 +1,5 @@
 package com.yumetsuki.bcu.androidutil.animation.adapter
 
-import android.app.Dialog
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
@@ -11,12 +10,10 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
-import android.widget.TextView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.recyclerview.widget.RecyclerView
 import com.yumetsuki.bcu.MaModelEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
-import com.yumetsuki.bcu.androidutil.supports.DynamicListView.StableArrayAdapter
 import com.yumetsuki.bcu.androidutil.supports.WatcherEditText
 import common.CommonStatic
 import common.util.anim.AnimCE
@@ -25,12 +22,12 @@ import org.jcodec.common.tools.MathUtil
 import kotlin.math.max
 
 
-class MaModelListAdapter(private val activity: MaModelEditor, private val a : AnimCE) : StableArrayAdapter<IntArray>(activity, R.layout.mamodel_list_layout, a.mamodel.parts) {
+class MaModelListAdapter(private val ctx: MaModelEditor, private val a : AnimCE) : RecyclerView.Adapter<MaModelListAdapter.ViewHolder>() {
 
     companion object {
         val glows = arrayOf("-1 - Substract", "0 - None", "1 - Add", "2 - Multiply", "3 - Screen")
     }
-    internal class ViewHolder(row: View) {
+    class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
         val iid: Button = row.findViewById(R.id.mamodel_id)
         val ipar: WatcherEditText = row.findViewById(R.id.mamodel_par)
         val ispr: WatcherEditText = row.findViewById(R.id.mamodel_spr)
@@ -45,7 +42,6 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
         val iopa: WatcherEditText = row.findViewById(R.id.mamodel_opa)
         val iglw: Spinner = row.findViewById(R.id.mamodel_glw)
         val iname: EditText = row.findViewById(R.id.mamodel_name)
-        val del: FloatingActionButton = row.findViewById(R.id.mamodel_part_delete)
 
         fun setData(ic : IntArray) {
             ipar.text = SpannableStringBuilder(ic[0].toString())
@@ -63,112 +59,105 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
         }
     }
 
-    override fun getView(position: Int, view: View?, parent: ViewGroup): View {
-        val holder: ViewHolder
-        val row: View
+    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
+        val row = LayoutInflater.from(ctx).inflate(R.layout.mamodel_list_layout, viewGroup, false)
+        return ViewHolder(row)
+    }
 
-        if (view == null) {
-            val inf = LayoutInflater.from(context)
-            row = inf.inflate(R.layout.mamodel_list_layout, parent, false)
-            holder = ViewHolder(row)
-            row.tag = holder
-        } else {
-            row = view
-            holder = row.tag as ViewHolder
-        }
-
-        val mo = a.mamodel.parts[position]
+    override fun onBindViewHolder(holder: ViewHolder, i: Int) {
+        val pos = holder.bindingAdapterPosition
+        val mo = a.mamodel.parts[pos]
         holder.iglw.setPopupBackgroundResource(R.drawable.spinner_popup)
-        holder.iglw.adapter = ArrayAdapter(activity, R.layout.spinneradapter, glows)
-        holder.iid.text = position.toString()
+        holder.iglw.adapter = ArrayAdapter(ctx, R.layout.spinneradapter, glows)
+        holder.iid.text = pos.toString()
 
         holder.setData(mo)
-        holder.iname.text = SpannableStringBuilder(a.mamodel.strs0[position])
+        holder.iname.text = SpannableStringBuilder(a.mamodel.strs0[pos])
         holder.iname.hint = a.imgcut.strs[mo[2]]
         holder.iname.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_NONE || a.mamodel.strs0[position] == holder.iname.text.toString())
+            if (actionId == EditorInfo.IME_ACTION_NONE || a.mamodel.strs0[pos] == holder.iname.text.toString())
                 return@setOnEditorActionListener false
-            a.mamodel.strs0[position] = holder.iname.text.toString()
+            a.mamodel.strs0[pos] = holder.iname.text.toString()
             false
         }
 
-        val voo = activity.findViewById<AnimationEditView>(R.id.animationView)
+        val voo = ctx.findViewById<AnimationEditView>(R.id.animationView)
         holder.ipar.setWatcher {
             if (!holder.ipar.hasFocus())
                 return@setWatcher
             mo[0] = MathUtil.clip(CommonStatic.parseIntN(holder.ipar.text.toString()), -1, a.mamodel.n - 1)
             a.mamodel.check(a)
-            activity.unSave(a,"mamodel change $position Parent")
+            ctx.unSave(a,"mamodel change $pos Parent")
             voo.animationChanged()
         }
         holder.ispr.setWatcher {
             if (!holder.ispr.hasFocus())
                 return@setWatcher
             mo[2] = MathUtil.clip(CommonStatic.parseIntN(holder.ispr.text.toString()),0,a.imgcut.n - 1)
-            activity.unSave(a,"mamodel change $position Sprite")
+            ctx.unSave(a,"mamodel change $pos Sprite")
             voo.animationChanged()
         }
         holder.iz.setWatcher {
             if (!holder.iz.hasFocus())
                 return@setWatcher
             mo[3] = CommonStatic.parseIntN(holder.iz.text.toString())
-            activity.unSave(a,"mamodel change $position Z-Order")
+            ctx.unSave(a,"mamodel change $pos Z-Order")
             voo.animationChanged()
         }
         holder.ix.setWatcher {
             if (!holder.ix.hasFocus())
                 return@setWatcher
             mo[4] = CommonStatic.parseIntN(holder.ix.text.toString())
-            activity.unSave(a,"mamodel change $position x")
+            ctx.unSave(a,"mamodel change $pos x")
             voo.animationChanged()
         }
         holder.iy.setWatcher {
             if (!holder.iy.hasFocus())
                 return@setWatcher
             mo[5] = CommonStatic.parseIntN(holder.iy.text.toString())
-            activity.unSave(a,"mamodel change $position y")
+            ctx.unSave(a,"mamodel change $pos y")
             voo.animationChanged()
         }
         holder.ipx.setWatcher {
             if (!holder.ipx.hasFocus())
                 return@setWatcher
             mo[6] = CommonStatic.parseIntN(holder.ipx.text.toString())
-            activity.unSave(a,"mamodel change $position pivot x")
+            ctx.unSave(a,"mamodel change $pos pivot x")
             voo.animationChanged()
         }
         holder.ipy.setWatcher {
             if (!holder.ipy.hasFocus())
                 return@setWatcher
             mo[7] = CommonStatic.parseIntN(holder.ipy.text.toString())
-            activity.unSave(a,"mamodel change $position pivot y")
+            ctx.unSave(a,"mamodel change $pos pivot y")
             voo.animationChanged()
         }
         holder.isx.setWatcher {
             if (!holder.isx.hasFocus())
                 return@setWatcher
             mo[8] = CommonStatic.parseIntN(holder.isx.text.toString())
-            activity.unSave(a,"mamodel change $position scale x")
+            ctx.unSave(a,"mamodel change $pos scale x")
             voo.animationChanged()
         }
         holder.isy.setWatcher {
             if (!holder.isy.hasFocus())
                 return@setWatcher
             mo[9] = CommonStatic.parseIntN(holder.isy.text.toString())
-            activity.unSave(a,"mamodel change $position scale y")
+            ctx.unSave(a,"mamodel change $pos scale y")
             voo.animationChanged()
         }
         holder.irot.setWatcher {
             if (!holder.irot.hasFocus())
                 return@setWatcher
             mo[10] = CommonStatic.parseIntN(holder.irot.text.toString())
-            activity.unSave(a,"mamodel change $position angle")
+            ctx.unSave(a,"mamodel change $pos angle")
             voo.animationChanged()
         }
         holder.iopa.setWatcher {
             if (!holder.iopa.hasFocus())
                 return@setWatcher
             mo[11] = max(0, CommonStatic.parseIntN(holder.iopa.text.toString()))
-            activity.unSave(a,"mamodel change $position opacity")
+            ctx.unSave(a,"mamodel change $pos opacity")
             voo.animationChanged()
         }
         holder.iglw.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -176,54 +165,18 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
                 if (mo[12] == position - 1)
                     return
                 mo[12] = position - 1
-                activity.unSave(a,"mamodel change $position glow")
+                ctx.unSave(a,"mamodel change $position glow")
                 voo.animationChanged()
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
         holder.iid.setOnClickListener {
-            voo.anim.sele = if (voo.anim.sele == position) -1 else position
+            voo.anim.sele = if (voo.anim.sele == pos) -1 else pos
             voo.animationChanged()
         }
-        holder.del.setOnClickListener {
-            val parts = StringBuilder()
-            for (i in a.mamodel.parts.indices)
-                if (a.mamodel.parts[i][0] == position)
-                    parts.append("MaModel ").append(activity.getString(R.string.def_part)).append(" $i (").append(a.mamodel.strs0[i]).append(")\n")
-            for (i in a.anims.indices)
-                for (part in a.anims[i].parts)
-                    if (part.ints[0] == position) {
-                        parts.append("MaAnim: ${a.types[i]}").append("\n")
-                        break
-                    }
-            if (parts.isBlank())
-                removePart(voo, position)
-            else {
-                val delPop = Dialog(context)
-                delPop.setContentView(R.layout.animation_part_delete_confirm)
-                delPop.setCancelable(true)
-
-                val parList = delPop.findViewById<TextView>(R.id.usedPartList)
-                parList.text = parts.toString()
-                val del = delPop.findViewById<Button>(R.id.part_delete_tree)
-                del.setOnClickListener {
-                    removePart(voo, position)
-                    delPop.dismiss()
-                }
-                val cancel = delPop.findViewById<Button>(R.id.part_nodelete)
-                cancel.setOnClickListener { delPop.dismiss() }
-                if (!activity.isDestroyed && !activity.isFinishing)
-                    delPop.show()
-            }
-        }
-        holder.del.visibility = if (a.mamodel.n == 1 || position == 0)
-            View.INVISIBLE
-        else
-            View.VISIBLE
-        return row
     }
 
-    private fun removePart(voo : AnimationEditView, position : Int) {
+    fun removePart(voo : AnimationEditView, position : Int) {
         val mm : MaModel = a.mamodel
 
         val bs = BooleanArray(mm.n)
@@ -239,11 +192,15 @@ class MaModelListAdapter(private val activity: MaModelEditor, private val a : An
                 inds[i] = j
                 j++
             } else
-                remove(j)
+                notifyItemRemoved(j)
         a.reorderModel(inds)
         mm.n = move.size
         mm.reorder(move)
-        activity.unSave(a,"mamodel remove part $position")
+        ctx.unSave(a,"mamodel remove part $position")
         voo.animationChanged()
+    }
+
+    override fun getItemCount(): Int {
+        return a.mamodel.n
     }
 }

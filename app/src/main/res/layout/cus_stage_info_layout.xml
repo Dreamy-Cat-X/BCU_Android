@@ -78,19 +78,10 @@
                 android:background="@drawable/button"
                 android:gravity="center"
                 android:minHeight="32dip"
-                android:text="@string/packcus_mapcreate"
+                android:text="@string/packcus_limitEdit"
                 android:textAllCaps="false"
                 android:textColor="?attr/TextPrimary" />
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/ch_deleteStage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.0001"
-                android:clickable="true"
-                android:tint="@color/iconPrimaryN"
-                app:backgroundTint="@color/colorAccent"
-                app:srcCompat="@drawable/ic_baseline_delete_24" />
         </TableRow>
 
         <TableRow

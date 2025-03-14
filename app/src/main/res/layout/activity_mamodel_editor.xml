@@ -185,9 +185,7 @@
             android:layout_below="@id/mamodelCfgHide"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="8dp">
+            android:layout_marginTop="2dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -319,30 +317,16 @@
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.25"
-                android:background="@drawable/cell_shape"
-                android:gravity="center"
-                android:paddingTop="2dp"
-                android:paddingBottom="2dp"
-                android:textColor="?attr/TextPrimary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
         </TableRow>
 
-        <com.yumetsuki.bcu.androidutil.supports.DynamicListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/mamodelvalList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/mamodeltable"
             android:layout_below="@id/mamodelvalues"
             android:layout_marginBottom="4dp"
-            android:choiceMode="singleChoice">
-
-        </com.yumetsuki.bcu.androidutil.supports.DynamicListView>
+            android:choiceMode="singleChoice" />
 
         <TableRow
             android:id="@+id/mamodeltable"

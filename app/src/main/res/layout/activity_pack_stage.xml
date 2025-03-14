@@ -79,14 +79,14 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:backgroundTint="?attr/ButtonPrimary"
-        android:text="@string/packcus_addchap"
+        android:text="@string/packcus_addstage"
         android:textAllCaps="false"
         android:textColor="?attr/TextPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cusstagetoolbar" />
 
-    <com.yumetsuki.bcu.androidutil.supports.DynamicListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/stageList"
         android:layout_width="match_parent"
         android:layout_height="0dp"

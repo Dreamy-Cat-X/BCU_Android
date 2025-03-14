@@ -30,7 +30,7 @@
             android:background="@drawable/button"
             android:gravity="center"
             android:minHeight="32dip"
-            android:text="@string/packcus_mapcreate"
+            android:text="@string/packcus_limitEdit"
             android:textAllCaps="false"
             android:textColor="?attr/TextPrimary" />
 

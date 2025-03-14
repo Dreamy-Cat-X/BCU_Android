@@ -7,28 +7,27 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.MaAnimEditor
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
-import com.yumetsuki.bcu.androidutil.supports.DynamicListView.StableArrayAdapter
 import com.yumetsuki.bcu.androidutil.supports.WatcherEditText
 import common.CommonStatic
 import common.util.anim.AnimCE
-import common.util.anim.MaAnim
 import common.util.anim.Part
 
-class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE, private val p : Part) : StableArrayAdapter<IntArray>(activity, R.layout.maanim_part_list_layout, p.moves) {
+class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE, private val p : Part) : RecyclerView.Adapter<PartListAdapter.ViewHolder>() {
 
     companion object {
         val eases = arrayOf("0 - Linear", "1 - Instant", "2 - Exponential", "3 - Polynomial", "4 - Sinusoidal")
     }
-    internal class ViewHolder(row: View) {
+    class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
         val ifr: WatcherEditText = row.findViewById(R.id.mapart_frame)
         val idat: WatcherEditText = row.findViewById(R.id.mapart_mod)
         val iea: Spinner = row.findViewById(R.id.mapart_ease)
         val ipa: WatcherEditText = row.findViewById(R.id.mapart_param)
-        val ire: FloatingActionButton = row.findViewById(R.id.mapart_delete)
+        val del: FloatingActionButton = row.findViewById(R.id.mapart_delete)
 
         fun setData(ma : IntArray) {
             ifr.text = SpannableStringBuilder(ma[0].toString())
@@ -43,19 +42,17 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
         }
     }
 
-    override fun getView(position: Int, view: View?, parent: ViewGroup): View {
-        val holder: ViewHolder
-        val row: View
+    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
+        val row = LayoutInflater.from(activity).inflate(R.layout.maanim_part_list_layout, viewGroup, false)
+        return ViewHolder(row)
+    }
 
-        if (view == null) {
-            val inf = LayoutInflater.from(context)
-            row = inf.inflate(R.layout.maanim_part_list_layout, parent, false)
-            holder = ViewHolder(row)
-            row.tag = holder
-        } else {
-            row = view
-            holder = row.tag as ViewHolder
-        }
+    override fun getItemCount(): Int {
+        return p.n
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, i: Int) {
+        val position = holder.bindingAdapterPosition
         val pa = p.moves[position]
         holder.iea.setPopupBackgroundResource(R.drawable.spinner_popup)
         holder.iea.adapter = ArrayAdapter(activity, R.layout.spinneradapter, eases)
@@ -101,20 +98,18 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
             activity.unSave(a,"maanim change part move $position effect")
             voo.animationChanged()
         }
-        holder.ire.setOnClickListener {
-            val ma : MaAnim = activity.getAnim(a)
-            val data: Array<Part?> = ma.parts
+        holder.del.setOnClickListener {
+            val manim = activity.getAnim(a)
+            val data: Array<Part?> = manim.parts
             data[position] = null
-            ma.parts = arrayOfNulls<Part>(--ma.n)
+            manim.parts = arrayOfNulls(--manim.n)
             var ind = 0
             for (datum in data)
                 if (datum != null)
-                    ma.parts[ind++] = datum
-            ma.validate()
+                    manim.parts[ind++] = datum
+            manim.validate()
             activity.unSave(a,"maanim remove part")
-            remove(position)
-            voo.animationChanged()
+            notifyItemRemoved(position)
         }
-        return row
     }
 }

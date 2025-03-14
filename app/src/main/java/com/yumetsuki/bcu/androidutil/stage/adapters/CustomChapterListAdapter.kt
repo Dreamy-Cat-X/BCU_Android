@@ -19,24 +19,23 @@ import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.textfield.TextInputEditText
+import com.yumetsuki.bcu.LimitEditor
 import com.yumetsuki.bcu.PackStageManager
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
-import com.yumetsuki.bcu.androidutil.supports.DynamicListView.StableArrayAdapter
 import common.CommonStatic
 import common.io.json.JsonEncoder
 import common.pack.PackData.UserPack
 import common.util.stage.Limit
 import common.util.stage.StageMap
-import common.util.stage.info.CustomStageInfo
 
 
-class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Activity) : StableArrayAdapter<StageMap>(ctx, R.layout.cus_chapter_info_layout, pack.mc.maps.list) {
+class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Activity) : RecyclerView.Adapter<CustomChapterListAdapter.ViewHolder>() {
 
-    internal class ViewHolder(row: View) {
-        val chName: TextInputEditText = row.findViewById(R.id.cuschapter_name)
+    class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
+        val chName: EditText = row.findViewById(R.id.cuschapter_name)
         val starRow: TableRow = row.findViewById(R.id.pk_chapterStarRow)
         val info: TableLayout = row.findViewById(R.id.cuschapter_info)
         val expand: ImageButton = row.findViewById(R.id.cuschapter_expand)
@@ -45,7 +44,6 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
         val stageEdit: Button = row.findViewById(R.id.pk_stageEdit)
         val limitAdd: Button = row.findViewById(R.id.pk_limitAdd)
         val limitList: ListView = row.findViewById(R.id.pk_limitList)
-        val delete: FloatingActionButton = row.findViewById(R.id.pk_deleteChapter)
 
         fun extend(ctx : Activity, size : Int) {
             limitList.layoutParams.height = StaticStore.dptopx(57f, ctx) * size
@@ -65,23 +63,21 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
         }
     }
 
-    override fun getView(position: Int, view: View?, parent: ViewGroup): View {
-        val holder: ViewHolder
-        val row: View
+    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
+        val row = LayoutInflater.from(ctx).inflate(R.layout.cus_chapter_info_layout, viewGroup, false)
+        return ViewHolder(row)
+    }
 
-        if (view == null) {
-            val inf = LayoutInflater.from(context)
-            row = inf.inflate(R.layout.cus_chapter_info_layout, parent, false)
-            holder = ViewHolder(row)
-            row.tag = holder
-        } else {
-            row = view
-            holder = row.tag as ViewHolder
-        }
-        val subchapter = pack.mc.maps[position]
+    override fun getItemCount(): Int {
+        return pack.mc.maps.size()
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, i: Int) {
+        val pos = holder.bindingAdapterPosition
+        val subchapter = pack.mc.maps[pos]
 
         holder.chName.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId != EditorInfo.IME_ACTION_DONE || subchapter.names.toString() == holder.chName.text.toString())
+            if (actionId == EditorInfo.IME_ACTION_NONE || subchapter.names.toString() == holder.chName.text.toString())
                 return@setOnEditorActionListener false
             subchapter.names.put(holder.chName.text.toString())
             false
@@ -148,19 +144,9 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
             subchapter.price = cost-1
             false
         }
-        holder.delete.setOnClickListener {
-            pack.mc.maps.remove(subchapter)
-            for (s in subchapter.list) {
-                if (s.info != null)
-                    (s.info as CustomStageInfo).destroy(false)
-                for (si in pack.mc.si)
-                    si.remove(s)
-            }
-            remove(subchapter)
-        }
 
         holder.stageEdit.setOnClickListener {
-            val intent = Intent(context, PackStageManager::class.java)
+            val intent = Intent(ctx, PackStageManager::class.java)
             intent.putExtra("map", JsonEncoder.encode(subchapter.id).toString())
 
             ctx.startActivity(intent)
@@ -169,13 +155,11 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
         holder.limitList.adapter = adp
 
         holder.limitAdd.setOnClickListener {
-            val lim = Limit() //Is PackLimit() is ever used
+            val lim = Limit() //Is PackLimit() ever used
             subchapter.lim.add(lim)
             adp.notifyDataSetChanged()
             holder.extend(ctx, subchapter.lim.size)
         }
-
-        return row
     }
 
     private class LimitListAdapter(private val ctx : Activity, private val map : StageMap, private val exp : (ctx : Activity, size : Int) -> Unit) : ArrayAdapter<Limit>(ctx, R.layout.cus_chapter_info_layout, map.lim) {
@@ -190,7 +174,7 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
             val row: View
 
             if (view == null) {
-                val inf = LayoutInflater.from(context)
+                val inf = LayoutInflater.from(ctx)
                 row = inf.inflate(R.layout.cus_limit_list_layout, parent, false)
                 holder = ViewHolder(row)
                 row.tag = holder
@@ -202,11 +186,12 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
             val t = "Limit ${position+1}"
             holder.lim.text = t
 
-            //holder.edit.setOnClickListener {
-            //val intent = Intent(context, LimitEditor::class.java)
-            //intent.putExtra("limit", JsonEncoder.encode(lim).toString())
-            //ac.startActivity(intent)
-            //}
+            holder.edit.setOnClickListener {
+                LimitEditor.lim = lim
+                val intent = Intent(ctx, LimitEditor::class.java)
+
+                ctx.startActivity(intent)
+            }
 
             holder.delete.setOnClickListener {
                 map.lim.remove(lim)

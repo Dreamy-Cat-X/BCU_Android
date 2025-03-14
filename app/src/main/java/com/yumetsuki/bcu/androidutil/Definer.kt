@@ -170,9 +170,8 @@ object Definer {
 
                 val lit = vf.list()
 
-                if(lit != null) {
+                if(lit != null)
                     StaticStore.medalnumber = lit.size
-                }
             }
 
             try {

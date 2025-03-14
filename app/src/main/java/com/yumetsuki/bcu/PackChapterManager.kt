@@ -1,6 +1,7 @@
 package com.yumetsuki.bcu
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.widget.Button
@@ -9,17 +10,20 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
 import com.yumetsuki.bcu.androidutil.stage.adapters.CustomChapterListAdapter
-import com.yumetsuki.bcu.androidutil.supports.DynamicListView
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import common.CommonStatic
 import common.pack.Source.Workspace
 import common.pack.UserProfile
 import common.util.stage.StageMap
+import common.util.stage.info.CustomStageInfo
 import kotlinx.coroutines.launch
 
 class PackChapterManager : AppCompatActivity() {
@@ -60,21 +64,54 @@ class PackChapterManager : AppCompatActivity() {
             val prog = findViewById<ProgressBar>(R.id.prog)
 
             val addc = findViewById<Button>(R.id.cuschapteradd)
-            val chlist = findViewById<DynamicListView>(R.id.chapterList)
+            val chlist = findViewById<RecyclerView>(R.id.chapterList)
             StaticStore.setDisappear(addc, chlist)
 
             val chname = findViewById<TextView>(R.id.cuschaptername)
             chname.text = pack.toString()
-
+            chlist.layoutManager = LinearLayoutManager(this@PackChapterManager)
             val adp = CustomChapterListAdapter(pack, this@PackChapterManager)
-            chlist.setSwapListener { from, to ->
-                pack.mc.maps.reorder(from, to)
-            }
             chlist.adapter = adp
+            val touch = ItemTouchHelper(object: ItemTouchHelper.Callback() {
+                override fun getMovementFlags(p0: RecyclerView, p1: RecyclerView.ViewHolder): Int {
+                    return makeMovementFlags(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.END)
+                }
+                override fun onMove(view: RecyclerView, src: RecyclerView.ViewHolder, dest: RecyclerView.ViewHolder): Boolean {
+                    val from = src.bindingAdapterPosition
+                    val to = dest.bindingAdapterPosition
+                    pack.mc.maps.reorder(from, to)
+                    adp.notifyItemMoved(from, to)
+                    return false
+                }
+                override fun onSwiped(holder: RecyclerView.ViewHolder, j: Int) {
+                    val pos = holder.bindingAdapterPosition
+                    val subchapter = pack.mc.maps[pos]
+                    pack.mc.maps.remove(subchapter)
+                    for (s in subchapter.list) {
+                        if (s.info != null)
+                            (s.info as CustomStageInfo).destroy(false)
+                        for (si in pack.mc.si)
+                            si.remove(s)
+                    }
+                    if (pack.mc.maps.isEmpty)
+                        StaticStore.allMCs.remove(pack.sid)
+                    adp.notifyItemRemoved(pos)
+                }
+            })
+            touch.attachToRecyclerView(chlist)
 
             addc.setOnClickListener {
                 val map = pack.mc.add{ StageMap(it) }
-                adp.add(map)
+                adp.notifyItemInserted(pack.mc.maps.indexOf(map))
+                if (pack.mc.maps.size() == 1) {
+                    StaticStore.allMCs.clear()
+
+                    StaticStore.allMCs.addAll(StaticStore.BCMapCodes)
+                    val packs = UserProfile.getUserPacks()
+                    for(p in packs)
+                        if(p.mc.maps.list.isNotEmpty())
+                            StaticStore.allMCs.add(p.sid)
+                }
             }
 
             bck.setOnClickListener {

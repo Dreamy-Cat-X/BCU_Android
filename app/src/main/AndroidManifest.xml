@@ -87,6 +87,7 @@
         <activity android:name=".PackCreation" />
         <activity android:name=".PackChapterManager" />
         <activity android:name=".PackStageManager" />
+        <activity android:name=".LimitEditor" />
         <activity
             android:name=".ImgCutEditor"
             android:configChanges="locale"
