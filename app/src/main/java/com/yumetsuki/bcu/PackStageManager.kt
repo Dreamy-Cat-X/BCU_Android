@@ -10,6 +10,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.androidutil.StaticStore
@@ -67,7 +68,7 @@ class PackStageManager : AppCompatActivity() {
 
             val adds = findViewById<Button>(R.id.cusstageadd)
             val chlist = findViewById<RecyclerView>(R.id.stageList)
-
+            chlist.layoutManager = LinearLayoutManager(this@PackStageManager)
             val adp = CustomStageListAdapter(this@PackStageManager, map)
             chlist.adapter = adp
             val touch = ItemTouchHelper(object: ItemTouchHelper.Callback() {

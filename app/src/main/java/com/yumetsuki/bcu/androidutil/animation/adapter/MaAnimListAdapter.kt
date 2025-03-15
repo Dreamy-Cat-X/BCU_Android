@@ -4,7 +4,6 @@ import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -104,8 +103,8 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
             activity.unSave(a,"maanim change $position loop count")
             voo.animationChanged()
         }
-        holder.iname.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_NONE)
+        holder.iname.setOnEditorActionListener { _, _, _ ->
+            if (ma.name == holder.iname.text.toString())
                 return@setOnEditorActionListener false
             ma.name = holder.iname.text.toString()
             activity.unSave(a,"maanim change $position Name")

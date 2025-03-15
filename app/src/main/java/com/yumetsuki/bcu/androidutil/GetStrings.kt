@@ -651,7 +651,7 @@ class GetStrings(private val c: Context) {
 
         val limits: LinkedHashMap<String, String> = LinkedHashMap()
         if (l.line != 0) {
-            val result = c.getString(R.string.limit_line) + " : " + c.getString(R.string.limit_line2)
+            val result = c.getString(R.string.limit_line) + " : " + c.getString(if (l.line == 2) R.string.limit_line3 else R.string.limit_line2)
             limits[c.getString(R.string.limit_line)] = result
         }
         if (l.max != 0) {
@@ -740,7 +740,7 @@ class GetStrings(private val c: Context) {
                 if (!l.stageLimit.defDeploy()) {
                     val str = StringBuilder(c.getString(R.string.limit_rspn)).append(" : [")
                     for (i in rid.indices)
-                        if (l.stageLimit.rarityDeployLimit[i] != 100)
+                        if (l.stageLimit.rarityDeployLimit[i] != -1)
                             str.append(c.getString(rid[i])).append(": ").append(l.stageLimit.rarityDeployLimit[i]).append(", ")
                     limits[c.getString(R.string.limit_rspn)] = str.substring(0, str.length - 2) + "]"
                 }

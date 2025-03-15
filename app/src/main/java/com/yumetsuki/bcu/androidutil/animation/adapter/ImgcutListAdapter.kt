@@ -4,7 +4,6 @@ import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import androidx.recyclerview.widget.RecyclerView
@@ -51,8 +50,8 @@ class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : Anim
 
         holder.setData(ic)
         holder.iname.text = SpannableStringBuilder(a.imgcut.strs[pos])
-        holder.iname.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_NONE)
+        holder.iname.setOnEditorActionListener { _, _, _ ->
+            if (a.imgcut.strs[pos] == holder.iname.text.toString())
                 return@setOnEditorActionListener false
             a.imgcut.strs[pos] = holder.iname.text.toString()
             false

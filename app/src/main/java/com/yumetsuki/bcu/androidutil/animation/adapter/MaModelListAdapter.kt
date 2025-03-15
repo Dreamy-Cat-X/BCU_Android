@@ -4,7 +4,6 @@ import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -74,8 +73,8 @@ class MaModelListAdapter(private val ctx: MaModelEditor, private val a : AnimCE)
         holder.setData(mo)
         holder.iname.text = SpannableStringBuilder(a.mamodel.strs0[pos])
         holder.iname.hint = a.imgcut.strs[mo[2]]
-        holder.iname.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_NONE || a.mamodel.strs0[pos] == holder.iname.text.toString())
+        holder.iname.setOnEditorActionListener { _, _, _ ->
+            if (a.mamodel.strs0[pos] == holder.iname.text.toString())
                 return@setOnEditorActionListener false
             a.mamodel.strs0[pos] = holder.iname.text.toString()
             false

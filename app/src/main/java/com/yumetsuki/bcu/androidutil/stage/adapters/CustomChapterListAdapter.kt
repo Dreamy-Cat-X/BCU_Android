@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
-import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -76,8 +75,8 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
         val pos = holder.bindingAdapterPosition
         val subchapter = pack.mc.maps[pos]
 
-        holder.chName.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_NONE || subchapter.names.toString() == holder.chName.text.toString())
+        holder.chName.setOnEditorActionListener { _, _, _ ->
+            if (subchapter.names.toString() == holder.chName.text.toString())
                 return@setOnEditorActionListener false
             subchapter.names.put(holder.chName.text.toString())
             false
@@ -116,9 +115,9 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
                 View.GONE else View.VISIBLE
 
             stDif.hint = "${s+1}★: ${if (s < subchapter.stars.size) subchapter.stars[s] else "N/A"}%"
-            stDif.setOnEditorActionListener { _, actionId, _ ->
-                val star = CommonStatic.parseIntN(stDif.text.toString().ifBlank { stDif.hint.toString() })
-                if (star < 0 || actionId == EditorInfo.IME_ACTION_NONE)
+            stDif.setOnEditorActionListener { _, _, _ ->
+                val star = CommonStatic.parseIntN(stDif.text.toString().ifBlank { stDif.hint.toString().substring(4) })
+                if (star < 0)
                     return@setOnEditorActionListener false
 
                 if (s == subchapter.stars.size-1 && star == 0) {
@@ -137,9 +136,9 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
             }
         }
         holder.cost.hint = "${ctx.getString(R.string.cuschapter_cost)}: ${subchapter.price+1}"
-        holder.chName.setOnEditorActionListener { _, actionId, _ ->
-            val cost = CommonStatic.parseIntN(holder.chName.text.toString().ifBlank { holder.cost.hint.toString() })
-            if (cost < 0 || actionId != EditorInfo.IME_ACTION_DONE)
+        holder.cost.setOnEditorActionListener { _, actionId, _ ->
+            val cost = CommonStatic.parseIntN(holder.cost.text.toString().ifBlank { holder.cost.hint.toString() })
+            if (cost < 0)
                 return@setOnEditorActionListener false
             subchapter.price = cost-1
             false
@@ -183,12 +182,13 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
                 holder = row.tag as ViewHolder
             }
             val lim = map.lim[position]
-            val t = "Limit ${position+1}"
+            val t = "${ctx.getString(R.string.stg_info_limit)} ${position+1}"
             holder.lim.text = t
 
             holder.edit.setOnClickListener {
                 LimitEditor.lim = lim
                 val intent = Intent(ctx, LimitEditor::class.java)
+                intent.putExtra("name", "$map $t: $lim")
 
                 ctx.startActivity(intent)
             }

@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
-import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -22,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayout
 import com.yumetsuki.bcu.BattlePrepare
 import com.yumetsuki.bcu.LimitEditor
+import com.yumetsuki.bcu.PackStageEnemyManager
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
 import common.CommonStatic
@@ -39,6 +39,7 @@ class CustomStageListAdapter(private val ctx: Activity, private val map: StageMa
         val icons: FlexboxLayout = row.findViewById(R.id.enemicon)
         val play: Button = row.findViewById(R.id.ch_stagePlay)
         val limit: Button = row.findViewById(R.id.ch_stageLimit)
+        val enemies: Button = row.findViewById(R.id.ch_stageEnemy)
 
         val info: TableLayout = row.findViewById(R.id.cusstage_info)
         val expand: ImageButton = row.findViewById(R.id.cusstage_expand)
@@ -103,16 +104,16 @@ class CustomStageListAdapter(private val ctx: Activity, private val map: StageMa
         holder.name.text = SpannableStringBuilder(MultiLangCont.get(st) ?: st.names.toString())
         if(holder.name.text.isBlank())
             holder.name.text = SpannableStringBuilder(getStageName(st.id()))
-        holder.name.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_NONE || st.names.toString() == holder.name.text.toString())
+        holder.name.setOnEditorActionListener { _, _, _ ->
+            if (st.names.toString() == holder.name.text.toString())
                 return@setOnEditorActionListener false
             st.names.put(holder.name.text.toString())
             false
         }
         holder.width.hint = "${ctx.getString(R.string.def_stg_length)}: ${st.len}"
-        holder.width.setOnEditorActionListener { _, actionId, _ ->
+        holder.width.setOnEditorActionListener { _, _, _ ->
             val wid = CommonStatic.parseIntN(holder.width.text.toString())
-            if (wid < 2000 || actionId == EditorInfo.IME_ACTION_NONE || wid == st.len)
+            if (wid < 2000 || wid == st.len)
                 return@setOnEditorActionListener false
             st.len = wid
             false
@@ -121,9 +122,9 @@ class CustomStageListAdapter(private val ctx: Activity, private val map: StageMa
             "${ctx.getString(R.string.def_base_health)}: ${st.timeLimit}"
         else
             "${ctx.getString(R.string.def_base_health)}: ${st.health}"
-        holder.health.setOnEditorActionListener { _, actionId, _ ->
+        holder.health.setOnEditorActionListener { _, _, _ ->
             val wid = CommonStatic.parseIntN(holder.health.text.toString())
-            if (wid <= 0 || actionId == EditorInfo.IME_ACTION_NONE || wid == st.health)
+            if (wid < 0)
                 return@setOnEditorActionListener false
             if (st.trail)
                 st.timeLimit = wid
@@ -132,9 +133,9 @@ class CustomStageListAdapter(private val ctx: Activity, private val map: StageMa
             false
         }
         holder.maxEne.hint = "${ctx.getString(R.string.def_max_enemy)}: ${st.max}"
-        holder.maxEne.setOnEditorActionListener { _, actionId, _ ->
+        holder.maxEne.setOnEditorActionListener { _, _, _ ->
             val wid = CommonStatic.parseIntN(holder.maxEne.text.toString())
-            if (wid <= 0 || actionId == EditorInfo.IME_ACTION_NONE || wid == st.max)
+            if (wid <= 0 || wid == st.max)
                 return@setOnEditorActionListener false
             st.max = wid
             false
@@ -142,6 +143,9 @@ class CustomStageListAdapter(private val ctx: Activity, private val map: StageMa
         holder.dojo.isChecked = st.trail
         holder.dojo.setOnClickListener {
             st.trail = holder.dojo.isChecked
+            if (!st.trail)
+                st.timeLimit = 0
+            holder.health.text.clear()
             holder.health.hint = if (st.trail)
                 "${ctx.getString(R.string.def_time_limit)}: ${st.timeLimit}"
             else
@@ -173,7 +177,13 @@ class CustomStageListAdapter(private val ctx: Activity, private val map: StageMa
         holder.limit.setOnClickListener {
             LimitEditor.lim = st.lim
             val intent = Intent(ctx, LimitEditor::class.java)
+            intent.putExtra("name", "$st ${ctx.getString(R.string.stg_info_limit)}: ${st.lim}")
 
+            ctx.startActivity(intent)
+        }
+        holder.enemies.setOnClickListener {
+            val intent = Intent(ctx, PackStageEnemyManager::class.java)
+            intent.putExtra("stage", JsonEncoder.encode(st.id).toString())
             ctx.startActivity(intent)
         }
     }

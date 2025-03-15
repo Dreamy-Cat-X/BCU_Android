@@ -9,7 +9,6 @@ import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageView
@@ -62,8 +61,8 @@ class AnimationListAdapter(private val activity: AnimationManagement, private va
 
         val a = anims[position]
         holder.name.text = SpannableStringBuilder(a.toString())
-        holder.name.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId != EditorInfo.IME_ACTION_DONE || a.id.id == holder.name.text.toString())
+        holder.name.setOnEditorActionListener { _, _, _ ->
+            if (a.id.id == holder.name.text.toString())
                 return@setOnEditorActionListener false
             a.renameTo(holder.name.text.toString())
             false

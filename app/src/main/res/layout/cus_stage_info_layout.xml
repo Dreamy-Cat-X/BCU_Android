@@ -82,6 +82,18 @@
                 android:textAllCaps="false"
                 android:textColor="?attr/TextPrimary" />
 
+            <Button
+                android:id="@+id/ch_stageEnemy"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/button"
+                android:gravity="center"
+                android:minHeight="32dip"
+                android:text="@string/stg_sch_enem"
+                android:textAllCaps="false"
+                android:textColor="?attr/TextPrimary" />
+
         </TableRow>
 
         <TableRow
@@ -169,6 +181,8 @@
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+
+        </TableRow>
     </TableLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

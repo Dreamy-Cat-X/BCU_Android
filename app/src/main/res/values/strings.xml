@@ -330,6 +330,9 @@
     <string name="limit_rare">Rarity</string>
     <string name="limit_chra">Character Group</string>
     <string name="limit_line2">Only first line</string>
+    <string name="limit_line3" translatable="false">Only second line</string>
+    <string name="limit_linen" translatable="false">Both lines</string>
+    <string name="limit_lvres" translatable="false">Level Restriction</string>
     <string name="limit_max2">Max cost _</string>
     <string name="limit_min2">Minimum cost _</string>
     <string name="limit_chra1">Only _ available</string>

@@ -9,7 +9,6 @@ import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -74,8 +73,8 @@ class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList
         else
             holder.icn.setImageBitmap(p.icon.img.bimg() as Bitmap)
 
-        holder.name.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_NONE || holder.name.text.toString() == p.desc.names.toString())
+        holder.name.setOnEditorActionListener { _, _, _ ->
+            if (holder.name.text.toString() == p.desc.names.toString())
                 return@setOnEditorActionListener false
             p.desc.names.put(holder.name.text.toString())
             false

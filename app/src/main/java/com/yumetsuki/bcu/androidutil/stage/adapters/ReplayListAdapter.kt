@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
-import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -92,8 +91,8 @@ class ReplayListAdapter(private val activity: ReplayList, private val replays : 
             }
         })
         holder.name.text = SpannableStringBuilder(replay.toString())
-        holder.name.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId != EditorInfo.IME_ACTION_DONE || replay.rl.id == holder.name.text.toString())
+        holder.name.setOnEditorActionListener { _, _, _ ->
+            if (replay.rl.id == holder.name.text.toString())
                 return@setOnEditorActionListener false
             replay.rename(holder.name.text.toString())
             false
