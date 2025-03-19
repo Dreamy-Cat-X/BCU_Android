@@ -206,10 +206,9 @@ class PackManagement : AppCompatActivity() {
             })
 
             val packList = ArrayList<PackData.UserPack>()
-
-            for(pack in UserProfile.getUserPacks()) {
-                packList.add(pack)
-            }
+            for(pack in UserProfile.getUserPacks())
+                if (!pack.editable)
+                    packList.add(pack)
 
             list.adapter = PackManagementAdapter(this@PackManagement, packList)
 
@@ -427,6 +426,7 @@ class PackManagement : AppCompatActivity() {
 
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR
                 handlingPacks = false
+                needReload = false
 
                 withContext(Dispatchers.Main) {
                     swipe?.isRefreshing = false
@@ -484,6 +484,7 @@ class PackManagement : AppCompatActivity() {
 
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR
             handlingPacks = false
+            needReload = false
 
             runOnUiThread {
                 swipe?.isRefreshing = false

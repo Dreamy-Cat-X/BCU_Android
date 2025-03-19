@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -45,30 +44,32 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.5">
 
-            <TextView
+            <EditText
                 android:id="@+id/stgenlistmultir"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
                 android:background="@drawable/cell_shape"
                 android:gravity="center"
+                android:inputType="number"
                 android:minHeight="48dp"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:text="@string/def_minus"
-                android:textColor="?attr/TextPrimary" />
+                android:textColor="?attr/TextPrimary"
+                android:textColorHint="?attr/HintPrimary" />
 
-            <TextView
+            <EditText
                 android:id="@+id/stgenlistnumr"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
                 android:background="@drawable/cell_shape"
                 android:gravity="center"
+                android:inputType="text"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:text="@string/def_minus"
-                android:textColor="?attr/TextPrimary" />
+                android:textColor="?attr/TextPrimary"
+                android:textColorHint="?attr/HintPrimary" />
         </TableRow>
 
         <ImageButton
@@ -148,31 +149,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
+            <EditText
                 android:id="@+id/enemlistbhr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.375"
                 android:background="@drawable/cell_shape"
                 android:gravity="center"
+                android:inputType="number"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:text="@string/def_minus"
-                android:textColor="?attr/TextPrimary" />
+                android:textColor="?attr/TextPrimary"
+                android:textColorHint="?attr/HintPrimary" />
 
-            <TextView
+            <EditText
                 android:id="@+id/enemlistibr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.25"
                 android:background="@drawable/cell_shape"
                 android:gravity="center"
+                android:inputType="number"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:text="@string/def_minus"
-                android:textColor="?attr/TextPrimary" />
+                android:textColor="?attr/TextPrimary"
+                android:textColorHint="?attr/HintPrimary" />
 
-            <TextView
+            <EditText
                 android:id="@+id/enemlistlayr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -181,8 +184,8 @@
                 android:gravity="center"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:text="@string/def_minus"
-                android:textColor="?attr/TextPrimary" />
+                android:textColor="?attr/TextPrimary"
+                android:textColorHint="?attr/HintPrimary" />
 
         </TableRow>
 
@@ -190,7 +193,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <Button
+            <TextView
                 android:id="@+id/enemlistst"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -200,8 +203,7 @@
                 android:text="@string/stg_info_start"
                 android:textAllCaps="false"
                 android:textColor="?attr/TextPrimary"
-                android:textStyle="bold"
-                tools:ignore="ButtonStyle" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/enemlistkilc"
@@ -216,25 +218,24 @@
                 android:textColor="?attr/TextPrimary"
                 android:textStyle="bold" />
 
-            <Button
+            <TextView
                 android:id="@+id/enemlistres"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="0.375"
                 android:background="@drawable/button_shape"
                 android:gravity="center"
                 android:text="@string/stg_info_respawn"
                 android:textAllCaps="false"
                 android:textColor="?attr/TextPrimary"
-                android:textStyle="bold"
-                tools:ignore="ButtonStyle" />
+                android:textStyle="bold" />
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
+            <EditText
                 android:id="@+id/enemliststr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -243,22 +244,23 @@
                 android:gravity="center"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:text="@string/def_minus"
-                android:textColor="?attr/TextPrimary" />
+                android:textColor="?attr/TextPrimary"
+                android:textColorHint="?attr/HintPrimary" />
 
-            <TextView
+            <EditText
                 android:id="@+id/enemlistkilcr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.25"
                 android:background="@drawable/cell_shape"
                 android:gravity="center"
+                android:inputType="number"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:text="@string/def_minus"
-                android:textColor="?attr/TextPrimary" />
+                android:textColor="?attr/TextPrimary"
+                android:textColorHint="?attr/HintPrimary" />
 
-            <TextView
+            <EditText
                 android:id="@+id/enemlistresr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -267,8 +269,8 @@
                 android:gravity="center"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:text="@string/def_minus"
-                android:textColor="?attr/TextPrimary" />
+                android:textColor="?attr/TextPrimary"
+                android:textColorHint="?attr/HintPrimary" />
 
         </TableRow>
 
@@ -305,7 +307,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <TextView
+            <EditText
                 android:id="@+id/enemlistevrdr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -315,7 +317,8 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:text="@string/def_minus"
-                android:textColor="?attr/TextPrimary" />
+                android:textColor="?attr/TextPrimary"
+                android:textColorHint="?attr/HintPrimary" />
 
             <ImageButton
                 android:id="@+id/enemlistrev"
@@ -336,5 +339,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

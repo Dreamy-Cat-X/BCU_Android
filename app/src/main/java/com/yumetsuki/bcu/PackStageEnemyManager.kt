@@ -1,31 +1,57 @@
 package com.yumetsuki.bcu
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import com.yumetsuki.bcu.androidutil.StaticStore
-import com.yumetsuki.bcu.androidutil.enemy.adapters.EnemyListPager
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.stage.adapters.CustomStEnList
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
+import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
-import common.pack.PackData
-import common.pack.PackData.UserPack
-import common.pack.UserProfile
 import common.util.stage.MapColc.PackMapColc
+import common.util.stage.SCDef
+import common.util.stage.SCDef.Line
 import common.util.stage.Stage
+import common.util.unit.AbEnemy
 import kotlinx.coroutines.launch
 
 class PackStageEnemyManager : AppCompatActivity() {
+
+    private lateinit var list : SCDef
+    private lateinit var notif : () -> Unit
+
+    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val data = result.data
+
+        if (result.resultCode == Activity.RESULT_OK && data != null) {
+            val e = StaticStore.transformIdentifier<AbEnemy>(data.getStringExtra("Data"))?.get() ?: return@registerForActivityResult
+
+            val nl = Array(list.datas.size + 1) {
+                if (it == 0) {
+                    val l = Line()
+                    l.enemy = e.id
+                    l
+                } else
+                    list.datas[it - 1]
+            }
+            list.datas = nl
+            notif()
+        }
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,10 +83,10 @@ class PackStageEnemyManager : AppCompatActivity() {
 
         val st = StaticStore.transformIdentifier<Stage>(extra.getString("stage"))?.get() ?: return
         val pack = (st.mc as PackMapColc).pack
-        val list = st.data
+        list = st.data
 
         lifecycleScope.launch {
-            val bck = findViewById<FloatingActionButton>(R.id.cussteneback)
+            val bck = findViewById<FloatingActionButton>(R.id.cusstenebck)
             bck.setOnClickListener {
                 finish()
             }
@@ -70,38 +96,50 @@ class PackStageEnemyManager : AppCompatActivity() {
                 }
             })
 
-            val tab = findViewById<TabLayout>(R.id.cusstenelisttab)
-            val pager = findViewById<ViewPager2>(R.id.enlistpager)
+            val nam = findViewById<TextView>(R.id.cusstenename)
+            nam.text = st.toString()
 
-            pager.isSaveEnabled = false
-            pager.isSaveFromParentEnabled = false
-
-            val deps : Array<PackData> = Array(pack.desc.dependency.size + 2) {
-                when (it) {
-                    0 -> UserProfile.getBCData()
-                    1 -> pack
-                    else -> UserProfile.getUserPack(pack.desc.dependency[it - 2])
+            val elist = findViewById<RecyclerView>(R.id.cusstenelist)
+            elist.layoutManager = LinearLayoutManager(this@PackStageEnemyManager)
+            val adp = CustomStEnList(this@PackStageEnemyManager, st)
+            elist.adapter = adp
+            val touch = ItemTouchHelper(object: ItemTouchHelper.Callback() {
+                override fun getMovementFlags(p0: RecyclerView, p1: RecyclerView.ViewHolder): Int {
+                    return makeMovementFlags(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.END)
                 }
-            }
-            pager.adapter = EnemyListTab(deps)
-            pager.offscreenPageLimit = deps.size
+                override fun onMove(view: RecyclerView, src: RecyclerView.ViewHolder, dest: RecyclerView.ViewHolder): Boolean {
+                    val from = list.datas.size - src.bindingAdapterPosition - 1
+                    val to = list.datas.size - dest.bindingAdapterPosition - 1
+                    val temp = list.datas[from]
+                    list.datas[from] = list.datas[to]
+                    list.datas[to] = temp
+                    adp.notifyItemMoved(src.bindingAdapterPosition, dest.bindingAdapterPosition)
 
-            TabLayoutMediator(tab, pager) { t, position ->
-                t.text = if(position == 0)
-                    getString(R.string.pack_default)
-                else
-                    (deps[position] as UserPack).desc.names.toString().ifBlank { deps[position].sid }
-            }.attach()
-        }
-    }
+                    return false
+                }
+                override fun onSwiped(holder: RecyclerView.ViewHolder, j: Int) {
+                    val pos = list.datas.size - holder.bindingAdapterPosition - 1
+                    val nl = Array(list.datas.size - 1) {
+                        if (it < pos) list.datas[it]
+                        else list.datas[it + 1]
+                    }
+                    list.datas = nl
+                    adp.notifyItemRemoved(holder.bindingAdapterPosition)
+                }
+            })
+            touch.attachToRecyclerView(elist)
+            notif = { adp.notifyItemInserted(list.datas.size - 1) }
 
-    inner class EnemyListTab(private val deps : Array<PackData>) : FragmentStateAdapter(supportFragmentManager, lifecycle) {
-        override fun getItemCount(): Int {
-            return deps.size
-        }
+            val addenemy = findViewById<FloatingActionButton>(R.id.cussteneadd)
+            addenemy.setOnClickListener(object : SingleClick() {
+                override fun onSingleClick(v: View?) {
+                    val intent = Intent(this@PackStageEnemyManager, EnemyList::class.java)
+                    intent.putExtra("mode", EnemyList.Mode.SELECTION.name)
+                    intent.putExtra("pack", pack.sid)
 
-        override fun createFragment(position: Int): Fragment {
-            return EnemyListPager.newInstance(deps[position].sid, position, EnemyList.Mode.SELECTION)
+                    resultLauncher.launch(intent)
+                }
+            })
         }
     }
 }

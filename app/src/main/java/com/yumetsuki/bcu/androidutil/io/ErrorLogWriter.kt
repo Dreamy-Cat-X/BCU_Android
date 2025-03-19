@@ -13,25 +13,19 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ErrorLogWriter(private val path: String?) : Thread.UncaughtExceptionHandler {
+class ErrorLogWriter(private val path: String) : Thread.UncaughtExceptionHandler {
     private val errors: Thread.UncaughtExceptionHandler? = Thread.getDefaultUncaughtExceptionHandler()
 
     override fun uncaughtException(t: Thread, e: Throwable) {
-        if (path != null)
-            writeToFile(e)
-
+        writeToFile(e)
         errors?.uncaughtException(t, e)
     }
 
     private fun writeToFile(e: Throwable) {
         try {
-            if(path == null)
-                return
-
             val f = File(path)
-            if (!f.exists()) {
+            if (!f.exists())
                 f.mkdirs()
-            }
             val dateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US)
             val name = dateFormat.format(Date()) + "_" + Build.MODEL + ".txt"
             val stringbuff: Writer = StringWriter()
@@ -40,8 +34,13 @@ class ErrorLogWriter(private val path: String?) : Thread.UncaughtExceptionHandle
             val current = stringbuff.toString()
             printWriter.close()
 
-            val file = File(path, name)
-            if (!file.exists()) f.createNewFile()
+            var file = File(path, name)
+            if (!file.exists())
+                file.createNewFile()
+            else {
+                file = File(path, getExistingFileName(path, name))
+                file.createNewFile()
+            }
             val fileWriter = FileWriter(file)
             fileWriter.append("VERSION : ").append(StaticStore.VER).append("\r\n")
             fileWriter.append("MODEL : ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL.toString()).append("\r\n")
@@ -96,9 +95,9 @@ class ErrorLogWriter(private val path: String?) : Thread.UncaughtExceptionHandle
             try {
                 val path = StaticStore.getPublicDirectory() + "logs"
                 val f = File(path)
-                if (!f.exists()) {
+                if (!f.exists())
                     f.mkdirs()
-                }
+
                 val dateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US)
                 val date = Date()
                 val name = dateFormat.format(date) + "_" + Build.MODEL + ".txt"

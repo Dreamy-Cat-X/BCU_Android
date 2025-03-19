@@ -8,6 +8,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -115,5 +116,12 @@ class PackStageManager : AppCompatActivity() {
             StaticStore.setAppear(adds, chlist)
             StaticStore.setDisappear(st, prog)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val chlist = findViewById<RecyclerView>(R.id.stageList)
+        for (child in chlist.children)
+            (chlist.getChildViewHolder(child) as CustomStageListAdapter.ViewHolder).resetIcons()
     }
 }

@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/backgroundPrimary">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/cuslimtoolbar"
@@ -89,7 +90,8 @@
                         android:background="@drawable/cell_shape"
                         android:ems="10"
                         android:inputType="number"
-                        android:minHeight="36dp" />
+                        android:minHeight="36dp"
+                        android:textColor="?attr/TextPrimary" />
 
                 </TableRow>
 
@@ -117,7 +119,8 @@
                         android:background="@drawable/cell_shape"
                         android:ems="10"
                         android:inputType="number"
-                        android:minHeight="36dp" />
+                        android:minHeight="36dp"
+                        android:textColor="?attr/TextPrimary" />
                 </TableRow>
 
                 <TableRow
@@ -144,7 +147,8 @@
                         android:background="@drawable/cell_shape"
                         android:ems="10"
                         android:inputType="number"
-                        android:minHeight="36dp" />
+                        android:minHeight="36dp"
+                        android:textColor="?attr/TextPrimary" />
                 </TableRow>
 
             </TableRow>
@@ -172,7 +176,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="text"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
             </TableRow>
 
@@ -281,7 +286,8 @@
                         android:background="@drawable/cell_shape"
                         android:ems="10"
                         android:inputType="number"
-                        android:minHeight="36dp" />
+                        android:minHeight="36dp"
+                        android:textColor="?attr/TextPrimary" />
                 </TableRow>
 
                 <TableRow
@@ -308,13 +314,15 @@
                         android:background="@drawable/cell_shape"
                         android:ems="10"
                         android:inputType="number"
-                        android:minHeight="36dp" />
+                        android:minHeight="36dp"
+                        android:textColor="?attr/TextPrimary" />
 
                     <CheckBox
                         android:id="@+id/pklimscd"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/limit_inicd" />
+                        android:text="@string/limit_inicd"
+                        android:textColor="?attr/TextPrimary" />
                 </TableRow>
 
             </TableRow>
@@ -348,7 +356,8 @@
                         android:background="@drawable/cell_shape"
                         android:ems="10"
                         android:inputType="number"
-                        android:minHeight="36dp" />
+                        android:minHeight="36dp"
+                        android:textColor="?attr/TextPrimary" />
                 </TableRow>
 
                 <TableRow
@@ -375,7 +384,8 @@
                         android:background="@drawable/cell_shape"
                         android:ems="10"
                         android:inputType="number"
-                        android:minHeight="36dp" />
+                        android:minHeight="36dp"
+                        android:textColor="?attr/TextPrimary" />
 
                 </TableRow>
 
@@ -491,7 +501,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -500,7 +511,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -509,7 +521,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -518,7 +531,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -527,7 +541,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -536,7 +551,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
             </LinearLayout>
 
@@ -565,7 +581,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -574,7 +591,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -583,7 +601,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -592,7 +611,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -601,7 +621,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -610,7 +631,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
             </LinearLayout>
 
@@ -639,7 +661,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number|numberSigned"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -648,7 +671,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number|numberSigned"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -657,7 +681,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number|numberSigned"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -666,7 +691,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number|numberSigned"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -675,7 +701,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number|numberSigned"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -684,7 +711,8 @@
                     android:background="@drawable/cell_shape"
                     android:ems="10"
                     android:inputType="number|numberSigned"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:textColor="?attr/TextPrimary" />
 
             </LinearLayout>
 

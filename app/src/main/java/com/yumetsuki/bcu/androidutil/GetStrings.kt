@@ -639,10 +639,12 @@ class GetStrings(private val c: Context) {
     }
 
     fun getStart(data: SCDef.Line, frse: Boolean): String {
-        return if (frse)
-            data.spawn_0.toString() + "f"
-        else
-            DecimalFormat("#.##").format(data.spawn_0.toFloat() / 30.toDouble()) + "s"
+        return if (data.spawn_0 == data.spawn_1) {
+            if (frse) data.spawn_0.toString() + "f"
+            else DecimalFormat("#.##").format(data.spawn_0.toFloat() / 30.toDouble()) + "s"
+        } else if (frse)
+            data.spawn_0.toString() + "f ~ " + data.spawn_1 + "f"
+        else DecimalFormat("#.##").format(data.spawn_0.toFloat() / 30.toDouble()) + "s ~ " + DecimalFormat("#.##").format(data.spawn_1.toFloat() / 30.toDouble()) + "s"
     }
 
     fun getLimit(l: Limit?): LinkedHashMap<String, String> {

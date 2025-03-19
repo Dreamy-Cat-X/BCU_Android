@@ -29,6 +29,7 @@ import com.yumetsuki.bcu.androidutil.supports.adapter.SearchAbilityAdapter
 import com.yumetsuki.bcu.androidutil.supports.adapter.SearchTraitAdapter
 import common.CommonStatic
 import common.pack.Identifier
+import common.pack.PackData.UserPack
 import common.pack.UserProfile
 import common.util.Data
 import common.util.unit.Trait
@@ -144,7 +145,8 @@ open class EnemySearchFilter : AppCompatActivity() {
         abAdapter = SearchAbilityAdapter(this, abils)
         abAdapter.setHasStableIds(true)
 
-        trAdapter = SearchTraitAdapter(this, generateTraitToolTip(), generateTraitArray())
+        val pack = UserProfile.getUserPack(intent.extras?.getString("pack") ?: "")
+        trAdapter = SearchTraitAdapter(this, generateTraitToolTip(pack), generateTraitArray(pack))
         trAdapter.setHasStableIds(true)
 
         abrec.layoutManager = LinearLayoutManager(this)
@@ -339,38 +341,57 @@ open class EnemySearchFilter : AppCompatActivity() {
         super.onResume()
     }
 
-    private fun generateTraitArray() : Array<Identifier<Trait>> {
+    private fun generateTraitArray(pack : UserPack?) : Array<Identifier<Trait>> {
         val traits = ArrayList<Identifier<Trait>>()
-
-        for(i in 0 until 16) {
+        for(i in 0 until 16)
             traits.add(UserProfile.getBCData().traits.list[i].id)
-        }
 
-        for(userPack in UserProfile.getUserPacks()) {
-            for(tr in userPack.traits.list) {
+        if (pack != null) {
+            for (tr in pack.traits.list) {
                 tr ?: continue
                 traits.add(tr.id)
             }
+            for (str in pack.desc.dependency) {
+                val p = UserProfile.getUserPack(str)
+                for (tr in p.traits.list) {
+                    tr ?: continue
+                    traits.add(tr.id)
+                }
+            }
+        } else {
+            for (userPack in UserProfile.getUserPacks())
+                for (tr in userPack.traits.list) {
+                    tr ?: continue
+                    traits.add(tr.id)
+                }
         }
-
         return traits.toTypedArray()
     }
 
-    private fun generateTraitToolTip() : Array<String> {
+    private fun generateTraitToolTip(pack : UserPack?) : Array<String> {
         val tool = ArrayList<String>()
-
-        for(i in trToolID.indices) {
+        for(i in trToolID.indices)
             tool.add(getText(trToolID[i]).toString())
-        }
 
-        for(userPack in UserProfile.getUserPacks()) {
-            for(tr in userPack.traits.list) {
+        if (pack != null) {
+            for (tr in pack.traits.list) {
                 tr ?: continue
-
                 tool.add(tr.name)
             }
+            for (str in pack.desc.dependency) {
+                val p = UserProfile.getUserPack(str)
+                for (tr in p.traits.list) {
+                    tr ?: continue
+                    tool.add(tr.name)
+                }
+            }
+        } else {
+            for (userPack in UserProfile.getUserPacks())
+                for (tr in userPack.traits.list) {
+                    tr ?: continue
+                    tool.add(tr.name)
+                }
         }
-
         return tool.toTypedArray()
     }
 }

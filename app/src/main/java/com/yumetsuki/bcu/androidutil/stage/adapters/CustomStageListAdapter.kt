@@ -29,12 +29,13 @@ import common.io.json.JsonEncoder
 import common.pack.Identifier
 import common.util.lang.MultiLangCont
 import common.util.stage.SCDef
+import common.util.stage.Stage
 import common.util.stage.StageMap
 import common.util.unit.AbEnemy
 
 class CustomStageListAdapter(private val ctx: Activity, private val map: StageMap) : RecyclerView.Adapter<CustomStageListAdapter.ViewHolder>() {
 
-    class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
+    class ViewHolder(private val ctx: Activity, row: View) : RecyclerView.ViewHolder(row) {
         val name: EditText = row.findViewById(R.id.stagename)
         val icons: FlexboxLayout = row.findViewById(R.id.enemicon)
         val play: Button = row.findViewById(R.id.ch_stagePlay)
@@ -49,11 +50,74 @@ class CustomStageListAdapter(private val ctx: Activity, private val map: StageMa
         val maxEne: EditText = row.findViewById(R.id.ch_stmaxEne)
         val dojo: ToggleButton = row.findViewById(R.id.ch_dojo)
         val bossguard: ToggleButton = row.findViewById(R.id.ch_bossguard)
+
+        var st : Stage? = null
+        fun setStage(sta : Stage) {
+            st = sta
+        }
+
+        fun resetIcons() {
+            icons.removeAllViews()
+            val ids = getid(st?.data ?: return)
+            if (ids.isNotEmpty())
+                for (i in ids.indices) {
+                    val icn = getIcon(ids[i])
+                    val icon = ImageView(ctx)
+                    icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    icon.setImageBitmap(icn)
+                    icon.setPadding(StaticStore.dptopx(12f, ctx), StaticStore.dptopx(4f, ctx), 0, StaticStore.dptopx(4f, ctx))
+                    icons.addView(icon)
+                }
+        }
+
+        private fun getIcon(ene : Identifier<AbEnemy>) : Bitmap {
+            if (ene.pack == Identifier.DEF) {
+                return if (ene.id < (StaticStore.eicons?.size ?: 0)) StaticStore.eicons?.get(ene.id) ?: StaticStore.empty(ctx, 18f, 18f)
+                else StaticStore.empty(ctx, 18f, 18f)
+            }
+            return (ene.get().preview?.img?.bimg() ?: StaticStore.empty(ctx, 18f, 18f)) as Bitmap
+        }
+
+        private fun getid(stage: SCDef): List<Identifier<AbEnemy>> {
+            val result: MutableList<SCDef.Line?> = ArrayList()
+            val data = reverse(stage.datas)
+            for (datas in data) {
+                if (result.isEmpty()) {
+                    result.add(datas)
+                    continue
+                }
+                val id = datas.enemy
+                if (haveSame(id, result)) {
+                    result.add(datas)
+                }
+            }
+            val ids: MutableList<Identifier<AbEnemy>> = ArrayList()
+            for (datas in result) {
+                datas ?: continue
+                ids.add(datas.enemy)
+            }
+            return ids
+        }
+
+        private fun haveSame(id: Identifier<AbEnemy>, result: List<SCDef.Line?>): Boolean {
+            if (id.pack == Identifier.DEF && (id.id == 19 || id.id == 20 || id.id == 21))
+                return false
+
+            for (data in result) {
+                data ?: continue
+                if (id.equals(data.enemy)) return false
+            }
+            return true
+        }
+
+        private fun reverse(data: Array<SCDef.Line>): Array<SCDef.Line> {
+            return Array(data.size) { data[data.size - 1 - it] }
+        }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
         val row = LayoutInflater.from(ctx).inflate(R.layout.cus_stage_info_layout, viewGroup, false)
-        return ViewHolder(row)
+        return ViewHolder(ctx, row)
     }
 
     override fun getItemCount(): Int {
@@ -155,18 +219,8 @@ class CustomStageListAdapter(private val ctx: Activity, private val map: StageMa
         holder.bossguard.setOnClickListener {
             st.bossGuard = holder.bossguard.isChecked
         }
-
-        holder.icons.removeAllViews()
-        val ids = getid(st.data)
-        if (ids.isNotEmpty())
-            for (i in ids.indices) {
-                val icn = getIcon(ids[i])
-                val icon = ImageView(ctx)
-                icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                icon.setImageBitmap(icn)
-                icon.setPadding(StaticStore.dptopx(12f, ctx), StaticStore.dptopx(4f, ctx), 0, StaticStore.dptopx(4f, ctx))
-                holder.icons.addView(icon)
-            }
+        holder.setStage(st)
+        holder.resetIcons()
 
         holder.play.setOnClickListener {
             val intent = Intent(ctx, BattlePrepare::class.java)
@@ -186,53 +240,6 @@ class CustomStageListAdapter(private val ctx: Activity, private val map: StageMa
             intent.putExtra("stage", JsonEncoder.encode(st.id).toString())
             ctx.startActivity(intent)
         }
-    }
-    private fun getIcon(ene : Identifier<AbEnemy>) : Bitmap {
-        if (ene.pack == Identifier.DEF) {
-            return if (ene.id < (StaticStore.eicons?.size ?: 0)) StaticStore.eicons?.get(ene.id) ?: StaticStore.empty(ctx, 18f, 18f)
-            else StaticStore.empty(ctx, 18f, 18f)
-        }
-        return (ene.get().preview?.img?.bimg() ?: StaticStore.empty(ctx, 18f, 18f)) as Bitmap
-    }
-
-    private fun getid(stage: SCDef): List<Identifier<AbEnemy>> {
-        val result: MutableList<SCDef.Line?> = ArrayList()
-        val data = reverse(stage.datas)
-        for (datas in data) {
-            if (result.isEmpty()) {
-                result.add(datas)
-                continue
-            }
-            val id = datas!!.enemy
-            if (haveSame(id, result)) {
-                result.add(datas)
-            }
-        }
-        val ids: MutableList<Identifier<AbEnemy>> = ArrayList()
-        for (datas in result) {
-            datas ?: continue
-            ids.add(datas.enemy)
-        }
-        return ids
-    }
-
-    private fun haveSame(id: Identifier<AbEnemy>, result: List<SCDef.Line?>): Boolean {
-        if (id.pack == Identifier.DEF && (id.id == 19 || id.id == 20 || id.id == 21))
-            return false
-
-        for (data in result) {
-            data ?: continue
-            if (id.equals(data.enemy)) return false
-        }
-        return true
-    }
-
-    private fun reverse(data: Array<SCDef.Line>): Array<SCDef.Line?> {
-        val result = arrayOfNulls<SCDef.Line>(data.size)
-        for (i in data.indices) {
-            result[i] = data[data.size - 1 - i]
-        }
-        return result
     }
 
     private fun getStageName(num: Int) : String {
