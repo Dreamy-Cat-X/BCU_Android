@@ -237,9 +237,16 @@ class MaAnimEditor : AppCompatActivity() {
             val adp = MaAnimListAdapter(this@MaAnimEditor, anim)
             list.adapter = adp
             val touch = ItemTouchHelper(object: ItemTouchHelper.Callback() {
+                var moved : Boolean = false
+
                 override fun getMovementFlags(p0: RecyclerView, p1: RecyclerView.ViewHolder): Int {
                     return makeMovementFlags(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.END)
                 }
+
+                override fun canDropOver(recyclerView: RecyclerView, current: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                    return current.itemViewType == target.itemViewType
+                }
+
                 override fun onMove(view: RecyclerView, src: RecyclerView.ViewHolder, dest: RecyclerView.ViewHolder): Boolean {
                     val from = src.bindingAdapterPosition
                     val to = dest.bindingAdapterPosition
@@ -247,11 +254,20 @@ class MaAnimEditor : AppCompatActivity() {
                     val temp = p[from]
                     p[from] = p[to]
                     p[to] = temp
-                    anim.unSave("maanim sort")
+                    moved = true
                     viewer.animationChanged()
                     adp.notifyItemMoved(from, to)
                     return false
                 }
+
+                override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+                    super.clearView(recyclerView, viewHolder)
+                    // Action finished
+                    if (moved)
+                        unSave(anim,"maanim sort")
+                    moved = false
+                }
+
                 override fun onSwiped(holder: RecyclerView.ViewHolder, j: Int) {
                     val pos = holder.bindingAdapterPosition
                     val manim = getAnim(anim)

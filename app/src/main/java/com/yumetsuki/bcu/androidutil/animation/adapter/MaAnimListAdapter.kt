@@ -122,9 +122,16 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
         val adp = PartListAdapter(activity, a, ma)
         holder.ilist.adapter = adp
         val touch = ItemTouchHelper(object: ItemTouchHelper.Callback() {
+            var moved : Boolean = false
+
             override fun getMovementFlags(p0: RecyclerView, p1: RecyclerView.ViewHolder): Int {
                 return makeMovementFlags(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.END)
             }
+
+            override fun canDropOver(recyclerView: RecyclerView, current: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                return current.itemViewType == target.itemViewType
+            }
+
             override fun onMove(view: RecyclerView, src: RecyclerView.ViewHolder, dest: RecyclerView.ViewHolder): Boolean {
                 val from = src.bindingAdapterPosition
                 val to = dest.bindingAdapterPosition
@@ -132,11 +139,20 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
                 val temp = ma.moves[from]
                 ma.moves[from] = ma.moves[to]
                 ma.moves[to] = temp
-                activity.unSave(a,"maanim sort part")
+                moved = true
                 voo.animationChanged()
                 adp.notifyItemMoved(from, to)
                 return false
             }
+
+            override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+                super.clearView(recyclerView, viewHolder)
+                // Action finished
+                if (moved)
+                    activity.unSave(a,"maanim sort part")
+                moved = false
+            }
+
             override fun onSwiped(holder: RecyclerView.ViewHolder, j: Int) {
                 val pos = holder.bindingAdapterPosition
                 val data: Array<Part?> = manim.parts
