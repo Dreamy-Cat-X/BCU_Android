@@ -2,7 +2,6 @@ package com.yumetsuki.bcu
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
@@ -17,6 +16,7 @@ import com.yumetsuki.bcu.androidutil.Definer
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.pack.adapters.PackCreationAdapter
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
@@ -54,6 +54,7 @@ class PackCreation : AppCompatActivity() {
         LeakCanaryManager.initCanary(shared, application)
         DefineItf.check(this)
         AContext.check()
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         (CommonStatic.ctx as AContext).updateActivity(this)
 
         setContentView(R.layout.activity_pack_creation)

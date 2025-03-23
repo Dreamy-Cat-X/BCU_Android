@@ -1,6 +1,7 @@
 package com.yumetsuki.bcu.androidutil.io
 
 import android.os.Build
+import android.os.Environment
 import android.util.Log
 import com.yumetsuki.bcu.androidutil.StaticStore
 import java.io.File
@@ -13,8 +14,16 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ErrorLogWriter(private val path: String) : Thread.UncaughtExceptionHandler {
+class ErrorLogWriter : Thread.UncaughtExceptionHandler {
     private val errors: Thread.UncaughtExceptionHandler? = Thread.getDefaultUncaughtExceptionHandler()
+    private val path: String
+
+    constructor() {
+        path = LOG_PATH
+    }
+    constructor(p : String) {
+        path = p
+    }
 
     override fun uncaughtException(t: Thread, e: Throwable) {
         writeToFile(e)
@@ -27,7 +36,7 @@ class ErrorLogWriter(private val path: String) : Thread.UncaughtExceptionHandler
             if (!f.exists())
                 f.mkdirs()
             val dateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US)
-            val name = dateFormat.format(Date()) + "_" + Build.MODEL + ".txt"
+            val name = "UERR_" + dateFormat.format(Date()) + "_" + Build.MODEL + ".txt"
             val stringbuff: Writer = StringWriter()
             val printWriter = PrintWriter(stringbuff)
             e.printStackTrace(printWriter)
@@ -56,9 +65,11 @@ class ErrorLogWriter(private val path: String) : Thread.UncaughtExceptionHandler
 
     companion object {
 
+        private val LOG_PATH = "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)}/bcu/logs/"
+
         fun writeDriveLog(e: Exception) {
             try {
-                val path = File(StaticStore.getPublicDirectory() + "logs")
+                val path = File(LOG_PATH)
                 if(!path.exists() && !path.mkdirs()) {
                     Log.e("ErrorLogWriter", "Failed to create folder "+path.absolutePath)
                     return
@@ -73,7 +84,7 @@ class ErrorLogWriter(private val path: String) : Thread.UncaughtExceptionHandler
                 val date = Date()
                 val name = dateFormat.format(date) + "_" + Build.MODEL + ".txt"
 
-                val df = File(StaticStore.getPublicDirectory() + "logs/", name)
+                val df = File(LOG_PATH, name)
                 if (!df.exists()) df.createNewFile()
                 val dfileWriter = FileWriter(df)
                 dfileWriter.append("VERSION : ").append(StaticStore.VER).append("\r\n")
@@ -93,20 +104,19 @@ class ErrorLogWriter(private val path: String) : Thread.UncaughtExceptionHandler
             error.printStackTrace()
 
             try {
-                val path = StaticStore.getPublicDirectory() + "logs"
-                val f = File(path)
+                val f = File(LOG_PATH)
                 if (!f.exists())
                     f.mkdirs()
 
                 val dateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US)
                 val date = Date()
                 val name = dateFormat.format(date) + "_" + Build.MODEL + ".txt"
-                var file = File(path, name)
+                var file = File(LOG_PATH, name)
                 val stringbuff: Writer = StringWriter()
                 val printWriter = PrintWriter(stringbuff)
                 error.printStackTrace(printWriter)
                 if (!file.exists()) file.createNewFile() else {
-                    file = File(path, getExistingFileName(path, name))
+                    file = File(LOG_PATH, getExistingFileName(LOG_PATH, name))
                     file.createNewFile()
                 }
 

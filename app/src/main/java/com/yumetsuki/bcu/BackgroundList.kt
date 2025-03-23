@@ -22,12 +22,14 @@ import com.yumetsuki.bcu.androidutil.LocaleManager
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import com.yumetsuki.bcu.androidutil.supports.adapter.BGListPager
 import common.CommonStatic
 import common.pack.Identifier
 import common.pack.PackData
+import common.pack.PackData.UserPack
 import common.pack.UserProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,6 +38,9 @@ import java.util.Locale
 import kotlin.math.max
 
 class BackgroundList : AppCompatActivity() {
+
+    var pack : UserPack? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -65,8 +70,9 @@ class BackgroundList : AppCompatActivity() {
         AContext.check()
 
         (CommonStatic.ctx as AContext).updateActivity(this)
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_background_list)
+        pack = UserProfile.getUserPack(intent.extras?.getString("pack") ?: "")
 
         lifecycleScope.launch {
             val tab = findViewById<TabLayout>(R.id.bglisttab)
@@ -80,11 +86,9 @@ class BackgroundList : AppCompatActivity() {
             withContext(Dispatchers.IO) {
                 Definer.define(this@BackgroundList, { _ -> }, { t -> runOnUiThread { status.text = t }})
             }
-
-            pager.adapter = BGListTab()
-            pager.offscreenPageLimit = getExistingBGPack()
-
             val keys = getExistingPack()
+            pager.adapter = BGListTab()
+            pager.offscreenPageLimit = keys.size
 
             TabLayoutMediator(tab, pager) { t, position ->
                 t.text = if (position == 0) {
@@ -104,7 +108,7 @@ class BackgroundList : AppCompatActivity() {
                 }
             }.attach()
 
-            if(getExistingBGPack() == 1) {
+            if(keys.size == 1) {
                 tab.visibility = View.GONE
 
                 val collapse = findViewById<CollapsingToolbarLayout>(R.id.bgcollapse)
@@ -165,30 +169,24 @@ class BackgroundList : AppCompatActivity() {
         super.onResume()
     }
 
-    private fun getExistingBGPack() : Int {
-        var res = 0
-
-        for(p in UserProfile.getAllPacks()) {
-            if(p.bgs.list.isNotEmpty())
-                res++
-        }
-
-        return max(1, res)
-    }
-
     private fun getExistingPack(): ArrayList<String> {
-        val list = UserProfile.getAllPacks()
-
         val res = ArrayList<String>()
+        res.add(Identifier.DEF)
 
-        for(k in list) {
-            if(k is PackData.DefPack) {
-                res.add(Identifier.DEF)
-            } else if(k is PackData.UserPack && k.bgs.size() != 0) {
-                res.add(k.desc.id)
-            }
+        if (pack != null) {
+            if (!pack!!.bgs.isEmpty)
+                res.add(pack!!.sid)
+
+            for(str in pack!!.desc.dependency)
+                if(!UserProfile.getUserPack(str).bgs.isEmpty)
+                    res.add(str)
+            res.addAll(pack!!.desc.dependency)
+        } else {
+            val packs = UserProfile.getUserPacks()
+            for(p in packs)
+                if(!p.bgs.isEmpty)
+                    res.add(p.desc.id)
         }
-
         return res
     }
 
@@ -200,7 +198,7 @@ class BackgroundList : AppCompatActivity() {
         }
 
         override fun createFragment(position: Int): Fragment {
-            return BGListPager.newInstance(keys[position])
+            return BGListPager.newInstance(keys[position], pack != null)
         }
     }
 }

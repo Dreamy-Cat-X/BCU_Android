@@ -32,6 +32,7 @@ import com.yumetsuki.bcu.androidutil.enemy.adapters.EnemyListPager
 import com.yumetsuki.bcu.androidutil.fakeandroid.BMBuilder
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
@@ -91,7 +92,7 @@ open class EnemyList : AppCompatActivity() {
         AContext.check()
 
         (CommonStatic.ctx as AContext).updateActivity(this)
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_enemy_list)
 
         ImageBuilder.builder = BMBuilder()
@@ -270,17 +271,17 @@ open class EnemyList : AppCompatActivity() {
         res.add(Identifier.DEF)
 
         if (pack != null) {
-            if (pack!!.enemies.list.isNotEmpty())
+            if (!pack!!.enemies.isEmpty)
                 res.add(pack!!.sid)
 
             for(str in pack!!.desc.dependency)
-                if(UserProfile.getUserPack(str).enemies.list.isNotEmpty())
+                if(!UserProfile.getUserPack(str).enemies.isEmpty)
                     res.add(str)
             res.addAll(pack!!.desc.dependency)
         } else {
             val packs = UserProfile.getUserPacks()
             for(p in packs)
-                if(p.enemies.list.isNotEmpty())
+                if(!p.enemies.isEmpty)
                     res.add(p.desc.id)
         }
         return res

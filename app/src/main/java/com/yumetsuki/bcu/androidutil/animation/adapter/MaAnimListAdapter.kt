@@ -34,7 +34,7 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
         val ipid: WatcherEditText = row.findViewById(R.id.maanim_pid)
         val imod: Spinner = row.findViewById(R.id.maanim_mod)
         val ilop: WatcherEditText = row.findViewById(R.id.maanim_lop)
-        val iname: EditText = row.findViewById(R.id.maanim_name)
+        val iname: WatcherEditText = row.findViewById(R.id.maanim_name)
         val iplus: FloatingActionButton = row.findViewById(R.id.maanim_part_display)
 
         val ilist: RecyclerView = row.findViewById(R.id.maanim_part_list)
@@ -75,7 +75,7 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
         holder.ipid.setWatcher {
             if (!holder.ipid.hasFocus())
                 return@setWatcher
-            ma.ints[0] = MathUtil.clip(CommonStatic.parseIntN(holder.ipid.text.toString()), 0, a.mamodel.n - 1)
+            ma.ints[0] = MathUtil.clip(CommonStatic.parseIntN(holder.ipid.text!!.toString()), 0, a.mamodel.n - 1)
             ma.check(a)
             activity.unSave(a,"maanim change $position ID")
             voo.animationChanged()
@@ -98,17 +98,15 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
         holder.ilop.setWatcher {
             if (!holder.ilop.hasFocus())
                 return@setWatcher
-            ma.ints[2] = max(CommonStatic.parseIntN(holder.ilop.text.toString()), -1)
+            ma.ints[2] = max(CommonStatic.parseIntN(holder.ilop.text!!.toString()), -1)
             ma.check(a)
             activity.unSave(a,"maanim change $position loop count")
             voo.animationChanged()
         }
-        holder.iname.setOnEditorActionListener { _, _, _ ->
-            if (ma.name == holder.iname.text.toString())
-                return@setOnEditorActionListener false
-            ma.name = holder.iname.text.toString()
-            activity.unSave(a,"maanim change $position Name")
-            false
+        holder.iname.setWatcher {
+            if (!holder.iname.hasFocus() || ma.name == holder.iname.text!!.toString())
+                return@setWatcher
+            ma.name = holder.iname.text!!.toString()
         }
         holder.iplus.setOnClickListener {
             val vis = holder.ilist.visibility == View.GONE

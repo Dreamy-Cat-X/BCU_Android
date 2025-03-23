@@ -31,6 +31,7 @@ import com.yumetsuki.bcu.androidutil.Revalidater
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.pack.PackConflict
 import com.yumetsuki.bcu.androidutil.pack.adapters.PackManagementAdapter
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
@@ -174,7 +175,7 @@ class PackManagement : AppCompatActivity() {
         AContext.check()
 
         (CommonStatic.ctx as AContext).updateActivity(this)
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_pack_management)
 
         lifecycleScope.launch {
@@ -377,18 +378,14 @@ class PackManagement : AppCompatActivity() {
 
                 while(ins.read(b).also { len = it } != -1) {
                     fos.write(b, 0, len)
-
                     prog += len
 
                     val msg = if(total >= 50000000) {
                         "${byteToMB(prog, df)} MB / ${byteToMB(total, df)} MB (${(prog*100.0/total).toInt()}%)"
-                    } else {
+                    } else
                         "${byteToKB(prog, df)} KB / ${byteToKB(total, df)} KB (${(prog*100.0/total).toInt()}%)"
-                    }
 
-                    runOnUiThread {
-                        progress.text = msg
-                    }
+                    runOnUiThread { progress.text = msg }
                 }
 
                 ins.close()
@@ -416,9 +413,9 @@ class PackManagement : AppCompatActivity() {
 
                 val packList = ArrayList<PackData.UserPack>()
 
-                for(p in UserProfile.getUserPacks()) {
-                    packList.add(p)
-                }
+                for(p in UserProfile.getUserPacks())
+                    if (!p.editable)
+                        packList.add(p)
 
                 withContext(Dispatchers.Main) {
                     list.adapter = PackManagementAdapter(this@PackManagement, packList)
@@ -473,10 +470,9 @@ class PackManagement : AppCompatActivity() {
                 dialog.dismiss()
 
             val packList = ArrayList<PackData.UserPack>()
-
-            for(pack in UserProfile.getUserPacks()) {
-                packList.add(pack)
-            }
+            for(pack in UserProfile.getUserPacks())
+                if (!pack.editable)
+                    packList.add(pack)
 
             runOnUiThread {
                 list.adapter = PackManagementAdapter(this@PackManagement, packList)

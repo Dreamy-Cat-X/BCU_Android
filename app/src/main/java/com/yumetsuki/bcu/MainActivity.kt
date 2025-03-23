@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         deleter(File(Environment.getDataDirectory().absolutePath+"/data/com.yumetsuki.bcu/temp/"))
         deleter(File(StaticStore.getExternalTemp(this)))
 
-        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter("${StaticStore.getPublicDirectory()}logs"))
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_main)
 
         SoundHandler.musicPlay = shared.getBoolean("music", true)

@@ -1,5 +1,6 @@
 package com.yumetsuki.bcu.androidutil.supports.adapter
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.SystemClock
@@ -22,13 +23,15 @@ import common.util.pack.Background
 
 class BGListPager : Fragment() {
     private var pid = Identifier.DEF
+    private var sele = false
 
     companion object {
-        fun newInstance(pid: String) : BGListPager {
+        fun newInstance(pid: String, sele: Boolean) : BGListPager {
             val blp = BGListPager()
             val bundle = Bundle()
 
             bundle.putString("pid", pid)
+            bundle.putBoolean("sele", sele)
 
             blp.arguments = bundle
 
@@ -40,6 +43,7 @@ class BGListPager : Fragment() {
         val view = inflater.inflate(R.layout.entity_list_pager, container, false)
 
         pid = arguments?.getString("pid") ?: Identifier.DEF
+        sele = arguments?.getBoolean("sele") ?: false
 
         val list = view.findViewById<ListView>(R.id.entitylist)
         val nores = view.findViewById<TextView>(R.id.entitynores)
@@ -58,27 +62,27 @@ class BGListPager : Fragment() {
             }
 
             val c = activity ?: return view
-
             val adapter = ArrayAdapter(c, R.layout.list_layout_text, names.toTypedArray())
-
             list.adapter = adapter
 
             list.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
                 if (SystemClock.elapsedRealtime() - StaticStore.bglistClick < StaticStore.INTERVAL)
                     return@OnItemClickListener
-
                 StaticStore.bglistClick = SystemClock.elapsedRealtime()
 
-                val intent = Intent(c, ImageViewer::class.java)
-
-                if(pid == Identifier.DEF) {
-                    intent.putExtra("BGNum", position)
+                if (sele) {
+                    val intent = Intent()
+                    intent.putExtra("Data", JsonEncoder.encode(data[position]).toString())
+                    c.setResult(Activity.RESULT_OK, intent)
+                    c.finish()
+                } else {
+                    val intent = Intent(c, ImageViewer::class.java)
+                    if(pid == Identifier.DEF)
+                        intent.putExtra("BGNum", position)
+                    intent.putExtra("Data", JsonEncoder.encode(data[position]).toString())
+                    intent.putExtra("Img", ImageViewer.ViewerType.BACKGROUND.name)
+                    c.startActivity(intent)
                 }
-
-                intent.putExtra("Data", JsonEncoder.encode(data[position]).toString())
-                intent.putExtra("Img", ImageViewer.ViewerType.BACKGROUND.name)
-
-                c.startActivity(intent)
             }
         } else {
             list.visibility = View.GONE

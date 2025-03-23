@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.TableLayout
@@ -24,22 +23,24 @@ import com.yumetsuki.bcu.LimitEditor
 import com.yumetsuki.bcu.PackStageManager
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
+import com.yumetsuki.bcu.androidutil.supports.WatcherEditText
 import common.CommonStatic
 import common.io.json.JsonEncoder
 import common.pack.PackData.UserPack
 import common.util.stage.Limit
+import common.util.stage.Limit.PackLimit
 import common.util.stage.StageMap
 
 
 class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Activity) : RecyclerView.Adapter<CustomChapterListAdapter.ViewHolder>() {
 
     class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
-        val chName: EditText = row.findViewById(R.id.cuschapter_name)
+        val chName: WatcherEditText = row.findViewById(R.id.cuschapter_name)
         val starRow: TableRow = row.findViewById(R.id.pk_chapterStarRow)
         val info: TableLayout = row.findViewById(R.id.cuschapter_info)
         val expand: ImageButton = row.findViewById(R.id.cuschapter_expand)
 
-        val cost: EditText = row.findViewById(R.id.pk_chapterCost)
+        val cost: WatcherEditText = row.findViewById(R.id.pk_chapterCost)
         val stageEdit: Button = row.findViewById(R.id.pk_stageEdit)
         val limitAdd: Button = row.findViewById(R.id.pk_limitAdd)
         val limitList: ListView = row.findViewById(R.id.pk_limitList)
@@ -75,11 +76,10 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
         val pos = holder.bindingAdapterPosition
         val subchapter = pack.mc.maps[pos]
 
-        holder.chName.setOnEditorActionListener { _, _, _ ->
-            if (subchapter.names.toString() == holder.chName.text.toString())
-                return@setOnEditorActionListener false
-            subchapter.names.put(holder.chName.text.toString())
-            false
+        holder.chName.setWatcher {
+            if (!holder.chName.hasFocus() || subchapter.names.toString() == holder.chName.text!!.toString())
+                return@setWatcher
+            subchapter.names.put(holder.chName.text!!.toString())
         }
         holder.chName.text = SpannableStringBuilder(subchapter.names.toString())
 
@@ -110,15 +110,15 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
         })
 
         for (s in 0..3) {
-            val stDif = holder.starRow.getChildAt(s) as EditText
+            val stDif = holder.starRow.getChildAt(s) as WatcherEditText
             stDif.visibility = if (s > subchapter.stars.size)
                 View.GONE else View.VISIBLE
 
             stDif.hint = "${s+1}★: ${if (s < subchapter.stars.size) subchapter.stars[s] else "N/A"}%"
-            stDif.setOnEditorActionListener { _, _, _ ->
-                val star = CommonStatic.parseIntN(stDif.text.toString().ifBlank { stDif.hint.toString().substring(4) })
-                if (star < 0)
-                    return@setOnEditorActionListener false
+            stDif.setWatcher {
+                val star = CommonStatic.parseIntN(stDif.text!!.toString().ifBlank { stDif.hint.toString().substring(4) })
+                if (!stDif.hasFocus() || star < 0)
+                    return@setWatcher
 
                 if (s == subchapter.stars.size-1 && star == 0) {
                     subchapter.stars = subchapter.stars.copyOf(subchapter.stars.size - 1)
@@ -132,16 +132,14 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
                     }
                     subchapter.stars[s] = star
                 }
-                false
             }
         }
         holder.cost.hint = "${ctx.getString(R.string.cuschapter_cost)}: ${subchapter.price+1}"
-        holder.cost.setOnEditorActionListener { _, actionId, _ ->
-            val cost = CommonStatic.parseIntN(holder.cost.text.toString().ifBlank { holder.cost.hint.toString() })
-            if (cost < 0)
-                return@setOnEditorActionListener false
+        holder.cost.setWatcher {
+            val cost = CommonStatic.parseIntN(holder.cost.text!!.toString().ifBlank { holder.cost.hint.toString() })
+            if (!holder.cost.hasFocus() || cost < 0)
+                return@setWatcher
             subchapter.price = cost-1
-            false
         }
 
         holder.stageEdit.setOnClickListener {
@@ -154,7 +152,7 @@ class CustomChapterListAdapter(private val pack : UserPack, private val ctx: Act
         holder.limitList.adapter = adp
 
         holder.limitAdd.setOnClickListener {
-            val lim = Limit() //Is PackLimit() ever used
+            val lim = PackLimit()
             subchapter.lim.add(lim)
             adp.notifyDataSetChanged()
             holder.extend(ctx, subchapter.lim.size)

@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:minHeight="48dp">
 
-    <EditText
+    <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
         android:id="@+id/cuschapter_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <EditText
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -82,7 +82,7 @@
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
 
-            <EditText
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -92,7 +92,7 @@
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
 
-            <EditText
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -102,7 +102,7 @@
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
 
-            <EditText
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -117,7 +117,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <EditText
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/pk_chapterCost"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

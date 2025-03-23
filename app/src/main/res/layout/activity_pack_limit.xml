@@ -67,12 +67,12 @@
                 android:layout_height="wrap_content">
 
                 <TableRow
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@drawable/cell_shape"
@@ -84,7 +84,7 @@
 
                     <EditText
                         android:id="@+id/pklimmax"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="@drawable/cell_shape"
@@ -96,12 +96,12 @@
                 </TableRow>
 
                 <TableRow
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@drawable/cell_shape"
@@ -113,7 +113,7 @@
 
                     <EditText
                         android:id="@+id/pklimmincost"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="@drawable/cell_shape"
@@ -124,12 +124,12 @@
                 </TableRow>
 
                 <TableRow
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@drawable/cell_shape"
@@ -141,7 +141,7 @@
 
                     <EditText
                         android:id="@+id/pklimmaxcost"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="@drawable/cell_shape"
@@ -157,27 +157,54 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <Button
+                <Spinner
                     android:id="@+id/pklimrow"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1.5"
-                    android:background="@drawable/button_shape"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/cell_spinner"
                     android:gravity="center"
+                    android:minHeight="36dp"
                     android:textAllCaps="false"
                     android:textColor="?attr/TextPrimary"
                     android:textStyle="bold" />
 
-                <EditText
+                <LinearLayout
                     android:id="@+id/pklimstar"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/cell_shape"
-                    android:ems="10"
-                    android:inputType="text"
-                    android:minHeight="36dp"
-                    android:textColor="?attr/TextPrimary" />
+                    android:orientation="horizontal">
+
+                    <CheckBox
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="1★"
+                        android:textColor="?attr/TextPrimary" />
+
+                    <CheckBox
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="2★"
+                        android:textColor="?attr/TextPrimary" />
+
+                    <CheckBox
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="3★"
+                        android:textColor="?attr/TextPrimary" />
+
+                    <CheckBox
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="4★"
+                        android:textColor="?attr/TextPrimary" />
+
+                </LinearLayout>
 
             </TableRow>
 
@@ -185,46 +212,45 @@
                 android:id="@+id/pklimrars"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:orientation="horizontal">
 
                 <CheckBox
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/sch_rare_ba"
                     android:textColor="?attr/TextPrimary" />
 
                 <CheckBox
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/sch_rare_ex"
                     android:textColor="?attr/TextPrimary" />
 
                 <CheckBox
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/sch_rare_ra"
                     android:textColor="?attr/TextPrimary" />
 
                 <CheckBox
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/sch_rare_sr"
                     android:textColor="?attr/TextPrimary" />
 
                 <CheckBox
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/sch_rare_ur"
                     android:textColor="?attr/TextPrimary" />
 
                 <CheckBox
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/sch_rare_lr"
@@ -233,12 +259,11 @@
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp">
+                android:layout_height="wrap_content">
 
                 <Button
                     android:id="@+id/pklimcharagroup"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@drawable/button_shape"
@@ -249,6 +274,7 @@
 
                 <Button
                     android:id="@+id/pklimlvrestriction"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@drawable/button_shape"
@@ -263,14 +289,14 @@
                 android:layout_height="wrap_content">
 
                 <TableRow
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1.75">
+                    android:layout_weight="0.67">
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1.5"
+                        android:layout_weight="0.5"
                         android:background="@drawable/cell_shape"
                         android:gravity="center"
                         android:minHeight="48dp"
@@ -280,7 +306,7 @@
 
                     <EditText
                         android:id="@+id/pklimbank"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="@drawable/cell_shape"
@@ -291,14 +317,14 @@
                 </TableRow>
 
                 <TableRow
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1.5"
+                        android:layout_weight="0.6"
                         android:background="@drawable/cell_shape"
                         android:gravity="center"
                         android:minHeight="48dp"
@@ -308,7 +334,7 @@
 
                     <EditText
                         android:id="@+id/pklimucd"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="@drawable/cell_shape"
@@ -319,8 +345,9 @@
 
                     <CheckBox
                         android:id="@+id/pklimscd"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:text="@string/limit_inicd"
                         android:textColor="?attr/TextPrimary" />
                 </TableRow>
@@ -333,14 +360,14 @@
                 android:layout_marginBottom="12dp">
 
                 <TableRow
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1.75">
+                    android:layout_weight="1">
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1.5"
+                        android:layout_weight="0.5"
                         android:background="@drawable/cell_shape"
                         android:gravity="center"
                         android:minHeight="48dp"
@@ -350,7 +377,7 @@
 
                     <EditText
                         android:id="@+id/pklimunico"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="@drawable/cell_shape"
@@ -361,14 +388,14 @@
                 </TableRow>
 
                 <TableRow
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1.5"
+                        android:layout_weight="0.7"
                         android:background="@drawable/cell_shape"
                         android:gravity="center"
                         android:minHeight="48dp"
@@ -378,7 +405,7 @@
 
                     <EditText
                         android:id="@+id/pklimmaxdeploy"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="@drawable/cell_shape"
@@ -1023,6 +1050,37 @@
                 </TableRow>
 
             </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:minHeight="48dp"
+                android:paddingTop="8dp"
+                android:text="@string/limit_banco"
+                android:textColor="?attr/TextPrimary" />
+
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fillViewport="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <ListView
+                        android:id="@+id/pklimcbanlist"
+                        android:layout_width="match_parent"
+                        android:layout_height="250dp"
+                        android:fastScrollEnabled="true"
+                        android:nestedScrollingEnabled="true" />
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
 
         </LinearLayout>
     </ScrollView>

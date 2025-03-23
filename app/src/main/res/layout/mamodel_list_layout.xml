@@ -126,7 +126,7 @@
             android:background="@drawable/cell_spinner"
             android:ems="10" />
 
-        <EditText
+        <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/mamodel_name"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

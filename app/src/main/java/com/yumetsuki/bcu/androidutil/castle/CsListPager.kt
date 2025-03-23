@@ -1,5 +1,6 @@
 package com.yumetsuki.bcu.androidutil.castle
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.SystemClock
@@ -23,12 +24,13 @@ import common.util.stage.CastleList
 
 class CsListPager : Fragment() {
     companion object {
-        fun newInstance(pid: String) : CsListPager {
+        fun newInstance(pid: String, sele : Boolean) : CsListPager {
             val cs = CsListPager()
 
             val bundle = Bundle()
 
             bundle.putString("pid", pid)
+            bundle.putBoolean("sele", sele)
             cs.arguments = bundle
 
             return cs
@@ -36,6 +38,7 @@ class CsListPager : Fragment() {
     }
 
     private var pid = Identifier.DEF
+    private var sele = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val c = context ?: return null
@@ -43,6 +46,7 @@ class CsListPager : Fragment() {
         val view = inflater.inflate(R.layout.entity_list_pager, container, false)
 
         pid = arguments?.getString("pid") ?: Identifier.DEF
+        sele = arguments?.getBoolean("sele") ?: false
 
         val list = view.findViewById<ListView>(R.id.entitylist)
         val nores = view.findViewById<TextView>(R.id.entitynores)
@@ -52,22 +56,19 @@ class CsListPager : Fragment() {
 
         if(pid.startsWith(Identifier.DEF)) {
             val d = pid.split("-")
-
             p = UserProfile.getPack(d[0])
 
             index = if(d.size == 1)
                 0
             else
                 d[1].toInt()
-        } else {
+        } else
             p = UserProfile.getPack(pid)
-        }
 
         if(p is PackData.DefPack) {
             nores.visibility = View.GONE
 
             val csList = CastleList.defset().toList()[if(index == -1) 0 else index]
-
             val names = ArrayList<String>()
             val data = ArrayList<Identifier<CastleImg>>()
 
@@ -77,25 +78,26 @@ class CsListPager : Fragment() {
             }
 
             val adapter = ArrayAdapter(c, R.layout.list_layout_text, names.toTypedArray())
-
             list.adapter = adapter
-
             list.onItemClickListener = AdapterView.OnItemClickListener { _, _, posit, _ ->
                 if(SystemClock.elapsedRealtime() - StaticStore.cslistClick < StaticStore.INTERVAL)
                     return@OnItemClickListener
-
                 StaticStore.cslistClick = SystemClock.elapsedRealtime()
 
-                val intent = Intent(c, ImageViewer::class.java)
-
-                intent.putExtra("Data", JsonEncoder.encode(data[posit]).toString())
-                intent.putExtra("Img", ImageViewer.ViewerType.CASTLE.name)
-
-                c.startActivity(intent)
+                if (sele) {
+                    val intent = Intent()
+                    intent.putExtra("Data", JsonEncoder.encode(data[posit]).toString())
+                    activity?.setResult(Activity.RESULT_OK, intent)
+                    activity?.finish()
+                } else {
+                    val intent = Intent(c, ImageViewer::class.java)
+                    intent.putExtra("Data", JsonEncoder.encode(data[posit]).toString())
+                    intent.putExtra("Img", ImageViewer.ViewerType.CASTLE.name)
+                    c.startActivity(intent)
+                }
             }
         } else if(p is PackData.UserPack && p.castles.list.isNotEmpty()) {
             nores.visibility = View.GONE
-
             val csList = p.castles
 
             val names = ArrayList<String>()
@@ -105,19 +107,14 @@ class CsListPager : Fragment() {
                 names.add(StaticStore.generateIdName(csList.list[i].id, c))
                 data.add(csList.list[i].id)
             }
-
             val adapter = ArrayAdapter(c, R.layout.list_layout_text, names.toTypedArray())
-
             list.adapter = adapter
-
             list.onItemClickListener = AdapterView.OnItemClickListener { _, _, posit, _ ->
                 if(SystemClock.elapsedRealtime() - StaticStore.cslistClick < StaticStore.INTERVAL)
                     return@OnItemClickListener
-
                 StaticStore.cslistClick = SystemClock.elapsedRealtime()
 
                 val intent = Intent(c, ImageViewer::class.java)
-
                 intent.putExtra("Data", JsonEncoder.encode(data[posit]).toString())
                 intent.putExtra("Img", ImageViewer.ViewerType.CASTLE.name)
 

@@ -95,7 +95,8 @@ class GetStrings(private val c: Context) {
             R.string.sch_abi_bk, //63: Colossus Slayer
             R.string.sch_abi_bh, //64: Behemoth Hunter
             R.string.sch_abi_ms, //65: Mini Surge
-            R.string.sch_abi_sh //66: Super Sage Slayer
+            R.string.sch_abi_sh, //66: Super Sage Slayer
+            R.string.sch_abi_expl //67: BAJA BLAST
         )
         private val cusTalent = intArrayOf(
             -1,
@@ -192,11 +193,9 @@ class GetStrings(private val c: Context) {
         val atks = StaticJava.getAtkModel(ch.mask, index)
         val result = StringBuilder()
         for (i in atks.indices) {
-            if (i < atks.size - 1) {
-                if (atks[i].canProc()) result.append(c.getString(R.string.unit_info_true)).append(" / ") else result.append(c.getString(R.string.unit_info_false)).append(" / ")
-            } else {
-                if (atks[i].canProc()) result.append(c.getString(R.string.unit_info_true)) else result.append(c.getString(R.string.unit_info_false))
-            }
+            result.append(getBoolean(atks[i].canProc()))
+            if (i < atks.size - 1)
+                result.append(" / ")
         }//TODO: Remove this
         return result.toString()
     }
@@ -795,5 +794,17 @@ class GetStrings(private val c: Context) {
             res.add(c.getString(R.string.stg_info_nocpu))
 
         return res
+    }
+
+    fun getStrings(vararg ids : Int) : Array<String> {
+        return Array(ids.size) {c.getString(ids[it])}
+    }
+
+    fun getAStrings(ids : IntArray) : Array<String> {
+        return Array(ids.size) {c.getString(ids[it])}
+    }
+
+    fun getBoolean(b : Boolean) : String {
+        return c.getString(if (b) R.string.unit_info_true else R.string.unit_info_false)
     }
 }

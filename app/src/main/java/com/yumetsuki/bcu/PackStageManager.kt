@@ -1,12 +1,14 @@
 package com.yumetsuki.bcu
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.stage.adapters.CustomStageListAdapter
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import common.CommonStatic
@@ -28,6 +31,16 @@ import common.util.stage.info.CustomStageInfo
 import kotlinx.coroutines.launch
 
 class PackStageManager : AppCompatActivity() {
+
+    lateinit var notif : (thing : Any) -> Unit
+    val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val data = result.data
+
+        if (result.resultCode == Activity.RESULT_OK && data != null) {
+            val thing = StaticStore.transformIdentifier(data.getStringExtra("Data"))?.get() ?: return@registerForActivityResult
+            notif(thing)
+        }
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +65,7 @@ class PackStageManager : AppCompatActivity() {
         DefineItf.check(this)
         AContext.check()
         (CommonStatic.ctx as AContext).updateActivity(this)
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_pack_stage)
 
         val result = intent

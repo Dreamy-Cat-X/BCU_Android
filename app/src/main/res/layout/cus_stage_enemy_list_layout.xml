@@ -39,12 +39,11 @@
             app:srcCompat="@drawable/ic_castle" />
 
         <TableRow
-            android:id="@+id/tableRow4"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5">
 
-            <EditText
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/stgenlistmultir"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -58,7 +57,7 @@
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
 
-            <EditText
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/stgenlistnumr"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -104,7 +103,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/enemlistbh"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -117,7 +116,7 @@
                 android:textColor="?attr/TextPrimary"
                 android:textStyle="bold" />
 
-            <TextView
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/enemlistib"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -130,7 +129,7 @@
                 android:textColor="?attr/TextPrimary"
                 android:textStyle="bold" />
 
-            <TextView
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/enemlistlay"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -149,7 +148,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <EditText
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/enemlistbhr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -162,20 +161,16 @@
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
 
-            <EditText
+            <Spinner
                 android:id="@+id/enemlistibr"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:background="@drawable/cell_shape"
-                android:gravity="center"
-                android:inputType="number"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
+                android:background="@drawable/cell_spinner"
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
 
-            <EditText
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/enemlistlayr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -235,7 +230,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <EditText
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/enemliststr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -247,7 +242,7 @@
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
 
-            <EditText
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/enemlistkilcr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -260,7 +255,7 @@
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
 
-            <EditText
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/enemlistresr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -307,7 +302,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <EditText
+            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/enemlistevrdr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -316,7 +311,6 @@
                 android:gravity="center"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:text="@string/def_minus"
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
 

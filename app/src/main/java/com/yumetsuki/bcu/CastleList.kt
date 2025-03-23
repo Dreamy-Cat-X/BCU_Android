@@ -24,10 +24,11 @@ import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.castle.CsListPager
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import common.CommonStatic
 import common.pack.Identifier
-import common.pack.PackData
+import common.pack.PackData.UserPack
 import common.pack.UserProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,6 +36,9 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 
 class CastleList : AppCompatActivity() {
+
+    var pack : UserPack? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         savedInstanceState?.clear()
 
@@ -64,10 +68,10 @@ class CastleList : AppCompatActivity() {
         DefineItf.check(this)
 
         AContext.check()
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         (CommonStatic.ctx as AContext).updateActivity(this)
-
         setContentView(R.layout.activity_castle_list)
+        pack = UserProfile.getUserPack(intent.extras?.getString("pack") ?: "")
         
         lifecycleScope.launch {
             //Prepare
@@ -90,10 +94,9 @@ class CastleList : AppCompatActivity() {
             pager.isSaveEnabled = false
             pager.isSaveFromParentEnabled = false
 
-            pager.adapter = CsListTab()
-            pager.offscreenPageLimit = getExistingCastle()
-
             val keys = getExistingPack()
+            pager.adapter = CsListTab()
+            pager.offscreenPageLimit = keys.size
 
             TabLayoutMediator(tab, pager) { t, position ->
                 val def = getString(R.string.pack_default)
@@ -107,7 +110,7 @@ class CastleList : AppCompatActivity() {
                 }
             }.attach()
 
-            if(getExistingCastle() == 1) {
+            if(keys.size == 1) {
                 tab.visibility = View.GONE
 
                 val collapse = findViewById<CollapsingToolbarLayout>(R.id.cscollapse)
@@ -167,39 +170,26 @@ class CastleList : AppCompatActivity() {
     }
 
     private fun getExistingPack() : ArrayList<String> {
-        val list = UserProfile.getAllPacks()
-
         val res = ArrayList<String>()
+        res.add(Identifier.DEF+"-0")
+        res.add(Identifier.DEF+"-1")
+        res.add(Identifier.DEF+"-2")
+        res.add(Identifier.DEF+"-3")
 
-        for(k in list) {
-            if(k is PackData.DefPack) {
-                res.add(Identifier.DEF+"-0")
-                res.add(Identifier.DEF+"-1")
-                res.add(Identifier.DEF+"-2")
-                res.add(Identifier.DEF+"-3")
-            } else if(k is PackData.UserPack) {
-                if(k.castles.list.isNotEmpty())
-                    res.add(k.desc.id)
-            }
+        if (pack != null) {
+            if (!pack!!.castles.isEmpty)
+                res.add(pack!!.sid)
+
+            for(str in pack!!.desc.dependency)
+                if(!UserProfile.getUserPack(str).castles.isEmpty)
+                    res.add(str)
+            res.addAll(pack!!.desc.dependency)
+        } else {
+            val packs = UserProfile.getUserPacks()
+            for(p in packs)
+                if(!p.castles.isEmpty)
+                    res.add(p.desc.id)
         }
-
-        return res
-    }
-
-    private fun getExistingCastle() : Int {
-        val list = UserProfile.getAllPacks()
-
-        var res = 0
-
-        for(k in list) {
-            if(k is PackData.DefPack) {
-                res += 4
-            } else if(k is PackData.UserPack) {
-                if(k.castles.list.isNotEmpty())
-                    res++
-            }
-        }
-
         return res
     }
 
@@ -211,7 +201,7 @@ class CastleList : AppCompatActivity() {
         }
 
         override fun createFragment(position: Int): Fragment {
-            return CsListPager.newInstance(keys[position])
+            return CsListPager.newInstance(keys[position], pack != null)
         }
     }
 }

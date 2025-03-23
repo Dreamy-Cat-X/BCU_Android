@@ -18,11 +18,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.stage.adapters.CustomStEnList
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
 import common.util.stage.MapColc.PackMapColc
+import common.util.stage.Revival
 import common.util.stage.SCDef
 import common.util.stage.SCDef.Line
 import common.util.stage.Stage
@@ -32,23 +34,36 @@ import kotlinx.coroutines.launch
 class PackStageEnemyManager : AppCompatActivity() {
 
     private lateinit var list : SCDef
-    private lateinit var notif : () -> Unit
+    lateinit var notif : () -> Unit
+    var revi : Int = -1
 
     private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val data = result.data
 
         if (result.resultCode == Activity.RESULT_OK && data != null) {
-            val e = StaticStore.transformIdentifier<AbEnemy>(data.getStringExtra("Data"))?.get() ?: return@registerForActivityResult
+            val e = StaticStore.transformIdentifier<AbEnemy>(data.getStringExtra("Data")) ?: return@registerForActivityResult
+            e.get() ?: return@registerForActivityResult
 
-            val nl = Array(list.datas.size + 1) {
-                if (it == 0) {
-                    val l = Line()
-                    l.enemy = e.id
-                    l
-                } else
-                    list.datas[it - 1]
+            if (revi == -1) {
+                val nl = Array(list.datas.size + 1) {
+                    if (it == 0) {
+                        val l = Line()
+                        l.enemy = e
+                        l
+                    } else
+                        list.datas[it - 1]
+                }
+                list.datas = nl
+            } else {
+                if (list.datas[revi].rev == null) {
+                    list.datas[revi].rev = Revival(e)
+                } else {
+                    var rev = list.datas[revi].rev
+                    while (rev.rev != null)
+                        rev = rev.rev
+                    rev.rev = Revival(rev, e)
+                }
             }
-            list.datas = nl
             notif()
         }
     }
@@ -76,6 +91,7 @@ class PackStageEnemyManager : AppCompatActivity() {
         DefineItf.check(this)
         AContext.check()
         (CommonStatic.ctx as AContext).updateActivity(this)
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_pack_stage_enemy)
 
         val result = intent
@@ -128,11 +144,13 @@ class PackStageEnemyManager : AppCompatActivity() {
                 }
             })
             touch.attachToRecyclerView(elist)
-            notif = { adp.notifyItemInserted(list.datas.size - 1) }
 
             val addenemy = findViewById<FloatingActionButton>(R.id.cussteneadd)
             addenemy.setOnClickListener(object : SingleClick() {
                 override fun onSingleClick(v: View?) {
+                    revi = -1
+                    notif = { adp.notifyItemInserted(list.datas.size - 1) }
+
                     val intent = Intent(this@PackStageEnemyManager, EnemyList::class.java)
                     intent.putExtra("mode", EnemyList.Mode.SELECTION.name)
                     intent.putExtra("pack", pack.sid)

@@ -23,8 +23,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.get
-import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,6 +39,7 @@ import com.yumetsuki.bcu.androidutil.animation.adapter.ImgcutListAdapter
 import com.yumetsuki.bcu.androidutil.fakeandroid.FIBM
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
@@ -127,6 +126,7 @@ class ImgCutEditor : AppCompatActivity() {
         DefineItf.check(this)
         AContext.check()
         (CommonStatic.ctx as AContext).updateActivity(this)
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_imgcut_editor)
 
         val result = intent
@@ -295,8 +295,7 @@ class ImgCutEditor : AppCompatActivity() {
                 layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                 postMove = fun(sav : String) {
                     if (sav.isBlank()) {
-                        if (list.size > sele)
-                            (list[sele].tag as ImgcutListAdapter.ViewHolder).setData(anim.imgcut.cuts[sele])
+                        adp.notifyItemChanged(sele) //if (list.size > sele) //    (list.getChildViewHolder(list[sele]) as ImgcutListAdapter.ViewHolder).setData(anim.imgcut.cuts[sele])
                     } else
                         unSave(anim, sav)
                 }

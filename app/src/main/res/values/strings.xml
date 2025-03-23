@@ -1135,4 +1135,7 @@
     <string name="packcus_limitEdit" translatable="false">Limit Editor</string>
     <string name="packcus_addlimit" translatable="false">Add Limit</string>
     <string name="def_time_limit" translatable="false">Time Limit</string>
+    <string name="e_is_boss0" translatable="false">Peon</string>
+    <string name="e_is_boss1" translatable="false">Boss</string>
+    <string name="e_is_boss2" translatable="false">Superboss</string>
 </resources>

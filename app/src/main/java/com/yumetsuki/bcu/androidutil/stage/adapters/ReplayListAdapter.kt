@@ -19,6 +19,7 @@ import com.yumetsuki.bcu.BattleSimulation
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.ReplayList
 import com.yumetsuki.bcu.androidutil.StaticStore
+import com.yumetsuki.bcu.androidutil.supports.WatcherEditText
 import common.CommonStatic
 import common.io.json.JsonEncoder
 import common.pack.Source.ResourceLocation
@@ -29,7 +30,7 @@ import common.util.stage.Replay
 class ReplayListAdapter(private val activity: ReplayList, private val replays : ArrayList<Replay>) : ArrayAdapter<Replay>(activity, R.layout.replay_list_layout, replays) {
 
     private class ViewHolder(row: View) {
-        var name: EditText = row.findViewById(R.id.rplyname)
+        var name: WatcherEditText = row.findViewById(R.id.rplyname)
         var stgName: TextView = row.findViewById(R.id.rplystgname)
         var battle: Button = row.findViewById(R.id.rplystart)
         var expand: ImageButton = row.findViewById(R.id.rplyexpand)
@@ -91,11 +92,10 @@ class ReplayListAdapter(private val activity: ReplayList, private val replays : 
             }
         })
         holder.name.text = SpannableStringBuilder(replay.toString())
-        holder.name.setOnEditorActionListener { _, _, _ ->
-            if (replay.rl.id == holder.name.text.toString())
-                return@setOnEditorActionListener false
-            replay.rename(holder.name.text.toString())
-            false
+        holder.name.setWatcher {
+            if (!holder.name.hasFocus() || replay.rl.id == holder.name.text!!.toString())
+                return@setWatcher
+            replay.rename(holder.name.text!!.toString())
         }
         if (replay.rl.pack == ResourceLocation.LOCAL || UserProfile.getUserPack(replay.rl.pack)?.editable == true) {
             holder.delete.setOnClickListener {

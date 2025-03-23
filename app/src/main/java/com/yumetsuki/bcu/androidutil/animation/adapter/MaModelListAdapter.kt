@@ -26,7 +26,9 @@ class MaModelListAdapter(private val ctx: MaModelEditor, private val a : AnimCE)
     companion object {
         val glows = arrayOf("-1 - Substract", "0 - None", "1 - Add", "2 - Multiply", "3 - Screen")
     }
-    class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
+    var mv = false
+
+    inner class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
         val iid: Button = row.findViewById(R.id.mamodel_id)
         val ipar: WatcherEditText = row.findViewById(R.id.mamodel_par)
         val ispr: WatcherEditText = row.findViewById(R.id.mamodel_spr)
@@ -40,9 +42,10 @@ class MaModelListAdapter(private val ctx: MaModelEditor, private val a : AnimCE)
         val irot: WatcherEditText = row.findViewById(R.id.mamodel_rot)
         val iopa: WatcherEditText = row.findViewById(R.id.mamodel_opa)
         val iglw: Spinner = row.findViewById(R.id.mamodel_glw)
-        val iname: EditText = row.findViewById(R.id.mamodel_name)
+        val iname: WatcherEditText = row.findViewById(R.id.mamodel_name)
 
         fun setData(ic : IntArray) {
+            mv = true
             ipar.text = SpannableStringBuilder(ic[0].toString())
             ispr.text = SpannableStringBuilder(ic[2].toString())
             iz.text = SpannableStringBuilder(ic[3].toString())
@@ -55,6 +58,7 @@ class MaModelListAdapter(private val ctx: MaModelEditor, private val a : AnimCE)
             irot.text = SpannableStringBuilder(ic[10].toString())
             iopa.text = SpannableStringBuilder(ic[11].toString())
             iglw.setSelection(ic[12] + 1)
+            mv = false
         }
     }
 
@@ -73,89 +77,88 @@ class MaModelListAdapter(private val ctx: MaModelEditor, private val a : AnimCE)
         holder.setData(mo)
         holder.iname.text = SpannableStringBuilder(a.mamodel.strs0[pos])
         holder.iname.hint = a.imgcut.strs[mo[2]]
-        holder.iname.setOnEditorActionListener { _, _, _ ->
-            if (a.mamodel.strs0[pos] == holder.iname.text.toString())
-                return@setOnEditorActionListener false
-            a.mamodel.strs0[pos] = holder.iname.text.toString()
-            false
+        holder.iname.setWatcher {
+            if (mv || !holder.iname.hasFocus() || a.mamodel.strs0[pos] == holder.iname.text!!.toString())
+                return@setWatcher
+            a.mamodel.strs0[pos] = holder.iname.text!!.toString()
         }
 
         val voo = ctx.findViewById<AnimationEditView>(R.id.animationView)
         holder.ipar.setWatcher {
-            if (!holder.ipar.hasFocus())
+            if (mv || !holder.ipar.hasFocus())
                 return@setWatcher
-            mo[0] = MathUtil.clip(CommonStatic.parseIntN(holder.ipar.text.toString()), -1, a.mamodel.n - 1)
+            mo[0] = MathUtil.clip(CommonStatic.parseIntN(holder.ipar.text!!.toString()), -1, a.mamodel.n - 1)
             a.mamodel.check(a)
             ctx.unSave(a,"mamodel change $pos Parent")
             voo.animationChanged()
         }
         holder.ispr.setWatcher {
-            if (!holder.ispr.hasFocus())
+            if (mv || !holder.ispr.hasFocus())
                 return@setWatcher
-            mo[2] = MathUtil.clip(CommonStatic.parseIntN(holder.ispr.text.toString()),0,a.imgcut.n - 1)
+            mo[2] = MathUtil.clip(CommonStatic.parseIntN(holder.ispr.text!!.toString()),0,a.imgcut.n - 1)
             ctx.unSave(a,"mamodel change $pos Sprite")
             voo.animationChanged()
         }
         holder.iz.setWatcher {
-            if (!holder.iz.hasFocus())
+            if (mv || !holder.iz.hasFocus())
                 return@setWatcher
-            mo[3] = CommonStatic.parseIntN(holder.iz.text.toString())
+            mo[3] = CommonStatic.parseIntN(holder.iz.text!!.toString())
             ctx.unSave(a,"mamodel change $pos Z-Order")
             voo.animationChanged()
         }
         holder.ix.setWatcher {
-            if (!holder.ix.hasFocus())
+            if (mv || !holder.ix.hasFocus())
                 return@setWatcher
-            mo[4] = CommonStatic.parseIntN(holder.ix.text.toString())
+            mo[4] = CommonStatic.parseIntN(holder.ix.text!!.toString())
             ctx.unSave(a,"mamodel change $pos x")
             voo.animationChanged()
         }
         holder.iy.setWatcher {
-            if (!holder.iy.hasFocus())
+            if (mv || !holder.iy.hasFocus())
                 return@setWatcher
-            mo[5] = CommonStatic.parseIntN(holder.iy.text.toString())
+            mo[5] = CommonStatic.parseIntN(holder.iy.text!!.toString())
             ctx.unSave(a,"mamodel change $pos y")
             voo.animationChanged()
         }
         holder.ipx.setWatcher {
-            if (!holder.ipx.hasFocus())
+            if (mv || !holder.ipx.hasFocus())
                 return@setWatcher
-            mo[6] = CommonStatic.parseIntN(holder.ipx.text.toString())
+            mo[6] = CommonStatic.parseIntN(holder.ipx.text!!.toString())
             ctx.unSave(a,"mamodel change $pos pivot x")
             voo.animationChanged()
         }
         holder.ipy.setWatcher {
-            if (!holder.ipy.hasFocus())
+            if (mv || !holder.ipy.hasFocus())
                 return@setWatcher
-            mo[7] = CommonStatic.parseIntN(holder.ipy.text.toString())
+            mo[7] = CommonStatic.parseIntN(holder.ipy.text!!.toString())
             ctx.unSave(a,"mamodel change $pos pivot y")
             voo.animationChanged()
         }
         holder.isx.setWatcher {
-            if (!holder.isx.hasFocus())
+            if (mv || !holder.isx.hasFocus())
                 return@setWatcher
-            mo[8] = CommonStatic.parseIntN(holder.isx.text.toString())
+            mo[8] = CommonStatic.parseIntN(holder.isx.text!!.toString())
             ctx.unSave(a,"mamodel change $pos scale x")
             voo.animationChanged()
         }
         holder.isy.setWatcher {
-            if (!holder.isy.hasFocus())
+            if (mv || !holder.isy.hasFocus())
                 return@setWatcher
-            mo[9] = CommonStatic.parseIntN(holder.isy.text.toString())
+            mo[9] = CommonStatic.parseIntN(holder.isy.text!!.toString())
             ctx.unSave(a,"mamodel change $pos scale y")
             voo.animationChanged()
         }
         holder.irot.setWatcher {
-            if (!holder.irot.hasFocus())
+            if (mv || !holder.irot.hasFocus())
                 return@setWatcher
-            mo[10] = CommonStatic.parseIntN(holder.irot.text.toString())
+            mo[10] = CommonStatic.parseIntN(holder.irot.text!!.toString())
             ctx.unSave(a,"mamodel change $pos angle")
             voo.animationChanged()
         }
         holder.iopa.setWatcher {
-            if (!holder.iopa.hasFocus())
+            if (mv || !holder.iopa.hasFocus())
                 return@setWatcher
-            mo[11] = max(0, CommonStatic.parseIntN(holder.iopa.text.toString()))
+            mo[11] = max(0, CommonStatic.parseIntN(holder.iopa.text!!.toString()))
             ctx.unSave(a,"mamodel change $pos opacity")
             voo.animationChanged()
         }

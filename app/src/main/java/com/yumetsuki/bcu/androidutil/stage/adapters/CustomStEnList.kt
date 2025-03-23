@@ -1,7 +1,6 @@
 package com.yumetsuki.bcu.androidutil.stage.adapters
 
 import android.animation.ValueAnimator
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.SystemClock
@@ -10,17 +9,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
-import android.widget.EditText
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.Spinner
 import android.widget.TableLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.yumetsuki.bcu.EnemyInfo
+import com.yumetsuki.bcu.PackStageEnemyManager
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.GetStrings
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
+import com.yumetsuki.bcu.androidutil.supports.WatcherEditText
 import common.CommonStatic
 import common.io.json.JsonEncoder
 import common.pack.Identifier
@@ -28,9 +31,8 @@ import common.pack.UserProfile
 import common.util.stage.SCDef
 import common.util.stage.Stage
 import common.util.unit.Enemy
-import org.jcodec.common.tools.MathUtil
 
-class CustomStEnList(private val ctx: Activity, private val st: Stage) : RecyclerView.Adapter<CustomStEnList.ViewHolder>() {
+class CustomStEnList(private val ctx: PackStageEnemyManager, private val st: Stage) : RecyclerView.Adapter<CustomStEnList.ViewHolder>() {
 
     override fun onCreateViewHolder(group: ViewGroup, i: Int): ViewHolder {
         val row = LayoutInflater.from(ctx).inflate(R.layout.cus_stage_enemy_list_layout, group, false)
@@ -98,80 +100,75 @@ class CustomStEnList(private val ctx: Activity, private val st: Stage) : Recycle
             holder.icon.setImageBitmap(StaticStore.getResizeb(icon as Bitmap, ctx, 85f, 32f))
 
         holder.number.hint = s.getNumber(data[pos])
-        holder.number.setOnEditorActionListener {_, _, _ ->
-            val num = CommonStatic.parseIntN(holder.number.text.ifBlank { holder.number.hint }.toString())
-            if (num >= 0 && num != data[pos].number)
+        holder.number.setWatcher {
+            val num = CommonStatic.parseIntN(holder.number.text!!.ifBlank { holder.number.hint }.toString())
+            if (holder.number.hasFocus() && num >= 0 && num != data[pos].number)
                 data[pos].number = num
-            false
         }
         holder.multiply.text = SpannableStringBuilder(s.getMultiply(data[pos], 100))
-        holder.multiply.setOnEditorActionListener {_, _, _ ->
+        holder.multiply.setWatcher {
             val nums = CommonStatic.parseIntsN(holder.multiply.text.toString())
-            if (nums.isEmpty()) return@setOnEditorActionListener false
+            if (!holder.multiply.hasFocus() || nums.isEmpty()) return@setWatcher
             val atk = if (nums.size >= 2) nums[1] else nums[0]
 
             if (nums[0] >= 0 && nums[0] != data[pos].multiple)
                 data[pos].multiple = nums[0]
             if (atk >= 0 && atk != data[pos].mult_atk)
                 data[pos].mult_atk = atk
-            false
         }
         holder.bh.hint = s.getBaseHealth(data[pos])
-        holder.bh.setOnEditorActionListener {_, _, _ ->
-            val num = CommonStatic.parseIntN(holder.bh.text.ifBlank { holder.bh.hint }.toString())
-            if (num >= 0 && num != data[pos].castle_0)
+        holder.bh.setWatcher {
+            val num = CommonStatic.parseIntN(holder.bh.text!!.ifBlank { holder.bh.hint }.toString())
+            if (holder.bh.hasFocus() && num >= 0 && num != data[pos].castle_0)
                 data[pos].castle_0 = num
-            false
         }
-        holder.isboss.text = SpannableStringBuilder(data[pos].boss.toString())
-        holder.isboss.setOnEditorActionListener {_, _, _ ->
-            val num = MathUtil.clip(CommonStatic.parseIntN(holder.isboss.text.ifBlank { holder.isboss.hint }.toString()), 0, 2)
-            if (num != data[pos].boss)
-                data[pos].boss = num
-            false
+
+        holder.isboss.setPopupBackgroundResource(R.drawable.spinner_popup)
+        holder.isboss.adapter = ArrayAdapter(ctx, R.layout.spinneradapter, s.getStrings(R.string.e_is_boss0, R.string.e_is_boss1, R.string.e_is_boss2))
+        holder.isboss.setSelection(data[pos].boss)
+        holder.isboss.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(par: AdapterView<*>, v: View?, position: Int, id: Long) { data[pos].boss = position }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
+
         holder.layer.text = SpannableStringBuilder(s.getLayer(data[pos]))
-        holder.layer.setOnEditorActionListener {_, _, _ ->
+        holder.layer.setWatcher {
             val nums = CommonStatic.parseIntsN(holder.layer.text.toString())
-            if (nums.isEmpty()) return@setOnEditorActionListener false
+            if (!holder.layer.hasFocus() || nums.isEmpty()) return@setWatcher
             val lay1 = if (nums.size >= 2) nums[1] else nums[0]
 
             if (nums[0] != data[pos].layer_0)
                 data[pos].layer_0 = nums[0]
             if (lay1 != data[pos].layer_1)
                 data[pos].layer_1 = lay1
-            false
         }
         holder.start.text = SpannableStringBuilder(s.getStart(data[pos], true))
-        holder.start.setOnEditorActionListener {_, _, _ ->
+        holder.start.setWatcher {
             val nums = CommonStatic.parseIntsN(holder.start.text.toString())
-            if (nums.isEmpty()) return@setOnEditorActionListener false
+            if (!holder.start.hasFocus() || nums.isEmpty()) return@setWatcher
             val spa1 = if (nums.size >= 2) nums[1] else nums[0]
 
             if (nums[0] >= 0 && nums[0] != data[pos].spawn_0)
                 data[pos].spawn_0 = nums[0]
             if (spa1 >= 0 && spa1 != data[pos].spawn_1)
                 data[pos].spawn_1 = spa1
-            false
         }
         holder.respawn.text = SpannableStringBuilder(s.getRespawn(data[pos], true))
-        holder.respawn.setOnEditorActionListener {_, _, _ ->
+        holder.respawn.setWatcher {
             val nums = CommonStatic.parseIntsN(holder.respawn.text.toString())
-            if (nums.isEmpty()) return@setOnEditorActionListener false
+            if (!holder.respawn.hasFocus() || nums.isEmpty()) return@setWatcher
             val spa1 = if (nums.size >= 2) nums[1] else nums[0]
 
             if (nums[0] >= 0 && nums[0] != data[pos].respawn_0)
                 data[pos].respawn_0 = nums[0]
             if (spa1 >= 0 && spa1 != data[pos].respawn_1)
                 data[pos].respawn_1 = spa1
-            false
         }
         holder.killcount.hint = data[pos].kill_count.toString()
-        holder.killcount.setOnEditorActionListener {_, _, _ ->
-            val num = CommonStatic.parseIntN(holder.killcount.text.ifBlank { holder.killcount.hint }.toString())
-            if (num >= 0 && num != data[pos].kill_count)
+        holder.killcount.setWatcher {
+            val num = CommonStatic.parseIntN(holder.killcount.text!!.ifBlank { holder.killcount.hint }.toString())
+            if (holder.killcount.hasFocus() && num >= 0 && num != data[pos].kill_count)
                 data[pos].kill_count = num
-            false
         }
         val build = StringBuilder(data[pos].doorchance.toString()).append("%")
         if (data[pos].doorchance > 0) {
@@ -180,13 +177,13 @@ class CustomStEnList(private val ctx: Activity, private val st: Stage) : Recycle
                 build.append(" ~ ").append(data[pos].doordis_1).append("%")
         }
         holder.edoor.text = SpannableStringBuilder(build.toString())
-        holder.edoor.setOnEditorActionListener {_, _, _ ->
+        holder.edoor.setWatcher {
             val nums = CommonStatic.parseIntsN(holder.edoor.text.toString())
-            if (nums.isEmpty()) return@setOnEditorActionListener false
+            if (!holder.edoor.hasFocus() || nums.isEmpty()) return@setWatcher
             if (nums[0] >= 0 && nums[0] != data[pos].respawn_0)
                 data[pos].doorchance = nums[0].toByte()
             if (nums.size == 1) {
-                return@setOnEditorActionListener false
+                return@setWatcher
             }
             val spa1 = if (nums.size >= 3) nums[2] else nums[1]
 
@@ -194,8 +191,10 @@ class CustomStEnList(private val ctx: Activity, private val st: Stage) : Recycle
                 data[pos].doordis_0 = nums[1].toByte()
             if (spa1 >= 0 && spa1.toByte() != data[pos].doordis_1)
                 data[pos].doordis_1 = spa1.toByte()
-            false
         }
+
+        if (data[pos].rev == null)
+            holder.erev.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_add_black_24dp))
 
         if (em is Enemy) {
             holder.info.setOnClickListener(object : SingleClick() {
@@ -213,17 +212,18 @@ class CustomStEnList(private val ctx: Activity, private val st: Stage) : Recycle
     class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
         val expand = row.findViewById<ImageButton>(R.id.stgenlistexp)!!
         val icon = row.findViewById<ImageView>(R.id.stgenlisticon)!!
-        val multiply = row.findViewById<EditText>(R.id.stgenlistmultir)!!
-        val number = row.findViewById<EditText>(R.id.stgenlistnumr)!!
+        val multiply = row.findViewById<WatcherEditText>(R.id.stgenlistmultir)!!
+        val number = row.findViewById<WatcherEditText>(R.id.stgenlistnumr)!!
         val info = row.findViewById<ImageButton>(R.id.stgenlistinfo)!!
-        val bh = row.findViewById<EditText>(R.id.enemlistbhr)!!
-        val isboss = row.findViewById<EditText>(R.id.enemlistibr)!!
-        val layer = row.findViewById<EditText>(R.id.enemlistlayr)!!
-        val start = row.findViewById<EditText>(R.id.enemliststr)!!
-        val respawn = row.findViewById<EditText>(R.id.enemlistresr)!!
+        val bh = row.findViewById<WatcherEditText>(R.id.enemlistbhr)!!
+        val isboss = row.findViewById<Spinner>(R.id.enemlistibr)!!
+        val layer = row.findViewById<WatcherEditText>(R.id.enemlistlayr)!!
+        val start = row.findViewById<WatcherEditText>(R.id.enemliststr)!!
+        val respawn = row.findViewById<WatcherEditText>(R.id.enemlistresr)!!
         val moreinfo = row.findViewById<TableLayout>(R.id.stgenlistmi)!!
-        val killcount = row.findViewById<EditText>(R.id.enemlistkilcr)!!
-        val edoor = row.findViewById<EditText>(R.id.enemlistevrdr)!!
+        val killcount = row.findViewById<WatcherEditText>(R.id.enemlistkilcr)!!
+        val edoor = row.findViewById<WatcherEditText>(R.id.enemlistevrdr)!!
+        val erev = row.findViewById<ImageButton>(R.id.enemlistrev)!!
     }
 
     private fun reverse(data: Array<SCDef.Line>): Array<SCDef.Line> {

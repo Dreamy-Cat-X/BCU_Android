@@ -62,9 +62,9 @@ class AnimationListAdapter(private val activity: AnimationManagement, private va
         val a = anims[position]
         holder.name.text = SpannableStringBuilder(a.toString())
         holder.name.setOnEditorActionListener { _, _, _ ->
-            if (a.id.id == holder.name.text.toString())
+            if (a.id.id == holder.name.text!!.toString())
                 return@setOnEditorActionListener false
-            a.renameTo(holder.name.text.toString())
+            a.renameTo(holder.name.text!!.toString())
             false
         }
 

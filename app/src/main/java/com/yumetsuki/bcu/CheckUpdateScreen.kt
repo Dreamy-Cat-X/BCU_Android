@@ -96,7 +96,7 @@ open class CheckUpdateScreen : AppCompatActivity() {
 
         (CommonStatic.ctx as AContext).updateActivity(this)
 
-        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter("${StaticStore.getPublicDirectory()}logs"))
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_check_update_screen)
 
         lifecycleScope.launch {

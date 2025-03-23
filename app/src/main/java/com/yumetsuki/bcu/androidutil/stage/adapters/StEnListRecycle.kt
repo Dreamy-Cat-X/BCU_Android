@@ -128,11 +128,7 @@ class StEnListRecycle(private val activity: Activity, private val st: Stage, pri
 
         viewHolder.multiply.text = s.getMultiply(data[pos], multi)
         viewHolder.bh.text = s.getBaseHealth(data[pos])
-
-        if (data[pos].boss == 0)
-            viewHolder.isboss.text = activity.getString(R.string.unit_info_false)
-        else
-            viewHolder.isboss.text = activity.getString(R.string.unit_info_true)
+        viewHolder.isboss.text = s.getBoolean(data[pos].boss != 0)
 
         viewHolder.layer.text = s.getLayer(data[pos])
 

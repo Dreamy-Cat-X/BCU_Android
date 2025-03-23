@@ -62,7 +62,7 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
         holder.ifr.setWatcher {
             if (!holder.ifr.hasFocus())
                 return@setWatcher
-            pa[0] = CommonStatic.parseIntN(holder.ifr.text.toString())
+            pa[0] = CommonStatic.parseIntN(holder.ifr.text!!.toString())
             p.check(a)
             activity.unSave(a,"maanim change part move $position frame")
             voo.animationChanged()
@@ -70,7 +70,7 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
         holder.idat.setWatcher {
             if (!holder.idat.hasFocus())
                 return@setWatcher
-            pa[1] = CommonStatic.parseIntN(holder.idat.text.toString())
+            pa[1] = CommonStatic.parseIntN(holder.idat.text!!.toString())
             p.check(a)
             activity.unSave(a,"maanim change part move $position effect")
             voo.animationChanged()
@@ -93,7 +93,7 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
         holder.ipa.setWatcher {
             if (!holder.ipa.hasFocus())
                 return@setWatcher
-            pa[3] = CommonStatic.parseIntN(holder.ipa.text.toString())
+            pa[3] = CommonStatic.parseIntN(holder.ipa.text!!.toString())
             p.check(a)
             activity.unSave(a,"maanim change part move $position effect")
             voo.animationChanged()

@@ -71,18 +71,16 @@ class EnemyListPager : Fragment() {
 
             val ac = requireActivity()
 
-            when(mode) {
-                EnemyList.Mode.INFO -> {
-                    list.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            list.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+                when (mode) {
+                    EnemyList.Mode.INFO -> {
                         if (SystemClock.elapsedRealtime() - StaticStore.enemyinflistClick < StaticStore.INTERVAL) return@OnItemClickListener
                         StaticStore.enemyinflistClick = SystemClock.elapsedRealtime()
                         val result = Intent(ac, EnemyInfo::class.java)
                         result.putExtra("Data", JsonEncoder.encode(numbers[position]).toString())
                         ac.startActivity(result)
                     }
-                }
-                EnemyList.Mode.SELECTION -> {
-                    list.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+                    EnemyList.Mode.SELECTION -> {
                         val intent = Intent()
                         intent.putExtra("Data", JsonEncoder.encode(numbers[position]).toString())
                         ac.setResult(Activity.RESULT_OK, intent)
