@@ -23,7 +23,7 @@
             app:srcCompat="@drawable/ic_expand_less_black_24dp"
             app:tint="?attr/iconPrimary" />
 
-        <EditText
+        <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/rplyname"
             android:layout_width="0dp"
             android:layout_height="match_parent"
