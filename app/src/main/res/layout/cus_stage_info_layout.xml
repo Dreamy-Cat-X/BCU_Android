@@ -48,24 +48,26 @@
 
     <TableLayout
         android:id="@+id/cusstage_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/enemicon">
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <Button
                 android:id="@+id/ch_stagePlay"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="40dip"
                 android:layout_weight="1"
                 android:background="@drawable/button"
                 android:gravity="center"
-                android:minHeight="32dip"
                 android:text="@string/battle_preparation"
                 android:textAllCaps="false"
                 android:textColor="?attr/TextPrimary" />
@@ -73,11 +75,10 @@
             <Button
                 android:id="@+id/ch_stageLimit"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="40dip"
                 android:layout_weight="1"
                 android:background="@drawable/button"
                 android:gravity="center"
-                android:minHeight="32dip"
                 android:text="@string/packcus_limitEdit"
                 android:textAllCaps="false"
                 android:textColor="?attr/TextPrimary" />
@@ -85,11 +86,10 @@
             <Button
                 android:id="@+id/ch_stageEnemy"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="40dip"
                 android:layout_weight="1"
                 android:background="@drawable/button"
                 android:gravity="center"
-                android:minHeight="32dip"
                 android:text="@string/stg_sch_enem"
                 android:textAllCaps="false"
                 android:textColor="?attr/TextPrimary" />
@@ -98,7 +98,8 @@
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/ch_sthealth"
@@ -107,8 +108,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/cell_shape"
                 android:ems="10"
+                android:hint="@string/def_minus"
                 android:inputType="number"
-                android:minHeight="36dp"
+                android:minHeight="40dp"
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
 
@@ -119,8 +121,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/cell_shape"
                 android:ems="10"
+                android:hint="@string/def_minus"
                 android:inputType="number"
-                android:minHeight="36dp"
+                android:minHeight="40dp"
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
 
@@ -131,20 +134,22 @@
                 android:layout_weight="1"
                 android:background="@drawable/cell_shape"
                 android:ems="10"
+                android:hint="@string/def_minus"
                 android:inputType="number"
-                android:minHeight="36dp"
+                android:minHeight="40dp"
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <Button
                 android:id="@+id/ch_dojo"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="40dip"
                 android:layout_weight="1"
                 android:background="@drawable/button"
                 android:text="@string/stage_dojo"
@@ -154,7 +159,7 @@
             <Button
                 android:id="@+id/ch_bossguard"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="40dip"
                 android:layout_weight="1"
                 android:background="@drawable/button"
                 android:text="@string/boss_guard"
@@ -164,7 +169,7 @@
             <Button
                 android:id="@+id/ch_nocontinue"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="40dip"
                 android:layout_weight="1"
                 android:background="@drawable/button"
                 android:text="@string/stg_info_cont"
@@ -174,7 +179,7 @@
             <Button
                 android:id="@+id/ch_ect"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="40dip"
                 android:layout_weight="1"
                 android:background="@drawable/button"
                 android:text="@string/stg_info_ct"
@@ -184,12 +189,13 @@
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <Button
                 android:id="@+id/ch_bg"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="40dip"
                 android:layout_weight="2"
                 android:background="@drawable/button"
                 android:text="@string/stg_info_bg"
@@ -203,15 +209,15 @@
                 android:layout_weight="0.75"
                 android:background="@drawable/cell_shape"
                 android:ems="10"
+                android:hint="@string/def_minus"
                 android:inputType="number"
-                android:minHeight="36dp"
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
 
             <Button
                 android:id="@+id/ch_bgh"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="40dip"
                 android:layout_weight="1"
                 android:background="@drawable/button"
                 android:text="@string/stg_info_bg"
@@ -221,12 +227,13 @@
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <Button
                 android:id="@+id/ch_mus"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="40dip"
                 android:layout_weight="2"
                 android:background="@drawable/button"
                 android:text="@string/stg_info_music"
@@ -240,6 +247,7 @@
                 android:layout_weight="0.75"
                 android:background="@drawable/cell_shape"
                 android:ems="10"
+                android:hint="@string/def_minus"
                 android:inputType="number"
                 android:minHeight="36dp"
                 android:textColor="?attr/TextPrimary"
@@ -248,7 +256,7 @@
             <Button
                 android:id="@+id/ch_mush"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="40dip"
                 android:layout_weight="1"
                 android:background="@drawable/button"
                 android:text="@string/stg_info_music"
@@ -258,7 +266,8 @@
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/ch_stespwn"
@@ -268,7 +277,7 @@
                 android:background="@drawable/cell_shape"
                 android:ems="10"
                 android:inputType="number"
-                android:minHeight="36dp"
+                android:minHeight="40dp"
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
 
@@ -280,9 +289,10 @@
                 android:background="@drawable/cell_shape"
                 android:ems="10"
                 android:inputType="number"
-                android:minHeight="36dp"
+                android:minHeight="40dp"
                 android:textColor="?attr/TextPrimary"
                 android:textColorHint="?attr/HintPrimary" />
+
         </TableRow>
 
     </TableLayout>

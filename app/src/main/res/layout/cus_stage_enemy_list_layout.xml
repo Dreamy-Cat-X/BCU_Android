@@ -103,7 +103,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
+            <TextView
                 android:id="@+id/enemlistbh"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -116,7 +116,7 @@
                 android:textColor="?attr/TextPrimary"
                 android:textStyle="bold" />
 
-            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
+            <TextView
                 android:id="@+id/enemlistib"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -129,7 +129,7 @@
                 android:textColor="?attr/TextPrimary"
                 android:textStyle="bold" />
 
-            <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
+            <TextView
                 android:id="@+id/enemlistlay"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

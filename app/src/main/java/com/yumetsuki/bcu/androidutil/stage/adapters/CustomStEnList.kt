@@ -18,6 +18,7 @@ import android.widget.TableLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.yumetsuki.bcu.EnemyInfo
+import com.yumetsuki.bcu.EnemyList
 import com.yumetsuki.bcu.PackStageEnemyManager
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.GetStrings
@@ -98,6 +99,16 @@ class CustomStEnList(private val ctx: PackStageEnemyManager, private val st: Sta
             holder.icon.setImageBitmap(StaticStore.empty(ctx, 85f, 32f))
         } else
             holder.icon.setImageBitmap(StaticStore.getResizeb(icon as Bitmap, ctx, 85f, 32f))
+        holder.icon.setOnClickListener {
+            ctx.revi = -(data.size - 1 - pos) - 2
+            ctx.notif = { notifyItemChanged(pos) }
+
+            val intent = Intent(ctx, EnemyList::class.java)
+            intent.putExtra("mode", EnemyList.Mode.SELECTION.name)
+            intent.putExtra("pack", st.mc.sid)
+
+            ctx.resultLauncher.launch(intent)
+        }
 
         holder.number.hint = s.getNumber(data[pos])
         holder.number.setWatcher {

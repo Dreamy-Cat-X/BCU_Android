@@ -37,7 +37,7 @@ class PackStageEnemyManager : AppCompatActivity() {
     lateinit var notif : () -> Unit
     var revi : Int = -1
 
-    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val data = result.data
 
         if (result.resultCode == Activity.RESULT_OK && data != null) {
@@ -54,6 +54,8 @@ class PackStageEnemyManager : AppCompatActivity() {
                         list.datas[it - 1]
                 }
                 list.datas = nl
+            } else if (revi <= -2) {
+                list.datas[-(revi + 2)].enemy = e
             } else {
                 if (list.datas[revi].rev == null) {
                     list.datas[revi].rev = Revival(e)
