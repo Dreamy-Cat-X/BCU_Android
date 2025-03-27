@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.EditText
 import android.widget.Spinner
 import androidx.recyclerview.widget.RecyclerView
 import com.yumetsuki.bcu.MaModelEditor
@@ -60,6 +59,14 @@ class MaModelListAdapter(private val ctx: MaModelEditor, private val a : AnimCE)
             iglw.setSelection(ic[12] + 1)
             mv = false
         }
+
+        fun setID(id : Int, voo : AnimationEditView) {
+            iid.text = id.toString()
+            iid.setOnClickListener {
+                voo.anim.sele = if (voo.anim.sele == id) -1 else id
+                voo.animationChanged()
+            }
+        }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
@@ -72,7 +79,6 @@ class MaModelListAdapter(private val ctx: MaModelEditor, private val a : AnimCE)
         val mo = a.mamodel.parts[pos]
         holder.iglw.setPopupBackgroundResource(R.drawable.spinner_popup)
         holder.iglw.adapter = ArrayAdapter(ctx, R.layout.spinneradapter, glows)
-        holder.iid.text = pos.toString()
 
         holder.setData(mo)
         holder.iname.text = SpannableStringBuilder(a.mamodel.strs0[pos])
@@ -84,6 +90,7 @@ class MaModelListAdapter(private val ctx: MaModelEditor, private val a : AnimCE)
         }
 
         val voo = ctx.findViewById<AnimationEditView>(R.id.animationView)
+        holder.setID(pos, voo)
         holder.ipar.setWatcher {
             if (mv || !holder.ipar.hasFocus())
                 return@setWatcher
@@ -171,10 +178,6 @@ class MaModelListAdapter(private val ctx: MaModelEditor, private val a : AnimCE)
                 voo.animationChanged()
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
-        holder.iid.setOnClickListener {
-            voo.anim.sele = if (voo.anim.sele == pos) -1 else pos
-            voo.animationChanged()
         }
     }
 

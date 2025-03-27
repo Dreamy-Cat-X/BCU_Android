@@ -243,6 +243,8 @@ class MaModelEditor : AppCompatActivity() {
                     moved = true
                     viewer.animationChanged()
                     adp.notifyItemMoved(from, to)
+                    (src as MaModelListAdapter.ViewHolder).setID(to, viewer)
+                    (dest as MaModelListAdapter.ViewHolder).setID(from, viewer)
                     return false
                 }
 

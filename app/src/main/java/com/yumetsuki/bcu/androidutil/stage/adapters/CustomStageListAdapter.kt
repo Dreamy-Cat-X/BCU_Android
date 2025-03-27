@@ -4,6 +4,9 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.drawable.BitmapDrawable
 import android.os.SystemClock
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
@@ -29,11 +32,13 @@ import com.yumetsuki.bcu.PackStageManager
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.GetStrings
 import com.yumetsuki.bcu.androidutil.StaticStore
+import com.yumetsuki.bcu.androidutil.fakeandroid.CVGraphics
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import com.yumetsuki.bcu.androidutil.supports.WatcherEditText
 import common.CommonStatic
 import common.io.json.JsonEncoder
 import common.pack.Identifier
+import common.pack.PackData.UserPack
 import common.pack.UserProfile
 import common.util.lang.MultiLangCont
 import common.util.pack.Background
@@ -45,6 +50,7 @@ import common.util.stage.StageMap
 import common.util.unit.AbEnemy
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.round
 
 class CustomStageListAdapter(private val ctx: PackStageManager, private val map: StageMap) : RecyclerView.Adapter<CustomStageListAdapter.ViewHolder>() {
 
@@ -90,9 +96,11 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
                 if (hit) {
                     st!!.bg1 = thing.id
                     bgh.text = thing.toString()
+                    bgh.setCompoundDrawablesWithIntrinsicBounds(getBGIcon(ctx, thing), null, null, null)
                 } else {
                     st!!.bg = thing.id
                     bg.text = "${ctx.getString(R.string.stg_info_bg)}: $thing"
+                    bg.setCompoundDrawablesWithIntrinsicBounds(getBGIcon(ctx, thing), null, null, null)
                 }
             } else if (thing is Music) {
                 if (hit) {
@@ -105,6 +113,9 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
             } else if (thing is CastleImg) {
                 st!!.castle = thing.id
                 ect.text = "${ctx.getString(R.string.stg_info_ct)}: $thing"
+                val w = if (thing.img.img.width >= thing.img.img.height) 40f else 40f * (thing.img.img.width.toFloat() / thing.img.img.height)
+                val h = if (thing.img.img.height >= thing.img.img.width) 40f else 40f * (thing.img.img.height.toFloat() / thing.img.img.width)
+                ect.setCompoundDrawablesWithIntrinsicBounds(BitmapDrawable(ctx.resources, StaticStore.getResizeb(thing.img.img.bimg() as Bitmap, ctx, w, h)), null, null, null)
             }
         }
 
@@ -379,6 +390,8 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
             ctx.startActivity(intent)
             false
         }
+        if (st.bg?.get() != null)
+            holder.bg.setCompoundDrawablesWithIntrinsicBounds(getBGIcon(ctx, st.bg.get()), null, null, null)
 
         holder.bghp.hint = "<${st.bgh}%: "
         holder.bghp.setWatcher {
@@ -416,6 +429,8 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
             ctx.startActivity(intent)
             false
         }
+        if (st.bg1?.get() != null)
+            holder.bgh.setCompoundDrawablesWithIntrinsicBounds(getBGIcon(ctx, st.bg1.get()), null, null, null)
 
         holder.ect.text = "${ctx.getString(R.string.stg_info_ct)}: ${st.castle?.get()}"
         holder.ect.setOnClickListener(object : SingleClick() {
@@ -436,6 +451,12 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
             intent.putExtra("Img", ImageViewer.ViewerType.CASTLE.name)
             ctx.startActivity(intent)
             false
+        }
+        if (st.castle?.get() != null) {
+            val img = st.castle.get().img.img
+            val w = if (img.width >= img.height) 40f else 40f * (img.width.toFloat() / img.height)
+            val h = if (img.height >= img.width) 40f else 40f * (img.height.toFloat() / img.width)
+            holder.ect.setCompoundDrawablesWithIntrinsicBounds(BitmapDrawable(ctx.resources, StaticStore.getResizeb(img.bimg() as Bitmap, ctx, w, h)), null, null, null)
         }
 
         holder.play.setOnClickListener {
@@ -464,5 +485,88 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
 
     private fun number(num: Int): String {
         return if (num in 0..9) "00$num" else if (num in 10..99) "0$num" else "" + num
+    }
+
+    companion object {
+        private fun getBGIcon(ctx : PackStageManager, bg: Background): BitmapDrawable {
+            val width = 40f
+            val height = 40f
+
+            val paint = Paint().apply {
+                isFilterBitmap = true
+                isAntiAlias = true
+            }
+            val b = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(b)
+
+            bg.check()
+            val cv = CVGraphics(canvas, Paint(), paint, false)
+
+            if (bg.top) {
+                val groundPart = bg.parts[Background.BG]
+                val skyPart = bg.parts[Background.TOP]
+
+                val totalHeight = groundPart.height + skyPart.height
+                val ratio = height / totalHeight.toFloat()
+                val imageWidth = round(groundPart.width * ratio)
+                val groundHeight = round(groundPart.height * ratio)
+                val skyHeight = round(skyPart.height * ratio)
+
+                var groundGradient = round(height * 0.1f)
+                val skyGradient = round(height * 0.1f)
+                if (groundGradient + groundHeight + skyHeight + skyGradient != height)
+                    groundGradient += height - (groundGradient + groundHeight + skyHeight + skyGradient)
+
+                var currentX = 0f
+                while (currentX < width) {
+                    cv.drawImage(skyPart, currentX, skyGradient, imageWidth, skyHeight)
+                    cv.drawImage(groundPart, currentX, skyGradient + skyHeight, imageWidth, groundHeight)
+                    currentX += imageWidth
+                }
+
+                cv.gradRect(0f, skyGradient + skyHeight + groundHeight, width, groundGradient, 0f,
+                    skyGradient + skyHeight + groundHeight, getColorData(bg, 2), 0f, height, getColorData(bg, 3))
+                cv.gradRect(0f, 0f, width, skyGradient, 0f, 0f, getColorData(bg, 0), 0f,
+                    skyGradient, getColorData(bg, 1))
+            } else {
+                val groundPart = bg.parts[Background.BG]
+                val ratio = height / (groundPart.height * 2f)
+
+                val imageWidth = round(groundPart.width * ratio)
+                val groundHeight = round(groundPart.height * ratio)
+                var groundGradient = round(height * 0.1f)
+                val skyGradient = round(height * 0.1f + groundHeight)
+                if (groundGradient + groundHeight + skyGradient != height)
+                    groundGradient += height - (groundGradient + groundHeight + skyGradient)
+
+                var currentX = 0f
+
+                while (currentX < width) {
+                    cv.drawImage(groundPart, currentX, skyGradient, imageWidth, groundHeight)
+                    currentX += imageWidth
+                }
+                cv.gradRect(0f, skyGradient + groundHeight, width, groundGradient, 0f, skyGradient + groundHeight,
+                    getColorData(bg, 2), 0f, height, getColorData(bg, 3))
+                cv.gradRect(0f, 0f, width, skyGradient, 0f, 0f, getColorData(bg, 0), 0f, skyGradient,
+                    getColorData(bg, 1))
+            }
+            bg.unload()
+            return BitmapDrawable(ctx.resources, b)
+        }
+
+        private fun getColorData(bg: Background, mode: Int) : IntArray {
+            bg.cs ?: return intArrayOf(0, 0, 0)
+
+            if(bg.cs.isEmpty())
+                return intArrayOf(0, 0, 0)
+
+            return when(mode) {
+                0 -> bg.cs[0] ?: return intArrayOf(0, 0, 0)
+                1 -> bg.cs[1] ?: return intArrayOf(0, 0, 0)
+                2 -> bg.cs[2] ?: return intArrayOf(0, 0, 0)
+                3 -> bg.cs[3] ?: return intArrayOf(0, 0, 0)
+                else -> intArrayOf(0, 0, 0)
+            }
+        }
     }
 }

@@ -35,6 +35,14 @@ class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : Anim
             ih.text = SpannableStringBuilder(ic[3].toString())
             mv = false
         }
+
+        fun setID(id : Int, voo : SpriteView) {
+            iid.text = id.toString()
+            iid.setOnClickListener {
+                voo.sele = if (voo.sele == id) -1 else id
+                voo.invalidate()
+            }
+        }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
@@ -49,7 +57,6 @@ class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : Anim
     override fun onBindViewHolder(holder: ViewHolder, i: Int) {
         val pos = holder.bindingAdapterPosition
         val ic = a.imgcut.cuts[pos]
-        holder.iid.text = pos.toString()
 
         holder.setData(ic)
         holder.iname.setWatcher {
@@ -60,6 +67,7 @@ class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : Anim
         holder.iname.text = SpannableStringBuilder(a.imgcut.strs[pos])
 
         val voo = activity.findViewById<SpriteView>(R.id.spriteView)
+        holder.setID(pos, voo)
         holder.ix.setWatcher {
             if (mv || !holder.ix.hasFocus())
                 return@setWatcher
@@ -86,10 +94,6 @@ class ImgcutListAdapter(private val activity: ImgCutEditor, private val a : Anim
                 return@setWatcher
             ic[3] = max(1, CommonStatic.parseIntN(holder.ih.text!!.toString()))
             activity.unSave(a,"imgcut change $pos h")
-            voo.invalidate()
-        }
-        holder.iid.setOnClickListener {
-            voo.sele = if (voo.sele == pos) -1 else pos
             voo.invalidate()
         }
     }

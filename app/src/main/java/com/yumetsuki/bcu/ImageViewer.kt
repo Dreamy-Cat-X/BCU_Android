@@ -1054,25 +1054,11 @@ class ImageViewer : AppCompatActivity() {
             return intArrayOf(0, 0, 0)
 
         return when(mode) {
-            skyUpper -> {
-                val rgb = bg.cs[0] ?: return intArrayOf(0, 0, 0)
-                intArrayOf(rgb[0], rgb[1], rgb[2])
-            }
-            skyBelow -> {
-                val rgb = bg.cs[1] ?: return intArrayOf(0, 0, 0)
-                intArrayOf(rgb[0], rgb[1], rgb[2])
-            }
-            groundUpper -> {
-                val rgb = bg.cs[2] ?: return intArrayOf(0, 0, 0)
-                intArrayOf(rgb[0], rgb[1], rgb[2])
-            }
-            groundBelow -> {
-                val rgb = bg.cs[3] ?: return intArrayOf(0, 0, 0)
-                intArrayOf(rgb[0], rgb[1], rgb[2])
-            }
-            else -> {
-                intArrayOf(0, 0, 0)
-            }
+            skyUpper -> bg.cs[0] ?: return intArrayOf(0, 0, 0)
+            skyBelow -> bg.cs[1] ?: return intArrayOf(0, 0, 0)
+            groundUpper -> bg.cs[2] ?: return intArrayOf(0, 0, 0)
+            groundBelow -> bg.cs[3] ?: return intArrayOf(0, 0, 0)
+            else -> intArrayOf(0, 0, 0)
         }
     }
 

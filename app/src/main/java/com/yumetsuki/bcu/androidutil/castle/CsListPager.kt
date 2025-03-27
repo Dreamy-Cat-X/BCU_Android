@@ -1,7 +1,9 @@
 package com.yumetsuki.bcu.androidutil.castle
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.LayoutInflater
@@ -9,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -67,17 +70,9 @@ class CsListPager : Fragment() {
 
         if(p is PackData.DefPack) {
             nores.visibility = View.GONE
-
             val csList = CastleList.defset().toList()[if(index == -1) 0 else index]
-            val names = ArrayList<String>()
-            val data = ArrayList<Identifier<CastleImg>>()
 
-            for(i in csList.list.indices) {
-                names.add(StaticStore.generateIdName(csList.list[i].id, c))
-                data.add(csList.list[i].id)
-            }
-
-            val adapter = ArrayAdapter(c, R.layout.list_layout_text, names.toTypedArray())
+            val adapter = CastleAdapter(c, csList.list)
             list.adapter = adapter
             list.onItemClickListener = AdapterView.OnItemClickListener { _, _, posit, _ ->
                 if(SystemClock.elapsedRealtime() - StaticStore.cslistClick < StaticStore.INTERVAL)
@@ -86,12 +81,12 @@ class CsListPager : Fragment() {
 
                 if (sele) {
                     val intent = Intent()
-                    intent.putExtra("Data", JsonEncoder.encode(data[posit]).toString())
+                    intent.putExtra("Data", JsonEncoder.encode(csList[posit].id).toString())
                     activity?.setResult(Activity.RESULT_OK, intent)
                     activity?.finish()
                 } else {
                     val intent = Intent(c, ImageViewer::class.java)
-                    intent.putExtra("Data", JsonEncoder.encode(data[posit]).toString())
+                    intent.putExtra("Data", JsonEncoder.encode(csList[posit].id).toString())
                     intent.putExtra("Img", ImageViewer.ViewerType.CASTLE.name)
                     c.startActivity(intent)
                 }
@@ -100,14 +95,7 @@ class CsListPager : Fragment() {
             nores.visibility = View.GONE
             val csList = p.castles
 
-            val names = ArrayList<String>()
-            val data = ArrayList<Identifier<CastleImg>>()
-
-            for(i in csList.list.indices) {
-                names.add(StaticStore.generateIdName(csList.list[i].id, c))
-                data.add(csList.list[i].id)
-            }
-            val adapter = ArrayAdapter(c, R.layout.list_layout_text, names.toTypedArray())
+            val adapter = CastleAdapter(c, csList.list)
             list.adapter = adapter
             list.onItemClickListener = AdapterView.OnItemClickListener { _, _, posit, _ ->
                 if(SystemClock.elapsedRealtime() - StaticStore.cslistClick < StaticStore.INTERVAL)
@@ -115,7 +103,7 @@ class CsListPager : Fragment() {
                 StaticStore.cslistClick = SystemClock.elapsedRealtime()
 
                 val intent = Intent(c, ImageViewer::class.java)
-                intent.putExtra("Data", JsonEncoder.encode(data[posit]).toString())
+                intent.putExtra("Data", JsonEncoder.encode(csList[posit].id).toString())
                 intent.putExtra("Img", ImageViewer.ViewerType.CASTLE.name)
 
                 c.startActivity(intent)
@@ -123,5 +111,36 @@ class CsListPager : Fragment() {
         }
 
         return view
+    }
+
+    internal class CastleAdapter(private val c : Context, private val imgs : List<CastleImg>) : ArrayAdapter<CastleImg>(c, R.layout.list_layout_text_icon, imgs) {
+
+        private class ViewHolder(view: View) {
+            val text: TextView = view.findViewById(R.id.spinnertext)
+            val icon: ImageView = view.findViewById(R.id.spinnericon)
+        }
+
+        override fun getView(pos: Int, view: View?, parent: ViewGroup): View {
+            val holder: ViewHolder
+            val row: View
+
+            if (view == null) {
+                val inf = LayoutInflater.from(context)
+                row = inf.inflate(R.layout.list_layout_text_icon, parent, false)
+                holder = ViewHolder(row)
+                row.tag = holder
+            } else {
+                row = view
+                holder = row.tag as ViewHolder
+            }
+            holder.text.text = StaticStore.generateIdName(imgs[pos].id, c)
+
+            val img = imgs[pos].img.img
+            val w = if (img.width >= img.height) 64f else 64f * (img.width.toFloat() / img.height)
+            val h = if (img.height >= img.width) 64f else 64f * (img.height.toFloat() / img.width)
+            holder.icon.setImageBitmap(StaticStore.getResizeb(img.bimg() as Bitmap, c, w, h))
+
+            return row
+        }
     }
 }

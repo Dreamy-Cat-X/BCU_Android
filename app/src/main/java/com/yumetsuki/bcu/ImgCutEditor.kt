@@ -234,6 +234,8 @@ class ImgCutEditor : AppCompatActivity() {
                     else if (voo.sele == to)
                         voo.sele = from
                     adp.notifyItemMoved(from, to)
+                    (src as ImgcutListAdapter.ViewHolder).setID(to, voo)
+                    (dest as ImgcutListAdapter.ViewHolder).setID(from, voo)
                     return false
                 }
 
