@@ -116,7 +116,7 @@ class StageSearchFilter : AppCompatActivity() {
         AContext.check()
 
         (CommonStatic.ctx as AContext).updateActivity(this)
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_stage_search_filter)
 
         val bck = findViewById<FloatingActionButton>(R.id.statschbck)

@@ -212,7 +212,6 @@ class PackManagement : AppCompatActivity() {
                     packList.add(pack)
 
             list.adapter = PackManagementAdapter(this@PackManagement, packList)
-
             prog.isIndeterminate = true
 
             swipe.setColorSchemeColors(StaticStore.getAttributeColor(this@PackManagement, R.attr.colorAccent))

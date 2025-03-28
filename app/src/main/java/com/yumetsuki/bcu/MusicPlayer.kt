@@ -113,7 +113,7 @@ class MusicPlayer : AppCompatActivity() {
         (CommonStatic.ctx as AContext).updateActivity(this)
 
         registerReceiver(musicreceive, IntentFilter(Intent.ACTION_HEADSET_PLUG))
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_music_player)
 
         SoundHandler.initializePlayer(this)

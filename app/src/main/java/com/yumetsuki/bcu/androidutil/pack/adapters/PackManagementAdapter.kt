@@ -276,9 +276,8 @@ class PackManagementAdapter(private val ac: Activity, private val pList: ArrayLi
 
     private fun rebuildPackList() {
         pList.clear()
-
-        for(pack in UserProfile.getUserPacks()) {
-            pList.add(pack)
-        }
+        for(pack in UserProfile.getUserPacks())
+            if (!pack.editable)
+                pList.add(pack)
     }
 }

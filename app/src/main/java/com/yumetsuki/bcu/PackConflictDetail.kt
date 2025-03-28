@@ -22,6 +22,7 @@ import com.yumetsuki.bcu.androidutil.pack.conflict.adapters.PackConfListAdapter
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.nhaarman.supertooltips.ToolTip
 import com.nhaarman.supertooltips.ToolTipRelativeLayout
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import common.CommonStatic
 import common.io.assets.AssetLoader
 import common.util.Data
@@ -57,7 +58,7 @@ class PackConflictDetail : AppCompatActivity() {
         AContext.check()
 
         (CommonStatic.ctx as AContext).updateActivity(this)
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_pack_conflict_detail)
 
         val bundle = intent.extras

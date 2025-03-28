@@ -101,7 +101,7 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
             ma.ints[2] = max(CommonStatic.parseIntN(holder.ilop.text!!.toString()), -1)
             ma.check(a)
             activity.unSave(a,"maanim change $position loop count")
-            voo.animationChanged()
+            activity.animationChanged(voo)
         }
         holder.iname.setWatcher {
             if (!holder.iname.hasFocus() || ma.name == holder.iname.text!!.toString())

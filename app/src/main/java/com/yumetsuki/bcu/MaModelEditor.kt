@@ -233,6 +233,11 @@ class MaModelEditor : AppCompatActivity() {
                     val temp = p[from]
                     p[from] = p[to]
                     p[to] = temp
+                    for (i in p.indices)
+                        if (p[i][0] == from || p[i][0] == to) {
+                            p[i][0] = if (p[i][0] == from) to else from
+                            adp.notifyItemChanged(i)
+                        }
                     for (ma in anim.anims)
                         for (pt in ma.parts) {
                             if (pt.ints[0] == from)

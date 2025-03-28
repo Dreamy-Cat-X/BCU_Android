@@ -281,7 +281,6 @@ class MaAnimEditor : AppCompatActivity() {
                     manim.validate()
                     unSave(anim,"maanim remove part")
                     adp.notifyItemRemoved(pos)
-                    adp.notifyDataSetChanged()
                 }
             })
             touch.attachToRecyclerView(list)
@@ -302,7 +301,7 @@ class MaAnimEditor : AppCompatActivity() {
                 ma.validate()
                 unSave(anim,"maanim add line")
                 adp.notifyItemInserted(ind)
-                viewer.animationChanged()
+                animationChanged(viewer)
             }
             val impr = findViewById<Button>(R.id.maanimimport)
             impr.setOnClickListener {
@@ -317,7 +316,7 @@ class MaAnimEditor : AppCompatActivity() {
                             anim.anims[i] = a
                             anim.unSave("Import maanim")
                             if (anim.types[i] == viewer.getType()) {
-                                viewer.animationChanged()
+                                animationChanged(viewer)
                                 adp.notifyDataSetChanged()
                             }
                             break
@@ -413,7 +412,7 @@ class MaAnimEditor : AppCompatActivity() {
                     View.VISIBLE
                 redo.visibility = View.VISIBLE
                 adp.notifyDataSetChanged()
-                viewer.animationChanged()
+                animationChanged(viewer)
             }
             undo.setOnLongClickListener {
                 StaticStore.showShortMessage(this@MaAnimEditor, anim.undo)
@@ -431,7 +430,7 @@ class MaAnimEditor : AppCompatActivity() {
                     View.VISIBLE
                 undo.visibility = View.VISIBLE
                 adp.notifyDataSetChanged()
-                viewer.animationChanged()
+                animationChanged(viewer)
             }
             redo.setOnLongClickListener {
                 StaticStore.showShortMessage(this@MaAnimEditor, anim.getRedo())
@@ -533,6 +532,17 @@ class MaAnimEditor : AppCompatActivity() {
         val redo = findViewById<FloatingActionButton>(R.id.anim_Redo)
         undo.visibility = View.VISIBLE
         redo.visibility = View.GONE
+    }
+
+    fun animationChanged(a : AnimationEditView) {
+        a.animationChanged()
+
+        val controller = findViewById<SeekBar>(R.id.maanimframeseek)
+        val frame = findViewById<TextView>(R.id.maanimframe)
+
+        frame.text = getString(R.string.anim_frame).replace("-", "" + StaticStore.frame)
+        controller.progress = CommonStatic.fltFpsMul(StaticStore.frame).toInt()
+        controller.max = CommonStatic.fltFpsMul(a.anim.len().toFloat()).toInt()
     }
 
     inner class ScaleListener(private val cView : AnimationEditView) : ScaleGestureDetector.SimpleOnScaleGestureListener() {

@@ -34,6 +34,7 @@ import com.yumetsuki.bcu.androidutil.LocaleManager
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.supports.AnimatorConst
 import com.yumetsuki.bcu.androidutil.supports.AutoMarquee
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
@@ -85,7 +86,7 @@ class UnitInfo : AppCompatActivity() {
         DefineItf.check(this)
 
         AContext.check()
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         (CommonStatic.ctx as AContext).updateActivity(this)
 
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {

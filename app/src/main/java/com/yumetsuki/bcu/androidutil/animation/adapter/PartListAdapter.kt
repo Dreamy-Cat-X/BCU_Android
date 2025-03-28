@@ -57,6 +57,7 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
         holder.iea.setPopupBackgroundResource(R.drawable.spinner_popup)
         holder.iea.adapter = ArrayAdapter(activity, R.layout.spinneradapter, eases)
         holder.setData(pa)
+        val manim = activity.getAnim(a)
 
         val voo = activity.findViewById<AnimationEditView>(R.id.animationView)
         holder.ifr.setWatcher {
@@ -64,16 +65,20 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
                 return@setWatcher
             pa[0] = CommonStatic.parseIntN(holder.ifr.text!!.toString())
             p.check(a)
+            p.validate()
+            manim.validate()
             activity.unSave(a,"maanim change part move $position frame")
-            voo.animationChanged()
+            activity.animationChanged(voo)
         }
         holder.idat.setWatcher {
             if (!holder.idat.hasFocus())
                 return@setWatcher
             pa[1] = CommonStatic.parseIntN(holder.idat.text!!.toString())
             p.check(a)
+            p.validate()
+            manim.validate()
             activity.unSave(a,"maanim change part move $position effect")
-            voo.animationChanged()
+            activity.animationChanged(voo)
         }
         holder.iea.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
@@ -99,16 +104,18 @@ class PartListAdapter(private val activity: MaAnimEditor, private val a : AnimCE
             voo.animationChanged()
         }
         holder.del.setOnClickListener {
-            val manim = activity.getAnim(a)
-            val data: Array<Part?> = manim.parts
+            val data: Array<IntArray?> = p.moves
             data[position] = null
-            manim.parts = arrayOfNulls(--manim.n)
+            p.moves = arrayOfNulls(--p.n)
             var ind = 0
             for (datum in data)
                 if (datum != null)
-                    manim.parts[ind++] = datum
+                    p.moves[ind++] = datum
+            p.check(a)
+            p.validate()
             manim.validate()
             activity.unSave(a,"maanim remove part")
+            activity.animationChanged(voo)
             notifyItemRemoved(position)
         }
     }

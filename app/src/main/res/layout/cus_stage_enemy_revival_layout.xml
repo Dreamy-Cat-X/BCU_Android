@@ -75,4 +75,81 @@
             app:tint="?attr/iconPrimary" />
 
     </TableRow>
+
+    <TableRow
+        android:id="@+id/tablerow10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tableRow9">
+
+        <Button
+            android:id="@+id/cusstrevlistbgm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:background="@drawable/button_shape"
+            android:gravity="center"
+            android:minHeight="48dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:text="@string/def_minus"
+            android:textColor="?attr/TextPrimary" />
+
+        <Spinner
+            android:id="@+id/cusstrevlistsoul"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:background="@drawable/cell_spinner"
+            android:gravity="center"
+            android:minHeight="48dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/nextRevRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tablerow10">
+
+        <Button
+            android:id="@+id/cusenemlistrv"
+            android:layout_width="0dp"
+            android:layout_height="40dip"
+            android:layout_weight="0.2"
+            android:background="@drawable/button_shape"
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:text="@string/stat_sch_add"
+            android:textColor="?attr/TextPrimary" />
+
+        <Button
+            android:id="@+id/cusenemlistremv"
+            android:layout_width="0dp"
+            android:layout_height="40dip"
+            android:layout_weight="0.2"
+            android:background="@drawable/button_shape"
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:text="@string/remove"
+            android:textColor="?attr/TextPrimary" />
+
+        <ImageButton
+            android:id="@+id/cusenemlistrev"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:background="@drawable/cell_shape"
+            android:contentDescription="@string/def_description"
+            app:srcCompat="@drawable/ic_expand_less_black_24dp"
+            app:tint="?attr/iconPrimary" />
+    </TableRow>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
