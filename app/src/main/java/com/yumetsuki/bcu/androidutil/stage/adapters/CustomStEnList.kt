@@ -15,7 +15,9 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TableLayout
+import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.yumetsuki.bcu.EnemyInfo
 import com.yumetsuki.bcu.EnemyList
@@ -100,7 +102,7 @@ class CustomStEnList(private val ctx: PackStageEnemyManager, private val st: Sta
         } else
             holder.icon.setImageBitmap(StaticStore.getResizeb(icon as Bitmap, ctx, 85f, 32f))
         holder.icon.setOnClickListener {
-            ctx.revi = -(data.size - 1 - pos) - 2
+            ctx.revi[0] = -(data.size - 1 - pos) - 2
             ctx.notif = { notifyItemChanged(pos) }
 
             val intent = Intent(ctx, EnemyList::class.java)
@@ -204,8 +206,67 @@ class CustomStEnList(private val ctx: PackStageEnemyManager, private val st: Sta
                 data[pos].doordis_1 = spa1.toByte()
         }
 
-        if (data[pos].rev == null)
+        if (data[pos].rev == null) {
             holder.erev.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_add_black_24dp))
+            holder.erev.setOnClickListener {
+                ctx.revi[0] = data.size - 1 - pos
+                ctx.revi[1] = 0
+                ctx.notif = { notifyItemChanged(pos) }
+
+                val intent = Intent(ctx, EnemyList::class.java)
+                intent.putExtra("mode", EnemyList.Mode.SELECTION.name)
+                intent.putExtra("pack", st.mc.sid)
+
+                ctx.resultLauncher.launch(intent)
+            }
+        } else {
+            holder.erevc.layoutManager = LinearLayoutManager(ctx)
+            val adp = CustomStEnRevival(ctx, holder.erevc, st, data[pos], pos)
+            holder.erevc.adapter = adp
+            holder.erev.setOnClickListener(View.OnClickListener {
+                if (SystemClock.elapsedRealtime() - StaticStore.infoClick < StaticStore.INFO_INTERVAL)
+                    return@OnClickListener
+
+                StaticStore.infoClick = SystemClock.elapsedRealtime()
+
+                if (adp.expansions == 0) {
+                    adp.expansions++
+                    holder.erevc.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+                    val height = holder.erevc.measuredHeight
+                    val anim = ValueAnimator.ofInt(0, height)
+
+                    anim.addUpdateListener { animation ->
+                        val `val` = animation.animatedValue as Int
+                        val layout = holder.erevc.layoutParams
+                        layout.height = `val`
+                        holder.erevc.layoutParams = layout
+                    }
+                    anim.duration = 300
+                    anim.interpolator = DecelerateInterpolator()
+                    anim.start()
+
+                    holder.erev.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_expand_more_black_24dp))
+                } else {
+                    holder.erevc.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    val height = holder.erevc.measuredHeight
+                    val anim = ValueAnimator.ofInt(height, 0)
+                    anim.addUpdateListener { animation ->
+                        val `val` = animation.animatedValue as Int
+                        val layout = holder.erevc.layoutParams
+                        layout.height = `val`
+                        holder.erevc.layoutParams = layout
+                    }
+                    anim.doOnEnd {
+                        adp.expansions = 0
+                    }
+                    anim.duration = 300
+                    anim.interpolator = DecelerateInterpolator()
+                    anim.start()
+                    holder.erev.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_expand_less_black_24dp))
+                }
+            })
+        }
 
         if (em is Enemy) {
             holder.info.setOnClickListener(object : SingleClick() {
@@ -235,6 +296,7 @@ class CustomStEnList(private val ctx: PackStageEnemyManager, private val st: Sta
         val killcount = row.findViewById<WatcherEditText>(R.id.enemlistkilcr)!!
         val edoor = row.findViewById<WatcherEditText>(R.id.enemlistevrdr)!!
         val erev = row.findViewById<ImageButton>(R.id.enemlistrev)!!
+        val erevc = row.findViewById<RecyclerView>(R.id.enemlistrevcont)!!
     }
 
     private fun reverse(data: Array<SCDef.Line>): Array<SCDef.Line> {

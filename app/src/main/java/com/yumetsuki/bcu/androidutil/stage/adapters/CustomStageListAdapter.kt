@@ -38,7 +38,6 @@ import com.yumetsuki.bcu.androidutil.supports.WatcherEditText
 import common.CommonStatic
 import common.io.json.JsonEncoder
 import common.pack.Identifier
-import common.pack.PackData.UserPack
 import common.pack.UserProfile
 import common.util.lang.MultiLangCont
 import common.util.pack.Background

@@ -118,18 +118,6 @@
         app:layout_constraintTop_toBottomOf="@id/tablerow10">
 
         <Button
-            android:id="@+id/cusenemlistrv"
-            android:layout_width="0dp"
-            android:layout_height="40dip"
-            android:layout_weight="0.2"
-            android:background="@drawable/button_shape"
-            android:gravity="center"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:text="@string/stat_sch_add"
-            android:textColor="?attr/TextPrimary" />
-
-        <Button
             android:id="@+id/cusenemlistremv"
             android:layout_width="0dp"
             android:layout_height="40dip"

@@ -35,7 +35,7 @@ class PackStageEnemyManager : AppCompatActivity() {
 
     private lateinit var list : SCDef
     lateinit var notif : () -> Unit
-    var revi : Int = -1
+    val revi = intArrayOf(-1, 0)
 
     val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val data = result.data
@@ -44,7 +44,7 @@ class PackStageEnemyManager : AppCompatActivity() {
             val e = StaticStore.transformIdentifier<AbEnemy>(data.getStringExtra("Data")) ?: return@registerForActivityResult
             e.get() ?: return@registerForActivityResult
 
-            if (revi == -1) {
+            if (revi[0] == -1) {
                 val nl = Array(list.datas.size + 1) {
                     if (it == 0) {
                         val l = Line()
@@ -54,17 +54,24 @@ class PackStageEnemyManager : AppCompatActivity() {
                         list.datas[it - 1]
                 }
                 list.datas = nl
-            } else if (revi <= -2) {
-                list.datas[-(revi + 2)].enemy = e
+            } else if (revi[0] <= -2) {
+                list.datas[-(revi[0] + 2)].enemy = e
             } else {
-                if (list.datas[revi].rev == null) {
-                    list.datas[revi].rev = Revival(e)
-                } else {
-                    var rev = list.datas[revi].rev
-                    while (rev.rev != null)
-                        rev = rev.rev
-                    rev.rev = Revival(rev, e)
-                }
+                var r = list.datas[revi[0]].rev
+                for (i in 0 until revi[1])
+                    r = r.rev
+
+                if (r == null) {
+                    if (revi[1] == 0)
+                        list.datas[revi[0]].rev = Revival(e)
+                    else {
+                        r = list.datas[revi[0]].rev
+                        for (i in 0 until revi[1] - 1)
+                            r = r.rev
+                        r.rev = Revival(r, e)
+                    }
+                } else
+                    r.enemy = e
             }
             notif()
         }
@@ -150,7 +157,7 @@ class PackStageEnemyManager : AppCompatActivity() {
             val addenemy = findViewById<FloatingActionButton>(R.id.cussteneadd)
             addenemy.setOnClickListener(object : SingleClick() {
                 override fun onSingleClick(v: View?) {
-                    revi = -1
+                    revi[0] = -1
                     notif = { adp.notifyItemInserted(list.datas.size - 1) }
 
                     val intent = Intent(this@PackStageEnemyManager, EnemyList::class.java)
