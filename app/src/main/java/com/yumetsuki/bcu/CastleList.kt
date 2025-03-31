@@ -68,8 +68,8 @@ class CastleList : AppCompatActivity() {
         DefineItf.check(this)
 
         AContext.check()
-        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         (CommonStatic.ctx as AContext).updateActivity(this)
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_castle_list)
         pack = UserProfile.getUserPack(intent.extras?.getString("pack") ?: "")
         

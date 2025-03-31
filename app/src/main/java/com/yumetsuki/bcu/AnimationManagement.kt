@@ -30,6 +30,7 @@ import com.yumetsuki.bcu.androidutil.animation.adapter.AnimationListAdapter
 import com.yumetsuki.bcu.androidutil.fakeandroid.FIBM
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
@@ -112,6 +113,7 @@ class AnimationManagement : AppCompatActivity() {
         DefineItf.check(this)
         AContext.check()
         (CommonStatic.ctx as AContext).updateActivity(this)
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_anim_management)
 
         lifecycleScope.launch {

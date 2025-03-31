@@ -52,6 +52,7 @@ import com.yumetsuki.bcu.androidutil.animation.GifSession
 import com.yumetsuki.bcu.androidutil.fakeandroid.CVGraphics
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.io.MediaScanner
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
@@ -152,7 +153,7 @@ class ImageViewer : AppCompatActivity() {
         AContext.check()
 
         (CommonStatic.ctx as AContext).updateActivity(this)
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_image_viewer)
 
         val result = intent

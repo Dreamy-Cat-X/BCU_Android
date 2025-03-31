@@ -46,6 +46,7 @@ import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.battle.sound.SoundHandler
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.supports.ColorPickerView
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
@@ -104,7 +105,7 @@ open class ConfigScreen : AppCompatActivity() {
         (CommonStatic.ctx as AContext).updateActivity(this)
 
         setContentView(R.layout.activity_config_screen)
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         val back = findViewById<ImageButton>(R.id.configback)
 
         back.setOnClickListener (object : SingleClick() {

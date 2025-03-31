@@ -18,6 +18,8 @@ class ErrorLogWriter : Thread.UncaughtExceptionHandler {
     private val errors: Thread.UncaughtExceptionHandler? = Thread.getDefaultUncaughtExceptionHandler()
     private val path: String
 
+    private var written = false
+
     constructor() {
         path = LOG_PATH
     }
@@ -31,6 +33,8 @@ class ErrorLogWriter : Thread.UncaughtExceptionHandler {
     }
 
     private fun writeToFile(e: Throwable) {
+        if (written)
+            return
         try {
             val f = File(path)
             if (!f.exists())
@@ -58,6 +62,7 @@ class ErrorLogWriter : Thread.UncaughtExceptionHandler {
             fileWriter.append(current)
             fileWriter.flush()
             fileWriter.close()
+            written = true
         } catch (e1: IOException) {
             e1.printStackTrace()
         }

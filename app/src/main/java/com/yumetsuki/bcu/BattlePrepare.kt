@@ -105,7 +105,7 @@ class BattlePrepare : AppCompatActivity() {
         AContext.check()
 
         (CommonStatic.ctx as AContext).updateActivity(this)
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_battle_prepare)
 
         val result = intent.extras

@@ -236,7 +236,7 @@ class AssetDownloadService : Service() {
                 }
 
                 sendBroadcast(PROGRESS_TEXT, getString(R.string.main_file_merge))
-
+                AssetLoader.removeTemp()
                 AssetLoader.merge()
 
                 sendBroadcast(SUCCESS, "")

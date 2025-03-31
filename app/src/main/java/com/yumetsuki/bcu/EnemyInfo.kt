@@ -30,6 +30,7 @@ import com.yumetsuki.bcu.androidutil.enemy.adapters.DynamicExplanation
 import com.yumetsuki.bcu.androidutil.enemy.adapters.EnemyRecycle
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.supports.AnimatorConst
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
@@ -73,7 +74,7 @@ class EnemyInfo : AppCompatActivity() {
         AContext.check()
 
         (CommonStatic.ctx as AContext).updateActivity(this)
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_enemy_info)
 
         val result = intent

@@ -51,6 +51,7 @@ import com.yumetsuki.bcu.androidutil.fakeandroid.AndroidKeys
 import com.yumetsuki.bcu.androidutil.fakeandroid.CVGraphics
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
+import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import com.yumetsuki.bcu.androidutil.supports.StageBitmapGenerator
@@ -111,7 +112,7 @@ class BattleSimulation : AppCompatActivity() {
         AContext.check()
 
         (CommonStatic.ctx as AContext).updateActivity(this)
-
+        Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_battle_simulation)
 
         SoundHandler.initializePlayer(this@BattleSimulation, directPlay = SoundHandler.musicPlay)
