@@ -1065,7 +1065,7 @@ class LUOrbSetting : Fragment() {
                 .replace("_", (Orb.get(Data.ORB_STRONG,grade)[0] / 1000f).toString())
                 .replace("-", Orb.get(Data.ORB_STRONG,grade)[1].toString())
             Data.ORB_MASSIVE -> c.getString(R.string.orb_mas_desc)
-                .replace("_", (Orb.get(Data.ORB_MASSIVE,grade)[0] / 1000f).toString())
+                .replace("_", (Orb.get(Data.ORB_MASSIVE,grade)[0] / 300f).toString())
             Data.ORB_RESISTANT -> c.getString(R.string.orb_res_desc)
                 .replace("_", Orb.get(Data.ORB_RESISTANT,grade)[0].toString())
             Data.ORB_MINIDEATHSURGE -> c.getString(R.string.orb_mds_desc)
