@@ -69,7 +69,7 @@ import kotlin.math.ln
 object StaticStore {
     //System & IO variables
     /**Version of Application */
-    const val VER = "0.20.12"
+    const val VER = "0.20.13"
 
     /**Locale codes list */
     val lang = arrayOf("", "en", "zh", "ko", "ja", "ru", "de", "fr", "nl", "es", "it", "th")

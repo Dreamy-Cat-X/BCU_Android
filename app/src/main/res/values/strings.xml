@@ -1138,4 +1138,16 @@
     <string name="e_is_boss0" translatable="false">Peon</string>
     <string name="e_is_boss1" translatable="false">Boss</string>
     <string name="e_is_boss2" translatable="false">Superboss</string>
+    <string name="orb_mds" translatable="false">Mini Death Surge</string>
+    <string name="orb_mds_desc" translatable="false">Each 2nd unit deployed makes a mini surge after dying, that deals _% damage.</string>
+    <string name="orb_rsw" translatable="false">Resist Wave</string>
+    <string name="orb_rsw_desc" translatable="false">Lowers damage taken from wave attacks by _%.</string>
+    <string name="orb_refn" translatable="false">Cost Return</string>
+    <string name="orb_refn_desc" translatable="false">Every 2nd unit deployed refunds _% of their cost when killed.</string>
+    <string name="orb_rkb" translatable="false">Resist Knockback</string>
+    <string name="orb_rkb_desc" translatable="false">Lowers distance when knocked back by _%.</string>
+    <string name="orb_sol" translatable="false">SoL Buff</string>
+    <string name="orb_sol_desc" translatable="false">Increases HP/Damage in SoL stages by _%/-%.</string>
+    <string name="orb_colo" translatable="false">Colossus Slayer</string>
+    <string name="orb_colo_desc" translatable="false">Increases damage dealt to Colossal enemies by _%, and lowers damage taken from them by -%.</string>
 </resources>
