@@ -93,6 +93,22 @@ class StEnListRecycle(private val activity: Activity, private val st: Stage, pri
                 anim.start()
                 viewHolder.expand.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_expand_less_black_24dp))
                 infos[pos] = false
+
+                if (viewHolder.erevc.height != 0) {
+                    val a = ValueAnimator.ofInt(viewHolder.erevc.height, 0)
+                    a.addUpdateListener { animation ->
+                        val `val` = animation.animatedValue as Int
+                        val layout = viewHolder.erevc.layoutParams
+                        layout.height = `val`
+                        viewHolder.erevc.layoutParams = layout
+                    }
+                    a.doOnEnd {
+                        (viewHolder.erevc.adapter as StEnRevival).expansions = 0
+                    }
+                    a.duration = 300
+                    a.interpolator = DecelerateInterpolator()
+                    a.start()
+                }
             }
         })
 

@@ -30,11 +30,11 @@ import com.yumetsuki.bcu.androidutil.supports.WatcherEditText
 import common.CommonStatic
 import common.io.json.JsonEncoder
 import common.pack.UserProfile
-import common.util.pack.Soul
+import common.util.stage.Revival
 import common.util.stage.SCDef.Line
 import common.util.stage.Stage
 
-class CustomStEnRevival(private val ctx: PackStageEnemyManager, private val r : RecyclerView, private val st : Stage, private val l: Line, private val pos : Int) : RecyclerView.Adapter<CustomStEnRevival.ViewHolder>() {
+class CustomStEnRevival(private val ctx: PackStageEnemyManager, private val par : CustomStEnList, private val r : RecyclerView, private val st : Stage, private val l: Line, private val pos : Int) : RecyclerView.Adapter<CustomStEnRevival.ViewHolder>() {
 
     class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
         val icon = row.findViewById<ImageView>(R.id.cusstrevlisticon)!!
@@ -137,15 +137,45 @@ class CustomStEnRevival(private val ctx: PackStageEnemyManager, private val r : 
             override fun onItemSelected(par: AdapterView<*>, v: View?, position: Int, id: Long) { crev.boss = position.toByte() }
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
+        setRevivalButton(holder, crev, p)
 
+        holder.eremv.setOnClickListener {
+            expansions = p
+            if (p == 0) {
+                l.rev = null
+                par.notifyItemChanged(pos)
+            } else {
+                r.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                val height = r.measuredHeight
+                val anim = ValueAnimator.ofInt(r.height, height)
+                anim.addUpdateListener { animation ->
+                    val `val` = animation.animatedValue as Int
+                    val layout = r.layoutParams
+                    layout.height = `val`
+                    r.layoutParams = layout
+                }
+                anim.duration = 300
+                anim.interpolator = DecelerateInterpolator()
+                anim.start()
+
+                var drev = l.rev
+                while (drev.rev != crev)
+                    drev = drev.rev
+                drev.rev = null
+                notifyItemChanged(p - 1)
+            }
+        }
+    }
+
+    private fun setRevivalButton(holder : ViewHolder, crev : Revival, p : Int, click : Boolean = false) {
         if (crev.rev == null) {
             holder.erev.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_add_black_24dp))
-            holder.icon.setOnClickListener {
+            holder.erev.setOnClickListener {
                 ctx.revi[0] = st.data.datas.size - 1 - pos
                 ctx.revi[1] = p + 1
                 ctx.notif = {
                     expansions++
-                    notifyItemChanged(p)
+                    setRevivalButton(holder, crev, p, true)
                 }
                 val intent = Intent(ctx, EnemyList::class.java)
                 intent.putExtra("mode", EnemyList.Mode.SELECTION.name)
@@ -154,55 +184,37 @@ class CustomStEnRevival(private val ctx: PackStageEnemyManager, private val r : 
                 ctx.resultLauncher.launch(intent)
             }
         } else {
-            holder.erev.setOnClickListener(View.OnClickListener {
+            holder.erev.setOnClickListener {
                 if (SystemClock.elapsedRealtime() - StaticStore.infoClick < StaticStore.INFO_INTERVAL)
-                    return@OnClickListener
+                    return@setOnClickListener
                 StaticStore.infoClick = SystemClock.elapsedRealtime()
 
                 val oh = r.measuredHeight
                 if (expansions == p + 1) {
                     expansions++
-                    r.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-
-                    val height = r.measuredHeight
-                    val anim = ValueAnimator.ofInt(oh, height)
-
-                    anim.addUpdateListener { animation ->
-                        val `val` = animation.animatedValue as Int
-                        val layout = r.layoutParams
-                        layout.height = `val`
-                        r.layoutParams = layout
-                    }
-                    anim.duration = 300
-                    anim.interpolator = DecelerateInterpolator()
-                    anim.start()
-
                     holder.erev.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_expand_more_black_24dp))
                 } else {
                     expansions = p + 1
-                    r.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                    val height = r.measuredHeight
-                    val anim = ValueAnimator.ofInt(height, oh)
-                    anim.addUpdateListener { animation ->
-                        val `val` = animation.animatedValue as Int
-                        val layout = r.layoutParams
-                        layout.height = `val`
-                        r.layoutParams = layout
-                    }
-                    anim.duration = 300
-                    anim.interpolator = DecelerateInterpolator()
-                    anim.start()
                     holder.erev.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_expand_less_black_24dp))
                 }
-            })
-        }
-        holder.eremv.setOnClickListener {
-            expansions = p
-            if (p == 0) {
-                l.rev = null
-                r.adapter!!.notifyItemChanged(pos)
-            } else
-                crev.par = null
+                r.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+                val height = r.measuredHeight
+                val anim = ValueAnimator.ofInt(oh, height)
+                anim.addUpdateListener { animation ->
+                    val `val` = animation.animatedValue as Int
+                    val layout = r.layoutParams
+                    layout.height = `val`
+                    r.layoutParams = layout
+                }
+                anim.duration = 300
+                anim.interpolator = DecelerateInterpolator()
+                anim.start()
+            }
+            if (click)
+                holder.erev.performClick()
+            else
+                holder.erev.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_expand_less_black_24dp))
         }
     }
 }

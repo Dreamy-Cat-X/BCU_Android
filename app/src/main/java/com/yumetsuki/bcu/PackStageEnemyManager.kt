@@ -24,6 +24,7 @@ import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
 import common.util.stage.MapColc.PackMapColc
+import common.util.stage.Music
 import common.util.stage.Revival
 import common.util.stage.SCDef
 import common.util.stage.SCDef.Line
@@ -41,21 +42,28 @@ class PackStageEnemyManager : AppCompatActivity() {
         val data = result.data
 
         if (result.resultCode == Activity.RESULT_OK && data != null) {
-            val e = StaticStore.transformIdentifier<AbEnemy>(data.getStringExtra("Data")) ?: return@registerForActivityResult
-            e.get() ?: return@registerForActivityResult
+            val e = StaticStore.transformIdentifier(data.getStringExtra("Data"))?.get() ?: return@registerForActivityResult
+            if (e is Music) {
+                var r = list.datas[revi[0]].rev
+                for (i in 0 until revi[1])
+                    r = r.rev
+                r.bgm = e.id
+            }
+            if (e !is AbEnemy)
+                return@registerForActivityResult
 
             if (revi[0] == -1) {
                 val nl = Array(list.datas.size + 1) {
                     if (it == 0) {
                         val l = Line()
-                        l.enemy = e
+                        l.enemy = e.id
                         l
                     } else
                         list.datas[it - 1]
                 }
                 list.datas = nl
             } else if (revi[0] <= -2) {
-                list.datas[-(revi[0] + 2)].enemy = e
+                list.datas[-(revi[0] + 2)].enemy = e.id
             } else {
                 var r = list.datas[revi[0]].rev
                 for (i in 0 until revi[1])
@@ -63,15 +71,15 @@ class PackStageEnemyManager : AppCompatActivity() {
 
                 if (r == null) {
                     if (revi[1] == 0)
-                        list.datas[revi[0]].rev = Revival(e)
+                        list.datas[revi[0]].rev = Revival(e.id)
                     else {
                         r = list.datas[revi[0]].rev
                         for (i in 0 until revi[1] - 1)
                             r = r.rev
-                        r.rev = Revival(r, e)
+                        r.rev = Revival(r, e.id)
                     }
                 } else
-                    r.enemy = e
+                    r.enemy = e.id
             }
             notif()
         }

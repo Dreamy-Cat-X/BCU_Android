@@ -1,6 +1,5 @@
 package com.yumetsuki.bcu.androidutil.pack.adapters
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -16,15 +15,19 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TableLayout
 import android.widget.TextView
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.PackChapterManager
+import com.yumetsuki.bcu.PackCreation
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
 import common.CommonStatic
 import common.pack.PackData
 import common.pack.UserProfile
 
-class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList<PackData.UserPack>) : ArrayAdapter<PackData.UserPack>(ac, R.layout.pack_create_list_layout, pList) {
+class PackCreationAdapter(private val ac: PackCreation, private val pList: ArrayList<PackData.UserPack>) : ArrayAdapter<PackData.UserPack>(ac, R.layout.pack_create_list_layout, pList) {
     class ViewHolder(v: View) {
         val id = v.findViewById<TextView>(R.id.pcusid)!!
         val name = v.findViewById<EditText>(R.id.pcusname)!!
@@ -33,6 +36,9 @@ class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList
         val opts = v.findViewById<TableLayout>(R.id.pcusOptions)!!
         val chap = v.findViewById<Button>(R.id.pk_chapterEdit)!!
         val uni = v.findViewById<Button>(R.id.pk_unitEdit)!!
+
+        val para = v.findViewById<RecyclerView>(R.id.pk_nonParentList)
+        val par = v.findViewById<RecyclerView>(R.id.pk_parentList)
     }
 
     var dialog = AlertDialog.Builder(context)
@@ -134,6 +140,62 @@ class PackCreationAdapter(private val ac: Activity, private val pList: ArrayList
         holder.more.setOnClickListener {
             holder.opts.visibility = View.GONE - holder.opts.visibility
         }
+        holder.para.layoutManager = LinearLayoutManager(ac)
+        val pada = PackParentAdapter(ac, p.desc, false)
+        holder.para.adapter = pada
+        holder.par.layoutManager = LinearLayoutManager(ac)
+        val pad = PackParentAdapter(ac, p.desc, true)
+        holder.par.adapter = pad
+
+        ItemTouchHelper(object: ItemTouchHelper.Callback() {
+            override fun getMovementFlags(p0: RecyclerView, p1: RecyclerView.ViewHolder): Int {
+                return makeMovementFlags(0, ItemTouchHelper.END)
+            }
+            override fun onMove(view: RecyclerView, src: RecyclerView.ViewHolder, dest: RecyclerView.ViewHolder): Boolean {
+                return false
+            }
+            override fun onSwiped(h: RecyclerView.ViewHolder, j: Int) {
+                val pos = h.bindingAdapterPosition
+                val pacs = pada.getParentablePacks()
+                val pac = pacs[pos]
+
+                p.desc.dependency.add(pac.sid)
+                pad.notifyItemInserted(p.desc.dependency.indexOf(pac.sid))
+                pada.notifyItemRemoved(pos)
+                for (dep in pac.desc.dependency) {
+                    val pk = UserProfile.getUserPack(dep)
+                    if (!pacs.contains(pk))
+                        continue//TODO: Passwords
+                    p.desc.dependency.add(pk.sid)
+                    pad.notifyItemInserted(p.desc.dependency.indexOf(pk.sid))
+                    val ind = pacs.indexOf(pk)
+                    pacs.remove(ind)
+                    pada.notifyItemRemoved(ind)
+                }
+            }
+        }).attachToRecyclerView(holder.para)
+
+        ItemTouchHelper(object: ItemTouchHelper.Callback() {
+            override fun getMovementFlags(p0: RecyclerView, p1: RecyclerView.ViewHolder): Int {
+                return makeMovementFlags(0, ItemTouchHelper.START)
+            }
+            override fun onMove(view: RecyclerView, src: RecyclerView.ViewHolder, dest: RecyclerView.ViewHolder): Boolean {
+                return false
+            }
+            override fun onSwiped(h: RecyclerView.ViewHolder, j: Int) {
+                val pos = h.bindingAdapterPosition
+                val pac = p.desc.dependency.get(pos)
+                p.desc.dependency.remove(pos)
+                pad.notifyItemRemoved(pos)
+
+                val packs = pada.getParentablePacks()
+                for (i in packs.indices)
+                    if (packs[i].sid == pac) {
+                        pada.notifyItemInserted(i)
+                        break
+                    }
+            }
+        }).attachToRecyclerView(holder.par)
 
         holder.chap.setOnClickListener {
             val intent = Intent(context, PackChapterManager::class.java)

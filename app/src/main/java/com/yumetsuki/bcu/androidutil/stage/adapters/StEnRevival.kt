@@ -80,53 +80,38 @@ class StEnRevival(private val activity: Activity, private val r : RecyclerView, 
         viewHolder.type.text = activity.getString(when (crev.boss.toInt()) {
             1 -> R.string.e_is_boss1
             2 -> R.string.e_is_boss2
-            else -> R.string.e_is_boss2
+            else -> R.string.e_is_boss0
         })
 
         if (crev.rev == null) {
             viewHolder.revRow.visibility = View.GONE
         } else {
-            viewHolder.erev.setOnClickListener(View.OnClickListener {
+            viewHolder.erev.setOnClickListener {
                 if (SystemClock.elapsedRealtime() - StaticStore.infoClick < StaticStore.INFO_INTERVAL)
-                    return@OnClickListener
+                    return@setOnClickListener
                 StaticStore.infoClick = SystemClock.elapsedRealtime()
 
                 val oh = r.measuredHeight
                 if (expansions == p + 1) {
                     expansions++
-                    r.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-
-                    val height = r.measuredHeight
-                    val anim = ValueAnimator.ofInt(oh, height)
-
-                    anim.addUpdateListener { animation ->
-                        val `val` = animation.animatedValue as Int
-                        val layout = r.layoutParams
-                        layout.height = `val`
-                        r.layoutParams = layout
-                    }
-                    anim.duration = 300
-                    anim.interpolator = DecelerateInterpolator()
-                    anim.start()
-
                     viewHolder.erev.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_expand_more_black_24dp))
                 } else {
                     expansions = p + 1
-                    r.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                    val height = r.measuredHeight
-                    val anim = ValueAnimator.ofInt(height, oh)
-                    anim.addUpdateListener { animation ->
-                        val `val` = animation.animatedValue as Int
-                        val layout = r.layoutParams
-                        layout.height = `val`
-                        r.layoutParams = layout
-                    }
-                    anim.duration = 300
-                    anim.interpolator = DecelerateInterpolator()
-                    anim.start()
                     viewHolder.erev.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_expand_less_black_24dp))
                 }
-            })
+                r.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                val height = r.measuredHeight
+                val anim = ValueAnimator.ofInt(oh, height)
+                anim.addUpdateListener { animation ->
+                    val `val` = animation.animatedValue as Int
+                    val layout = r.layoutParams
+                    layout.height = `val`
+                    r.layoutParams = layout
+                }
+                anim.duration = 300
+                anim.interpolator = DecelerateInterpolator()
+                anim.start()
+            }
         }
     }
 

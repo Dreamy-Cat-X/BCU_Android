@@ -65,7 +65,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/pcusname">
 
         <TableRow
@@ -79,7 +78,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/button"
                 android:gravity="center"
-                android:minHeight="32dip"
+                android:minHeight="36dip"
                 android:text="@string/packcus_mapcreate"
                 android:textAllCaps="false"
                 android:textColor="?attr/TextPrimary" />
@@ -91,7 +90,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/button"
                 android:gravity="center"
-                android:minHeight="32dip"
+                android:minHeight="36dip"
                 android:text="@string/packcus_entcreate"
                 android:textAllCaps="false"
                 android:textColor="?attr/TextPrimary" />
@@ -99,14 +98,81 @@
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:minHeight="48dp"
+                android:paddingTop="8dp"
+                android:text="@string/pack_parentable"
+                android:textColor="?attr/TextPrimary" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:minHeight="48dp"
+                android:paddingTop="8dp"
+                android:text="@string/pack_parent"
+                android:textColor="?attr/TextPrimary" />
+        </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fillViewport="false">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/pk_nonParentList"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fillViewport="false">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/pk_parentList"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+        </TableRow>
+
     </TableLayout>
+
+    <LinearLayout
+        android:id="@+id/pcusParent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/pcusOptions">
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

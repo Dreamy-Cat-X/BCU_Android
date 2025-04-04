@@ -18,8 +18,6 @@ class ErrorLogWriter : Thread.UncaughtExceptionHandler {
     private val errors: Thread.UncaughtExceptionHandler? = Thread.getDefaultUncaughtExceptionHandler()
     private val path: String
 
-    private var written = false
-
     constructor() {
         path = LOG_PATH
     }
@@ -70,6 +68,7 @@ class ErrorLogWriter : Thread.UncaughtExceptionHandler {
 
     companion object {
 
+        private var written = false
         private val LOG_PATH = "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)}/bcu/logs/"
 
         fun writeDriveLog(e: Exception) {
