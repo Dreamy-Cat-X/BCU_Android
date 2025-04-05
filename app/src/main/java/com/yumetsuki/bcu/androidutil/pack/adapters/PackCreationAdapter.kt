@@ -1,9 +1,11 @@
 package com.yumetsuki.bcu.androidutil.pack.adapters
 
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
@@ -24,8 +26,10 @@ import com.yumetsuki.bcu.PackCreation
 import com.yumetsuki.bcu.R
 import com.yumetsuki.bcu.androidutil.StaticStore
 import common.CommonStatic
+import common.io.PackLoader
 import common.pack.PackData
 import common.pack.UserProfile
+import java.nio.charset.StandardCharsets
 
 class PackCreationAdapter(private val ac: PackCreation, private val pList: ArrayList<PackData.UserPack>) : ArrayAdapter<PackData.UserPack>(ac, R.layout.pack_create_list_layout, pList) {
     class ViewHolder(v: View) {
@@ -159,18 +163,22 @@ class PackCreationAdapter(private val ac: PackCreation, private val pList: Array
                 val pacs = pada.getParentablePacks()
                 val pac = pacs[pos]
 
-                p.desc.dependency.add(pac.sid)
-                pad.notifyItemInserted(p.desc.dependency.indexOf(pac.sid))
-                pada.notifyItemRemoved(pos)
+                guessPassword(p, {
+                    p.desc.dependency.add(pac.sid)
+                    pad.notifyItemInserted(p.desc.dependency.indexOf(pac.sid))
+                    pada.notifyItemRemoved(pos)
+                }, { pada.notifyItemChanged(pos) })
                 for (dep in pac.desc.dependency) {
                     val pk = UserProfile.getUserPack(dep)
-                    if (!pacs.contains(pk) || pk.desc.parentPassword != null)
-                        continue//TODO: Passwords
-                    p.desc.dependency.add(pk.sid)
-                    pad.notifyItemInserted(p.desc.dependency.indexOf(pk.sid))
-                    val ind = pacs.indexOf(pk)
-                    pacs.remove(ind)
-                    pada.notifyItemRemoved(ind)
+                    if (!pacs.contains(pk) || p.desc.dependency.contains(pk.sid))
+                        continue
+                    guessPassword(p, {
+                        p.desc.dependency.add(pk.sid)
+                        pad.notifyItemInserted(p.desc.dependency.indexOf(pk.sid))
+                        val ind = pacs.indexOf(pk)
+                        pacs.remove(ind)
+                        pada.notifyItemRemoved(ind)
+                    })
                 }
             }
         }).attachToRecyclerView(holder.para)
@@ -210,6 +218,42 @@ class PackCreationAdapter(private val ac: PackCreation, private val pList: Array
             //ac.startActivity(intent)
         //}
         return row
+    }
+
+    private fun guessPassword(p : PackData.UserPack, onCorrect : () -> Unit, onWrong : (() -> Unit)? = null) {
+        if (p.desc.parentPassword != null) {
+            val dialog = Dialog(ac)
+            dialog.setContentView(R.layout.create_setlu_dialog)
+            val edit = dialog.findViewById<EditText>(R.id.setluedit)
+            val done = dialog.findViewById<Button>(R.id.setludone)
+            val cancel = dialog.findViewById<Button>(R.id.setlucancel)
+            val tbar = dialog.findViewById<TextView>(R.id.setluname)
+            tbar.text = ac.getString(R.string.pack_parenting).replace("_", p.desc.names.toString())
+
+            edit.hint = ac.getString(R.string.pack_parent_password)
+            val rgb = StaticStore.getRGB(StaticStore.getAttributeColor(ac, R.attr.TextPrimary))
+            edit.setHintTextColor(Color.argb(255 / 2, rgb[0], rgb[1], rgb[2]))
+
+            done.setOnClickListener {
+                val md5 = PackLoader.getMD5(edit.text.toString().toByteArray(StandardCharsets.UTF_8), 16)
+                if (p.desc.parentPassword.contentEquals(md5))
+                    onCorrect()
+                else {
+                    StaticStore.showShortMessage(ac, ac.getString(R.string.password_wrong))
+                    if (onWrong != null)
+                        onWrong()
+                }
+                dialog.dismiss()
+            }
+            cancel.setOnClickListener {
+                dialog.dismiss()
+                if (onWrong != null)
+                    onWrong()
+            }
+            if (!ac.isDestroyed && !ac.isFinishing)
+                dialog.show()
+        } else
+            onCorrect()
     }
 
     private fun cantDelete(p: PackData.UserPack) : Boolean {

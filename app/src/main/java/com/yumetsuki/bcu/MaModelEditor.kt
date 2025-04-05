@@ -35,6 +35,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.gson.JsonParser
+import com.yumetsuki.bcu.androidutil.LocaleManager
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
 import com.yumetsuki.bcu.androidutil.animation.adapter.MaModelListAdapter
@@ -540,6 +541,13 @@ class MaModelEditor : AppCompatActivity() {
         val redo = findViewById<FloatingActionButton>(R.id.anim_Redo)
         undo.visibility = View.VISIBLE
         redo.visibility = View.GONE
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        LocaleManager.attachBaseContext(this, newBase)
+
+        val shared = newBase.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
+        super.attachBaseContext(LocaleManager.langChange(newBase,shared?.getInt("Language",0) ?: 0))
     }
 
     inner class ScaleListener(private val cView : AnimationEditView, private val anim : AnimCE) : ScaleGestureDetector.SimpleOnScaleGestureListener() {

@@ -23,6 +23,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.androidutil.GetStrings
+import com.yumetsuki.bcu.androidutil.LocaleManager
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.io.AContext
 import com.yumetsuki.bcu.androidutil.io.DefineItf
@@ -278,6 +279,13 @@ class LimitEditor : AppCompatActivity() {
             val prog = findViewById<ProgressBar>(R.id.prog)
             StaticStore.setDisappear(st, prog)
         }
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        LocaleManager.attachBaseContext(this, newBase)
+
+        val shared = newBase.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
+        super.attachBaseContext(LocaleManager.langChange(newBase,shared?.getInt("Language",0) ?: 0))
     }
 
     internal class ComboBanAdapter(private val ctx : LimitEditor, private val limt : StageLimit) : ArrayAdapter<String>(ctx, R.layout.list_layout_text, GetStrings(ctx).getAStrings(StaticStore.comnames)) {

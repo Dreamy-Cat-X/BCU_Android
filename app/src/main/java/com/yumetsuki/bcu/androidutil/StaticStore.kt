@@ -72,7 +72,7 @@ object StaticStore {
     const val VER = "0.20.14"
 
     /**Locale codes list */
-    val lang = arrayOf("", "en", "zh", "ko", "ja", "ru", "de", "fr", "nl", "es", "it", "th")
+    val lang = arrayOf("", "en", "zh", "ko", "ja", "ru", "de", "fr", "es", "it", "th")
 
     /**List of language files */
     val langfile = arrayOf("EnemyName.txt", "StageName.txt", "UnitName.txt", "UnitExplanation.txt", "EnemyExplanation.txt", "CatFruitExplanation.txt", "RewardName.txt", "ComboName.txt", "MedalName.txt", "MedalExplanation.txt")
@@ -531,6 +531,10 @@ object StaticStore {
             CommonStatic.getConfig().langs[0] = CommonStatic.Lang.Locale.values()[ind]
         } else {
             ind = lan - 1
+            if (ind >= CommonStatic.Lang.Locale.values().size) {
+                setLang(0)
+                return
+            }
             CommonStatic.getConfig().langs[0] = CommonStatic.Lang.Locale.values()[ind]
         }
         if (l != CommonStatic.getConfig().langs[0]) {

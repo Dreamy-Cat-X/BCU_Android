@@ -1152,4 +1152,6 @@
     <string name="orb_colo_desc" translatable="false">Increases damage dealt to Colossal enemies by _%, and lowers damage taken from them by -%.</string>
     <string name="pack_parent" translatable="false">Parent Packs</string>
     <string name="pack_parentable" translatable="false">Parentable Packs</string>
+    <string name="pack_parenting" translatable="false">Parenting Pack _</string>
+    <string name="pack_parent_password" translatable="false">Enter Pack\'s Parenting Password</string>
 </resources>

@@ -18,8 +18,8 @@ import common.pack.UserProfile
 class PackParentAdapter(private val ctx : PackCreation, private val desc : PackDesc, val parent : Boolean) : RecyclerView.Adapter<PackParentAdapter.ViewHolder>() {
 
     class ViewHolder(row: View) : RecyclerView.ViewHolder(row) {
-        val icon = row.findViewById<ImageView>(R.id.spinnericon)
-        val txt = row.findViewById<TextView>(R.id.spinnertext)
+        val icon: ImageView = row.findViewById(R.id.spinnericon)
+        val txt: TextView = row.findViewById(R.id.spinnertext)
     }
 
     override fun getItemCount(): Int {

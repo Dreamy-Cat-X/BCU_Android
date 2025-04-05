@@ -25,6 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.yumetsuki.bcu.androidutil.Definer
+import com.yumetsuki.bcu.androidutil.LocaleManager
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.animation.adapter.AnimationListAdapter
 import com.yumetsuki.bcu.androidutil.fakeandroid.FIBM
@@ -227,5 +228,12 @@ class AnimationManagement : AppCompatActivity() {
 
         tempFunc = func
         resultLauncher.launch(Intent.createChooser(intent, "Choose Directory"))
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        LocaleManager.attachBaseContext(this, newBase)
+
+        val shared = newBase.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
+        super.attachBaseContext(LocaleManager.langChange(newBase,shared?.getInt("Language",0) ?: 0))
     }
 }

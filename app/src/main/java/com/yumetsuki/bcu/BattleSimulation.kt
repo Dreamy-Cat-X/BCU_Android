@@ -6,8 +6,6 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences.Editor
-import android.content.res.Configuration
-import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.Point
 import android.os.Build
@@ -66,9 +64,7 @@ import common.io.json.JsonDecoder
 import common.io.json.JsonEncoder
 import common.pack.Identifier
 import common.pack.Source.ResourceLocation
-import common.pack.UserProfile
 import common.system.P
-import common.util.anim.AnimCE
 import common.util.lang.MultiLangCont
 import common.util.stage.Replay
 import common.util.stage.Stage
@@ -76,7 +72,6 @@ import common.util.unit.Form
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.random.Random
@@ -899,26 +894,9 @@ class BattleSimulation : AppCompatActivity() {
     }
 
     override fun attachBaseContext(newBase: Context) {
+        LocaleManager.attachBaseContext(this, newBase)
+
         val shared = newBase.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
-        val lang = shared?.getInt("Language",0) ?: 0
-
-        val config = Configuration()
-        var language = StaticStore.lang[lang]
-        var country = ""
-
-        if(language == "") {
-            language = Resources.getSystem().configuration.locales.get(0).language
-            country = Resources.getSystem().configuration.locales.get(0).country
-        }
-
-        val loc = if(country.isNotEmpty()) {
-            Locale(language, country)
-        } else {
-            Locale(language)
-        }
-
-        config.setLocale(loc)
-        applyOverrideConfiguration(config)
         super.attachBaseContext(LocaleManager.langChange(newBase,shared?.getInt("Language",0) ?: 0))
     }
 

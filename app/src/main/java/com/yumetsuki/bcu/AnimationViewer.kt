@@ -136,10 +136,9 @@ class AnimationViewer : AppCompatActivity() {
             pager.isSaveEnabled = false
             pager.isSaveFromParentEnabled = false
 
-            pager.adapter = UnitListTab()
-            pager.offscreenPageLimit = getExistingUnit()
-
             val keys = getExistingPack()
+            pager.adapter = UnitListTab()
+            pager.offscreenPageLimit = keys.size
 
             TabLayoutMediator(tab, pager) { t, position ->
                 t.text = if(position == 0) {
@@ -190,15 +189,13 @@ class AnimationViewer : AppCompatActivity() {
                 }
             )
 
-            if(getExistingUnit() != 1) {
+            if(keys.size != 1)
                 StaticStore.setAppear(tab)
-            } else {
+            else {
                 val collapse = findViewById<CollapsingToolbarLayout>(R.id.animcollapse)
-
                 val param = collapse.layoutParams as AppBarLayout.LayoutParams
 
                 param.scrollFlags = 0
-
                 collapse.layoutParams = param
             }
 
@@ -216,26 +213,9 @@ class AnimationViewer : AppCompatActivity() {
     }
 
     override fun attachBaseContext(newBase: Context) {
+        LocaleManager.attachBaseContext(this, newBase)
+
         val shared = newBase.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
-        val lang = shared?.getInt("Language",0) ?: 0
-
-        val config = Configuration()
-        var language = StaticStore.lang[lang]
-        var country = ""
-
-        if(language == "") {
-            language = Resources.getSystem().configuration.locales.get(0).language
-            country = Resources.getSystem().configuration.locales.get(0).country
-        }
-
-        val loc = if(country.isNotEmpty()) {
-            Locale(language, country)
-        } else {
-            Locale(language)
-        }
-
-        config.setLocale(loc)
-        applyOverrideConfiguration(config)
         super.attachBaseContext(LocaleManager.langChange(newBase,shared?.getInt("Language",0) ?: 0))
     }
 
@@ -246,39 +226,20 @@ class AnimationViewer : AppCompatActivity() {
 
     override fun onResume() {
         AContext.check()
-
         if(CommonStatic.ctx is AContext)
             (CommonStatic.ctx as AContext).updateActivity(this)
 
         super.onResume()
     }
 
-    private fun getExistingUnit() : Int {
-        var i = 0
-
-        for(p in UserProfile.getAllPacks()) {
-            if(p.units.list.isNotEmpty())
-                i++
-        }
-
-        return i
-    }
-
     private fun getExistingPack() : ArrayList<String> {
-        val packs = UserProfile.getAllPacks()
-
         val res = ArrayList<String>()
+        res.add(Identifier.DEF)
 
-        for(p in packs) {
-            if(p.units.list.isNotEmpty()) {
-                if(p is PackData.DefPack) {
-                    res.add(Identifier.DEF)
-                } else if(p is PackData.UserPack) {
-                    res.add(p.sid)
-                }
-            }
-        }
-
+        val packs = UserProfile.getUserPacks()
+        for(p in packs)
+            if(p.units.list.isNotEmpty())
+                res.add(p.sid)
         return res
     }
 

@@ -113,7 +113,7 @@ class BattleView(context: Context, field: BattleField, axis: Boolean, private va
         }
         if(CommonStatic.getConfig().stageName)
             painter.stageImage = stgImage
-        painter.deployImg = StageBitmapGenerator(context, fontMode, context.getString(R.string.nodeploy)).generateTextImage();
+        painter.deployImg = StageBitmapGenerator(context, fontMode, context.getString(R.string.nodeploy)).generateTextImage()
 
         painter.dpi = StaticStore.dptopx(32f, context)
         painter.stmImageOffset = StaticStore.dptopx(52f, context)
@@ -420,9 +420,8 @@ class BattleView(context: Context, field: BattleField, axis: Boolean, private va
         intent.putExtra("size", painter.bf.sb.siz)
         intent.putExtra("pos", painter.bf.sb.pos)
 
-        if(SoundHandler.MUSIC.isPlaying && SoundHandler.MUSIC.currentMediaItem != null) {
+        if(SoundHandler.MUSIC.isPlaying && SoundHandler.MUSIC.currentMediaItem != null)
             SoundHandler.MUSIC.stop()
-        }
 
         SoundHandler.resetHandler()
 

@@ -36,6 +36,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.gson.JsonParser
+import com.yumetsuki.bcu.androidutil.LocaleManager
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.animation.AnimationEditView
 import com.yumetsuki.bcu.androidutil.animation.adapter.MaAnimListAdapter
@@ -545,6 +546,13 @@ class MaAnimEditor : AppCompatActivity() {
         frame.text = getString(R.string.anim_frame).replace("-", "" + StaticStore.frame)
         controller.progress = CommonStatic.fltFpsMul(StaticStore.frame).toInt()
         controller.max = CommonStatic.fltFpsMul(a.anim.len().toFloat()).toInt()
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        LocaleManager.attachBaseContext(this, newBase)
+
+        val shared = newBase.getSharedPreferences(StaticStore.CONFIG, Context.MODE_PRIVATE)
+        super.attachBaseContext(LocaleManager.langChange(newBase,shared?.getInt("Language",0) ?: 0))
     }
 
     inner class ScaleListener(private val cView : AnimationEditView) : ScaleGestureDetector.SimpleOnScaleGestureListener() {
