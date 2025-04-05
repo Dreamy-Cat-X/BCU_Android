@@ -31,9 +31,12 @@ import common.CommonStatic
 import common.io.json.JsonEncoder
 import common.pack.Identifier
 import common.pack.UserProfile
+import common.util.stage.CastleImg
 import common.util.stage.SCDef.Line
 import common.util.stage.Stage
 import common.util.unit.Enemy
+import kotlin.math.ceil
+
 
 class CustomStEnList(private val ctx: PackStageEnemyManager, private val st: Stage) : RecyclerView.Adapter<CustomStEnList.ViewHolder>() {
 
@@ -211,14 +214,19 @@ class CustomStEnList(private val ctx: PackStageEnemyManager, private val st: Sta
             if (nums[0] >= 0 && nums[0] != data[pos].respawn_0)
                 data[pos].doorchance = nums[0].toByte()
             if (nums.size == 1) {
+                data[pos].doordis_0 = 0
+                data[pos].doordis_1 = 0
                 return@setWatcher
             }
             val spa1 = if (nums.size >= 3) nums[2] else nums[1]
+            val basepos = if (data[0].castle_0 == 0)
+                if (data[0].boss >= 1) ceil(Identifier.getOr(st.castle, CastleImg::class.java).boss_spawn).toInt() else 700
+            else 800
 
-            if (nums[1] >= 0 && nums[1].toByte() != data[pos].doordis_0)
-                data[pos].doordis_0 = nums[1].toByte()
-            if (spa1 >= 0 && spa1.toByte() != data[pos].doordis_1)
-                data[pos].doordis_1 = spa1.toByte()
+            if (nums[1] >= 0 && nums[1] != data[pos].doordis_0)
+                data[pos].doordis_0 = nums[1].coerceAtMost(st.len - 500 - basepos)
+            if (spa1 >= 0 && spa1 != data[pos].doordis_1)
+                data[pos].doordis_1 = spa1.coerceAtMost(st.len - 500 - basepos)
         }
 
         if (data[pos].rev == null) {

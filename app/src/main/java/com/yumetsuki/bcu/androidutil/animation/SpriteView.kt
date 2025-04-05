@@ -12,8 +12,6 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import com.yumetsuki.bcu.androidutil.supports.PP
 import common.util.anim.AnimCE
-import kotlin.math.max
-import kotlin.math.min
 
 @SuppressLint("ViewConstructor", "ClickableViewAccessibility")
 class SpriteView(context: Context, val anim : AnimCE) : View(context) {
@@ -215,12 +213,12 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
         if (pos.x < 0 || width >= spriteW) {
             pos.x = 0f
         } else if (pos.x + width >= spriteW)
-            pos.x = max(0f, (spriteW - width).toFloat())
+            pos.x = (spriteW - width).toFloat().coerceAtLeast(0f)
 
         if (pos.y < 0 || height >= spriteH) {
             pos.y = 0f
         } else if (pos.y + height >= spriteH)
-            pos.y = max(0f, (spriteH - height).toFloat())
+            pos.y = (spriteH - height).toFloat().coerceAtLeast(0f)
         invalidate()
     }
 
@@ -233,7 +231,7 @@ class SpriteView(context: Context, val anim : AnimCE) : View(context) {
         val w = width
         val h = height
 
-        initzoom = min(1f * w / spriteW, 1f * h / spriteH)
+        initzoom = (1f * w / spriteW).coerceAtMost(1f * h / spriteH)
         if (first || zoom == 0f) {
             zoom = initzoom
             limit()

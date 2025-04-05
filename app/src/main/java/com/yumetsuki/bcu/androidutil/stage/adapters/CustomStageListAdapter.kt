@@ -47,8 +47,7 @@ import common.util.stage.SCDef
 import common.util.stage.Stage
 import common.util.stage.StageMap
 import common.util.unit.AbEnemy
-import kotlin.math.max
-import kotlin.math.min
+import kotlin.math.ceil
 import kotlin.math.round
 
 class CustomStageListAdapter(private val ctx: PackStageManager, private val map: StageMap) : RecyclerView.Adapter<CustomStageListAdapter.ViewHolder>() {
@@ -239,9 +238,18 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
         holder.width.hint = "${ctx.getString(R.string.def_stg_length)}: ${st.len}"
         holder.width.setWatcher {
             val wid = CommonStatic.parseIntN(holder.width.text!!.toString())
-            if (!holder.width.hasFocus() || wid < 2000 || wid == st.len)
+            if (!holder.width.hasFocus() || wid == st.len)
                 return@setWatcher
-            st.len = wid
+            val basepos = if (st.data.datas[st.data.datas.size - 1].castle_0 == 0)
+                if (st.data.datas[st.data.datas.size - 1].boss >= 1)
+                    ceil(Identifier.getOr(st.castle, CastleImg::class.java).boss_spawn).toInt()
+                else 700
+            else 800
+            st.len = wid.coerceAtLeast(basepos + 800)
+            for (line in st.data.datas) {
+                line.doordis_0 = line.doordis_0.coerceAtMost(st.len - 500 - basepos)
+                line.doordis_1 = line.doordis_1.coerceAtMost(st.len - 500 - basepos)
+            }
         }
         holder.health.hint = if (st.trail)
             "${ctx.getString(R.string.def_base_health)}: ${st.timeLimit}"
@@ -270,9 +278,9 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
                 return@setWatcher
             val w2 = wid[if (wid.size >= 2) 1 else 0]
             if (wid[0] > 0 && w2 > 0)
-                st.minSpawn = min(wid[0], w2)
+                st.minSpawn = wid[0].coerceAtMost(w2)
             if (w2 > 0)
-                st.maxSpawn = max(wid[0], w2)
+                st.maxSpawn = wid[0].coerceAtLeast(w2)
         }
         holder.uspawn.hint = "${ctx.getString(R.string.min_respawn)} (${ctx.getString(R.string.lineup_unit)}): ${st.minUSpawn}f${if (st.minUSpawn != st.maxUSpawn) " ~ ${st.maxUSpawn}f" else ""}"
         holder.uspawn.setWatcher {
@@ -281,9 +289,9 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
                 return@setWatcher
             val w2 = wid[if (wid.size >= 2) 1 else 0]
             if (wid[0] > 0 && w2 > 0)
-                st.minUSpawn = min(wid[0], w2)
+                st.minUSpawn = wid[0].coerceAtMost(w2)
             if (w2 > 0)
-                st.maxUSpawn = max(wid[0], w2)
+                st.maxUSpawn = wid[0].coerceAtLeast(w2)
         }
 
         val s = GetStrings(ctx)

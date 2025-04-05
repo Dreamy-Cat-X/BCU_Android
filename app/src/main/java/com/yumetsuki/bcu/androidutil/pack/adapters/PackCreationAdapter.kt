@@ -164,7 +164,7 @@ class PackCreationAdapter(private val ac: PackCreation, private val pList: Array
                 pada.notifyItemRemoved(pos)
                 for (dep in pac.desc.dependency) {
                     val pk = UserProfile.getUserPack(dep)
-                    if (!pacs.contains(pk))
+                    if (!pacs.contains(pk) || pk.desc.parentPassword != null)
                         continue//TODO: Passwords
                     p.desc.dependency.add(pk.sid)
                     pad.notifyItemInserted(p.desc.dependency.indexOf(pk.sid))
