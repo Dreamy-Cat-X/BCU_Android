@@ -10,9 +10,9 @@
 
         <Button
             android:id="@+id/mamodel_id"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:gravity="center"
             android:textColor="?attr/TextPrimary"
@@ -21,116 +21,116 @@
 
         <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/mamodel_par"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
             android:inputType="numberSigned" />
 
         <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/mamodel_spr"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
             android:inputType="number" />
 
         <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/mamodel_z"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
             android:inputType="numberSigned" />
 
         <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/mamodel_x"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
             android:inputType="numberSigned" />
 
         <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/mamodel_y"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
             android:inputType="numberSigned" />
 
         <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/mamodel_px"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
             android:inputType="numberSigned" />
 
         <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/mamodel_py"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
             android:inputType="numberSigned" />
 
         <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/mamodel_sx"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
             android:inputType="numberSigned" />
 
         <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/mamodel_sy"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
             android:inputType="numberSigned" />
 
         <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/mamodel_rot"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
             android:inputType="numberSigned" />
 
         <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/mamodel_opa"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
             android:inputType="number" />
 
         <Spinner
             android:id="@+id/mamodel_glw"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_spinner"
             android:ems="10" />
 
         <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
             android:id="@+id/mamodel_name"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.25"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:ems="10"
             android:hint="@string/stg_sch_name"

@@ -152,19 +152,17 @@ open class EnemyList : AppCompatActivity() {
             pager.isSaveFromParentEnabled = false
 
             pager.adapter = EnemyListTab()
-            pager.offscreenPageLimit = UserProfile.getAllPacks().size
 
             val keys = getExistingPack()
+            pager.offscreenPageLimit = keys.size
 
             TabLayoutMediator(tab, pager) { t, position ->
                 t.text = if(position == 0) {
                     getString(R.string.pack_default)
                 } else {
                     val pack = UserProfile.getPack(keys[position])
-
-                    if(pack == null) {
+                    if(pack == null)
                         keys[position]
-                    }
 
                     val name = when (pack) {
                         is PackData.DefPack -> {

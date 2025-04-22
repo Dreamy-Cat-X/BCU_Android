@@ -166,7 +166,7 @@ class MaModelEditor : AppCompatActivity() {
                 UserProfile.getUserPack(res.pack)?.source?.loadAnimation(res.id, res.base) as AnimCE?
             if (anim == null)
                 return@launch
-            anim.load()
+            anim.check()
 
             val cfgShowT = MaterialContainerTransform().apply {
                 startView = cfgBtn
@@ -494,6 +494,7 @@ class MaModelEditor : AppCompatActivity() {
             val bck = findViewById<Button>(R.id.mamodelexit)
             bck.setOnClickListener {
                 anim.save()
+                anim.unload()
                 finish()
             }
             onBackPressedDispatcher.addCallback(this@MaModelEditor, object : OnBackPressedCallback(true) {
@@ -504,6 +505,7 @@ class MaModelEditor : AppCompatActivity() {
 
             val imgcutBtn = findViewById<Button>(R.id.mamo_imgcut_btn)
             imgcutBtn.setOnClickListener {
+                anim.check()
                 anim.save()
                 val intent = Intent(this@MaModelEditor, ImgCutEditor::class.java)
                 intent.putExtra("Data", JsonEncoder.encode(anim.id).toString())
@@ -513,6 +515,7 @@ class MaModelEditor : AppCompatActivity() {
             }
             val maanimBtn = findViewById<Button>(R.id.mamo_maanim_btn)
             maanimBtn.setOnClickListener {
+                anim.check()
                 anim.save()
                 val intent = Intent(this@MaModelEditor, MaAnimEditor::class.java)
                 intent.putExtra("Data", JsonEncoder.encode(anim.id).toString())
@@ -522,6 +525,7 @@ class MaModelEditor : AppCompatActivity() {
             }
             val viewBtn = findViewById<Button>(R.id.mamo_view_anim)
             viewBtn.setOnClickListener {
+                anim.check()
                 anim.save()
                 val intent = Intent(this@MaModelEditor, ImageViewer::class.java)
                 intent.putExtra("Data", JsonEncoder.encode(anim.id).toString())

@@ -64,6 +64,7 @@ class AnimationListAdapter(private val activity: AnimationManagement, private va
         holder.name.setOnEditorActionListener { _, _, _ ->
             if (a.id.id == holder.name.text!!.toString())
                 return@setOnEditorActionListener false
+            a.check()
             a.renameTo(holder.name.text!!.toString())
             false
         }

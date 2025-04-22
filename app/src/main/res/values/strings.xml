@@ -1154,4 +1154,5 @@
     <string name="pack_parentable" translatable="false">Parentable Packs</string>
     <string name="pack_parenting" translatable="false">Parenting Pack _</string>
     <string name="pack_parent_password" translatable="false">Enter Pack\'s Parenting Password</string>
+    <string name="def_opa" translatable="false">Opacity</string>
 </resources>

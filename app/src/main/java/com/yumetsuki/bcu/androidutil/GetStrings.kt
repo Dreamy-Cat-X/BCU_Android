@@ -619,7 +619,10 @@ class GetStrings(private val c: Context) {
     }
 
     fun getBaseHealth(data: SCDef.Line): String {
-        return data.castle_0.toString() + "%"
+        return if(data.castle_0 == data.castle_1) {
+            "${data.castle_0}%"
+        } else
+            "${data.castle_0}% / ${data.castle_1}%"
     }
 
     fun getMultiply(data: SCDef.Line, multi: Int): String {

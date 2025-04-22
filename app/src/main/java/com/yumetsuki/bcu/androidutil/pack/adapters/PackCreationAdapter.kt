@@ -257,18 +257,13 @@ class PackCreationAdapter(private val ac: PackCreation, private val pList: Array
     }
 
     private fun cantDelete(p: PackData.UserPack) : Boolean {
-        for(pack in UserProfile.getAllPacks()) {
+        for(pack in UserProfile.getUserPacks()) {
             pack ?: continue
-
-            if(pack is PackData.DefPack || pack.sid == p.sid)
+            if(pack.sid == p.sid)
                 continue
 
-            if(pack is PackData.UserPack) {
-                for(pid in pack.desc.dependency) {
-                    if(pid == p.sid)
-                        return true
-                }
-            }
+            if (pack.desc.dependency.contains(p.sid))
+                return true
         }
         return false
     }

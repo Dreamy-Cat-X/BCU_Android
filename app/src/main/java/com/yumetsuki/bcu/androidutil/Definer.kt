@@ -53,7 +53,7 @@ object Definer {
                 } catch (e: Exception) {
                     throw AssetException(e, "E/Definer::define - Failed to read asset")
                 }
-
+                Workspace.loadAnimations(null)
                 StaticStore.init = true
             }
 
@@ -61,7 +61,6 @@ object Definer {
                 text.accept(context.getString(R.string.main_pack))
                 (CommonStatic.ctx as AContext).prog = prog
                 (CommonStatic.ctx as AContext).sprg = text
-                Workspace.loadAnimations(null)
                 UserProfile.loadPacks(true)
                 PackConflict.filterConflict()
 
@@ -212,45 +211,38 @@ object Definer {
         ProcLang.clear()
     }
 
-    private fun handlePacks(c: Context) {
+    fun handlePacks(c: Context) {
         val shared = c.getSharedPreferences(StaticStore.PACK, Context.MODE_PRIVATE)
         val editor = shared.edit()
         val checked = ArrayList<String>()
 
-        for(p in UserProfile.getAllPacks()) {
-            if(p is PackData.DefPack)
-                continue
+        for(p in UserProfile.getUserPacks()) {
+            p ?: continue
+            if(!shared.contains(p.sid)) {
+                //New Pack detected
+                editor.putString(p.sid, "${p.desc.names} - ${p.desc.version}")
+                editor.apply()
+                extractMusic(p, shared)
+            } else {
+                val info = shared.getString(p.sid, "")
+                val newInfo = "${p.desc.names} - ${p.desc.version}"
 
-            if(p is PackData.UserPack) {
-                if(!shared.contains(p.sid)) {
-                    //New Pack detected
+                if(info != newInfo) {
+                    //Update detected
                     editor.putString(p.sid, "${p.desc.names} - ${p.desc.version}")
                     editor.apply()
                     extractMusic(p, shared)
-                } else {
-                    val info = shared.getString(p.sid, "")
-                    val newInfo = "${p.desc.names} - ${p.desc.version}"
-
-                    if(info != newInfo) {
-                        //Update detected
-                        editor.putString(p.sid, "${p.desc.names} - ${p.desc.version}")
-                        editor.apply()
-                        extractMusic(p, shared)
-                    }
                 }
-
-                checked.add(p.sid)
             }
+            checked.add(p.sid)
         }
 
         //Check if unchecked pack ID in shared preferences
 
         val notExisting = ArrayList<String>()
-
         for(any in shared.all) {
             if(any.value !is String)
                 continue
-
             val value = any.key
 
             if(realNotExisting(notExisting, checked, value)) {
@@ -261,38 +253,29 @@ object Definer {
                         Log.w("Definer::extractMusic", "Invalid music file format : $info")
 
                         continue
-                    } else {
+                    } else
                         CommonStatic.parseIntN(info[1])
-                    }
-                } else {
+                } else
                     notExisting.add(value)
-                }
             }
         }
 
-        Log.i("Definer::handlePacks", "Not existing pack list : $notExisting")
-
+        Log.i("Definer::handlePacks", "Nonexistent pack list : $notExisting")
         //Then perform removing music files
-
-        for(p in notExisting) {
-            for(key in shared.all.keys) {
+        for(p in notExisting)
+            for(key in shared.all.keys)
                 if(key.startsWith(p)) {
                     if(key.contains("-")) {
                         val f = File(StaticStore.dataPath+"music/", key)
 
-                        if(f.exists()) {
+                        if(f.exists())
                             f.delete()
-                        } else {
-                            Log.i("Definer::handlePacks", "??? File is not existing : ${f.absolutePath}")
-                        }
+                        else
+                            Log.i("Definer::handlePacks", "??? File doesn't exist : ${f.absolutePath}")
                     }
-
                     editor.remove(key)
-
                     editor.apply()
                 }
-            }
-        }
     }
 
     fun initializeConfiguration(shared: SharedPreferences, c: Context) {

@@ -150,7 +150,7 @@ class ImgCutEditor : AppCompatActivity() {
                 UserProfile.getUserPack(res.pack)?.source?.loadAnimation(res.id, res.base) as AnimCE?
             if (anim == null)
                 return@launch
-            anim.load()
+            anim.check()
 
             val cfgShowT = MaterialContainerTransform().apply {
                 startView = cfgBtn
@@ -317,6 +317,7 @@ class ImgCutEditor : AppCompatActivity() {
             addl.setOnClickListener {
                 anim.imgcut.addLine(viewer.sele)
                 adp.notifyItemInserted(anim.imgcut.n - 1)
+                viewer.sele = anim.imgcut.n - 1
                 unSave(anim, "imgcut add line")
                 viewer.invalidate()
                 adp.notifyDataSetChanged()
@@ -412,6 +413,7 @@ class ImgCutEditor : AppCompatActivity() {
             val bck = findViewById<Button>(R.id.imgcutexit)
             bck.setOnClickListener {
                 anim.save()
+                anim.unload()
                 finish()
             }
             onBackPressedDispatcher.addCallback(this@ImgCutEditor, object : OnBackPressedCallback(true) {

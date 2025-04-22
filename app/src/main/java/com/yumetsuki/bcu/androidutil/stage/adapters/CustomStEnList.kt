@@ -147,11 +147,20 @@ class CustomStEnList(private val ctx: PackStageEnemyManager, private val st: Sta
             if (atk >= 0 && atk != data[pos].mult_atk)
                 data[pos].mult_atk = atk
         }
-        holder.bh.hint = s.getBaseHealth(data[pos])
+        holder.bh.text = SpannableStringBuilder(s.getBaseHealth(data[pos]))
         holder.bh.setWatcher {
             val num = CommonStatic.parseIntN(holder.bh.text!!.ifBlank { holder.bh.hint }.toString())
             if (holder.bh.hasFocus() && num >= 0 && num != data[pos].castle_0)
                 data[pos].castle_0 = num
+
+            val nums = CommonStatic.parseIntsN(holder.bh.text.toString())
+            if (!holder.bh.hasFocus() || nums.isEmpty()) return@setWatcher
+            val bh1 = if (nums.size >= 2) nums[1] else nums[0]
+
+            if (nums[0] != data[pos].castle_0)
+                data[pos].castle_0 = nums[0].coerceAtMost(bh1)
+            if (bh1 != data[pos].castle_1)
+                data[pos].castle_1 = nums[0].coerceAtLeast(bh1)
         }
 
         holder.isboss.setPopupBackgroundResource(R.drawable.spinner_popup)
@@ -169,9 +178,9 @@ class CustomStEnList(private val ctx: PackStageEnemyManager, private val st: Sta
             val lay1 = if (nums.size >= 2) nums[1] else nums[0]
 
             if (nums[0] != data[pos].layer_0)
-                data[pos].layer_0 = nums[0]
+                data[pos].layer_0 = nums[0].coerceAtMost(lay1)
             if (lay1 != data[pos].layer_1)
-                data[pos].layer_1 = lay1
+                data[pos].layer_1 = lay1.coerceAtLeast(lay1)
         }
         holder.start.text = SpannableStringBuilder(s.getStart(data[pos], true))
         holder.start.setWatcher {
@@ -180,9 +189,9 @@ class CustomStEnList(private val ctx: PackStageEnemyManager, private val st: Sta
             val spa1 = if (nums.size >= 2) nums[1] else nums[0]
 
             if (nums[0] >= 0 && nums[0] != data[pos].spawn_0)
-                data[pos].spawn_0 = nums[0]
+                data[pos].spawn_0 = nums[0].coerceAtMost(spa1)
             if (spa1 >= 0 && spa1 != data[pos].spawn_1)
-                data[pos].spawn_1 = spa1
+                data[pos].spawn_1 = spa1.coerceAtLeast(spa1)
         }
         holder.respawn.text = SpannableStringBuilder(s.getRespawn(data[pos], true))
         holder.respawn.setWatcher {
@@ -191,9 +200,9 @@ class CustomStEnList(private val ctx: PackStageEnemyManager, private val st: Sta
             val spa1 = if (nums.size >= 2) nums[1] else nums[0]
 
             if (nums[0] >= 0 && nums[0] != data[pos].respawn_0)
-                data[pos].respawn_0 = nums[0]
+                data[pos].respawn_0 = nums[0].coerceAtMost(spa1)
             if (spa1 >= 0 && spa1 != data[pos].respawn_1)
-                data[pos].respawn_1 = spa1
+                data[pos].respawn_1 = spa1.coerceAtLeast(spa1)
         }
         holder.killcount.hint = data[pos].kill_count.toString()
         holder.killcount.setWatcher {
@@ -224,9 +233,9 @@ class CustomStEnList(private val ctx: PackStageEnemyManager, private val st: Sta
             else 800
 
             if (nums[1] >= 0 && nums[1] != data[pos].doordis_0)
-                data[pos].doordis_0 = nums[1].coerceAtMost(st.len - 500 - basepos)
+                data[pos].doordis_0 = nums[1].coerceAtMost(spa1).coerceAtMost(st.len - 500 - basepos)
             if (spa1 >= 0 && spa1 != data[pos].doordis_1)
-                data[pos].doordis_1 = spa1.coerceAtMost(st.len - 500 - basepos)
+                data[pos].doordis_1 = nums[1].coerceAtLeast(spa1).coerceAtMost(st.len - 500 - basepos)
         }
 
         if (data[pos].rev == null) {

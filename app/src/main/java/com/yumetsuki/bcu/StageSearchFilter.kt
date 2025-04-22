@@ -197,10 +197,7 @@ class StageSearchFilter : AppCompatActivity() {
             mdata.add(Identifier.DEF+" - "+number(i))
         }
 
-        for(i in UserProfile.getAllPacks()) {
-            if(i is PackData.DefPack)
-                continue
-
+        for(i in UserProfile.getUserPacks()) {
             val ms = i.musics
 
             for(j in ms.list) {
@@ -243,13 +240,7 @@ class StageSearchFilter : AppCompatActivity() {
             bdata.add(Identifier.DEF+" - "+number(i.id.id))
         }
 
-        for(i in UserProfile.getAllPacks()) {
-            if(i is PackData.DefPack)
-                continue
-
-            if(i !is PackData.UserPack)
-                continue
-
+        for(i in UserProfile.getUserPacks()) {
             val bg = i.bgs.list
 
             for(b in bg) {

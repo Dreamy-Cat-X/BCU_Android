@@ -49,8 +49,7 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
             imod.setSelection(s)
             ilop.text = SpannableStringBuilder(p.ints[2].toString())
             iname.text = SpannableStringBuilder(p.name)
-            val hint = a.mamodel.strs0[p.ints[0]].ifBlank { a.imgcut.strs[a.mamodel.parts[p.ints[0]][2]] }
-            iname.hint = hint
+            iname.hint = a.mamodel.strs0[p.ints[0]].ifBlank { a.imgcut.strs[a.mamodel.parts[p.ints[0]][2]] }
         }
     }
 
@@ -77,6 +76,7 @@ class MaAnimListAdapter(private val activity: MaAnimEditor, private val a : Anim
                 return@setWatcher
             ma.ints[0] = MathUtil.clip(CommonStatic.parseIntN(holder.ipid.text!!.toString()), 0, a.mamodel.n - 1)
             ma.check(a)
+            holder.iname.hint = a.mamodel.strs0[ma.ints[0]].ifBlank { a.imgcut.strs[a.mamodel.parts[ma.ints[0]][2]] }
             activity.unSave(a,"maanim change $position ID")
             voo.animationChanged()
         }

@@ -16,7 +16,7 @@
             android:id="@+id/stgenlistexp"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.2"
+            android:layout_weight="1"
             android:background="@drawable/cell_shape"
             android:contentDescription="@string/def_description"
             app:srcCompat="@drawable/ic_expand_less_black_24dp"
@@ -26,7 +26,7 @@
             android:id="@+id/stgenlisticon"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.175"
+            android:layout_weight="0.875"
             android:background="@drawable/cell_shape"
             android:contentDescription="@string/def_description"
             android:paddingStart="12dp"
@@ -41,7 +41,7 @@
         <TableRow
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.5">
+            android:layout_weight="2.5">
 
             <com.yumetsuki.bcu.androidutil.supports.WatcherEditText
                 android:id="@+id/stgenlistmultir"
@@ -75,7 +75,7 @@
             android:id="@+id/stgenlistinfo"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.125"
+            android:layout_weight="0.625"
             android:background="@drawable/cell_shape"
             android:contentDescription="@string/def_description"
             android:paddingStart="8dp"
@@ -155,7 +155,6 @@
                 android:layout_weight="0.375"
                 android:background="@drawable/cell_shape"
                 android:gravity="center"
-                android:inputType="number"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:textColor="?attr/TextPrimary"

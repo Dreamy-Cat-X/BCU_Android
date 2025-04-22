@@ -414,11 +414,9 @@ class MusicPlayer : AppCompatActivity() {
 
                 val names = ArrayList<Identifier<Music>>()
 
-                for(i in UserProfile.getAllPacks()) {
-                    for(j in i.musics.list.indices) {
+                for(i in UserProfile.getAllPacks())
+                    for(j in i.musics.list.indices)
                         names.add(i.musics.list[j].id)
-                    }
-                }
 
                 val adapter = MusicListAdapter(this@MusicPlayer, names, m.pack, true)
                 musicList.adapter = adapter
@@ -675,13 +673,10 @@ class MusicPlayer : AppCompatActivity() {
     }
 
     fun indexOf(id: Identifier<Music>?) : Int {
-        if (StaticStore.musicData.isEmpty()) {
-            for(pack in UserProfile.getAllPacks()) {
-                for (music in pack.musics) {
+        if (StaticStore.musicData.isEmpty())
+            for(pack in UserProfile.getAllPacks())
+                for (music in pack.musics)
                     StaticStore.musicData.add(music.id)
-                }
-            }
-        }
 
         if(id == null)
             return -1
