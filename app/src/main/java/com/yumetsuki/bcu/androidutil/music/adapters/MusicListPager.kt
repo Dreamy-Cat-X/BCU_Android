@@ -77,6 +77,16 @@ class MusicListPager : Fragment() {
                     ac.startActivity(intent)
                 }
             }
+            if (sele)
+                list.onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, pos, _ ->
+                    if (list.adapter !is MusicListAdapter)
+                        return@OnItemLongClickListener false
+                    val m = (list.adapter as MusicListAdapter).getItem(pos) ?: return@OnItemLongClickListener false
+                    val intent = Intent(ac, MusicPlayer::class.java)
+                    intent.putExtra("Data", JsonEncoder.encode(m).toString())
+                    ac.startActivity(intent)
+                    true
+                }
         } else {
             list.visibility = View.GONE
         }

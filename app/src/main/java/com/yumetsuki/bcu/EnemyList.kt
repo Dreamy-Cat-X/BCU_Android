@@ -3,8 +3,6 @@ package com.yumetsuki.bcu
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences.Editor
-import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -43,7 +41,6 @@ import common.system.fake.ImageBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Locale
 
 open class EnemyList : AppCompatActivity() {
     enum class Mode {
@@ -58,9 +55,8 @@ open class EnemyList : AppCompatActivity() {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 supportFragmentManager.fragments.forEach {
-                    if (it is EnemyListPager) {
+                    if (it is EnemyListPager)
                         it.validate()
-                    }
                 }
             }
         }
@@ -98,7 +94,6 @@ open class EnemyList : AppCompatActivity() {
         ImageBuilder.builder = BMBuilder()
 
         val extra = intent.extras
-
         if(extra != null) {
             pack = UserProfile.getUserPack(extra.getString("pack", ""))
             mode = Mode.valueOf(extra.getString("mode", "INFO"))

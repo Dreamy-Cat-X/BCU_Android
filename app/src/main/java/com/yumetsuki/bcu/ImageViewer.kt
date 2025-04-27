@@ -1012,6 +1012,7 @@ class ImageViewer : AppCompatActivity() {
             is Soul -> content.anim
             is NyCastle -> content.anim
             is DemonSoul -> content.anim
+            is AnimCE -> content
             else -> throw IllegalStateException("E/ImageViewer::onCreate - Invalid content type : ${content::class.java.name}")
         }
         try {
@@ -1507,30 +1508,27 @@ class ImageViewer : AppCompatActivity() {
             val dateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US)
             val date = Date()
 
-            when(type) {
+            return when(type) {
                 AnimationCView.AnimationType.UNIT -> {
-                    return dateFormat.format(date) + "-U-" + pack + "-" + id + "-" + form
+                    dateFormat.format(date) + "-U-" + pack + "-" + id + "-" + form
                 }
                 AnimationCView.AnimationType.ENEMY -> {
-                    return dateFormat.format(date) + "-E-" + id
+                    dateFormat.format(date) + "-E-" + id
                 }
                 AnimationCView.AnimationType.EFFECT -> {
-                    return dateFormat.format(date) + "-EFF-" + id
+                    dateFormat.format(date) + "-EFF-" + id
                 }
                 AnimationCView.AnimationType.SOUL -> {
-                    return dateFormat.format(date) + "-S-" + id
+                    dateFormat.format(date) + "-S-" + id
                 }
                 AnimationCView.AnimationType.CANNON -> {
-                    return dateFormat.format(date) + "-C-" + id
+                    dateFormat.format(date) + "-C-" + id
                 }
                 AnimationCView.AnimationType.DEMON_SOUL -> {
-                    return dateFormat.format(date) + "-DS-" + id
+                    dateFormat.format(date) + "-DS-" + id
                 }
                 AnimationCView.AnimationType.CUSTOM -> {
-                    return dateFormat.format(date) + "-A-" + id
-                }
-                else -> {
-                    return dateFormat.format(date)
+                    dateFormat.format(date) + "-A-" + id
                 }
             }
         }

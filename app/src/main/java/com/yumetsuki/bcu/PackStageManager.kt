@@ -24,6 +24,7 @@ import com.yumetsuki.bcu.androidutil.io.ErrorLogWriter
 import com.yumetsuki.bcu.androidutil.stage.adapters.CustomStageListAdapter
 import com.yumetsuki.bcu.androidutil.supports.LeakCanaryManager
 import common.CommonStatic
+import common.pack.IndexContainer.Indexable
 import common.pack.Source.Workspace
 import common.util.stage.MapColc.PackMapColc
 import common.util.stage.Stage
@@ -33,7 +34,7 @@ import kotlinx.coroutines.launch
 
 class PackStageManager : AppCompatActivity() {
 
-    lateinit var notif : (thing : Any) -> Unit
+    lateinit var notif : (thing : Indexable<*, *>) -> Unit
     val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val data = result.data
 

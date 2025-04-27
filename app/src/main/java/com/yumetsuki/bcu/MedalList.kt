@@ -69,7 +69,7 @@ class MedalList : AppCompatActivity() {
 
             //Load Data
             withContext(Dispatchers.IO) {
-                Definer.define(this@MedalList, { _ -> }, { t -> runOnUiThread { st.text = t }})
+                Definer.defineMedals(this@MedalList) { t -> runOnUiThread { st.text = t } }
             }
 
             st.setText(R.string.medal_reading_icon)

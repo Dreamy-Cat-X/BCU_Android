@@ -312,20 +312,15 @@
                 app:srcCompat="@drawable/ic_expand_less_black_24dp"
                 app:tint="?attr/iconPrimary" />
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/ch_stubaseicon"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="2"
                 android:background="@drawable/cell_shape"
                 android:contentDescription="@string/def_description"
-                android:paddingStart="12dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
                 app:srcCompat="@drawable/ic_castle" />
 
             <ImageButton
@@ -343,6 +338,65 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_info_outline_black_24dp"
                 app:tint="?attr/iconPrimary" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/ch_stubaserow"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/ch_stubasefrm"
+                android:layout_width="0dp"
+                android:layout_height="40dip"
+                android:layout_weight="1.5"
+                android:background="@drawable/button"
+                android:text="@string/lineup_ch_form"
+                android:textAllCaps="false"
+                android:textColor="?attr/TextPrimary" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:background="@drawable/button_shape"
+                android:gravity="center"
+                android:minHeight="40dp"
+                android:text="@string/lineup_unit_lev"
+                android:textAllCaps="false"
+                android:textColor="?attr/TextPrimary"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/ch_stubaselv"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="@drawable/cell_spinner"
+                android:backgroundTint="?attr/backgroundPrimary"
+                android:popupBackground="?attr/TextPrimary" />
+
+            <TextView
+                android:id="@+id/ch_stubaseplu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="8dp"
+                android:text="@string/unit_info_plus"
+                android:textColor="?attr/TextPrimary" />
+
+            <Spinner
+                android:id="@+id/ch_stubaseplv"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="@drawable/cell_spinner"
+                android:backgroundTint="?attr/backgroundPrimary"
+                android:popupBackground="?attr/TextPrimary" />
+
         </TableRow>
 
     </TableLayout>

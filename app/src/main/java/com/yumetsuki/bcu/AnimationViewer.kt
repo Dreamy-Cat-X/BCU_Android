@@ -3,8 +3,6 @@ package com.yumetsuki.bcu
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences.Editor
-import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -41,16 +39,17 @@ import common.pack.UserProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Locale
 
 class AnimationViewer : AppCompatActivity() {
+    private var sele = false
+    private var pack : PackData.UserPack? = null
+
     private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 supportFragmentManager.fragments.forEach {
-                    if (it is UnitListPager) {
+                    if (it is UnitListPager)
                         it.validate()
-                    }
                 }
             }
         }
@@ -85,6 +84,12 @@ class AnimationViewer : AppCompatActivity() {
         (CommonStatic.ctx as AContext).updateActivity(this)
         Thread.setDefaultUncaughtExceptionHandler(ErrorLogWriter())
         setContentView(R.layout.activity_animation_viewer)
+
+        val extra = intent.extras
+        if(extra != null) {
+            pack = UserProfile.getUserPack(extra.getString("pack", ""))
+            sele = extra.getBoolean("sele", false)
+        }
 
         lifecycleScope.launch {
             //Prepare
@@ -126,7 +131,6 @@ class AnimationViewer : AppCompatActivity() {
                             supportFragmentManager.fragments.forEach {
                                 if (it is UnitListPager)
                                     it.validate()
-
                             }
                         }
                     }
@@ -161,7 +165,6 @@ class AnimationViewer : AppCompatActivity() {
                             ""
                         }
                     }
-
                     name.ifEmpty {
                         keys[position]
                     }
@@ -175,19 +178,16 @@ class AnimationViewer : AppCompatActivity() {
                     finish()
                 }
             })
-
             search.setOnClickListener(object : SingleClick() {
                 override fun onSingleClick(v: View?) {
                     gotoFilter()
                 }
             })
-
             onBackPressedDispatcher.addCallback(this@AnimationViewer, object : OnBackPressedCallback(true) {
-                    override fun handleOnBackPressed() {
-                        back.performClick()
-                    }
+                override fun handleOnBackPressed() {
+                    back.performClick()
                 }
-            )
+            })
 
             if(keys.size != 1)
                 StaticStore.setAppear(tab)
@@ -208,7 +208,8 @@ class AnimationViewer : AppCompatActivity() {
 
     private fun gotoFilter() {
         val intent = Intent(this@AnimationViewer, SearchFilter::class.java)
-
+        if (pack != null)
+            intent.putExtra("pack", pack!!.sid)
         resultLauncher.launch(intent)
     }
 
@@ -236,10 +237,19 @@ class AnimationViewer : AppCompatActivity() {
         val res = ArrayList<String>()
         res.add(Identifier.DEF)
 
-        val packs = UserProfile.getUserPacks()
-        for(p in packs)
-            if(p.units.list.isNotEmpty())
-                res.add(p.sid)
+        if (pack != null) {
+            if (!pack!!.units.isEmpty)
+                res.add(pack!!.sid)
+
+            for(str in pack!!.desc.dependency)
+                if(!UserProfile.getUserPack(str).units.isEmpty)
+                    res.add(str)
+        } else {
+            val packs = UserProfile.getUserPacks()
+            for (p in packs)
+                if (!p.units.isEmpty)
+                    res.add(p.sid)
+        }
         return res
     }
 
@@ -251,7 +261,7 @@ class AnimationViewer : AppCompatActivity() {
         }
 
         override fun createFragment(position: Int): Fragment {
-            return UnitListPager.newInstance(keys[position], position)
+            return UnitListPager.newInstance(keys[position], position, sele)
         }
     }
 }

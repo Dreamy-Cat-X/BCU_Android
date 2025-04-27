@@ -144,7 +144,9 @@ class GetStrings(private val c: Context) {
             R.string.sch_abi_tps,
             R.string.sch_abi_ss,
             R.string.abi_drn,
-            R.string.sch_abi_speedup
+            R.string.sch_abi_speedup,
+            R.string.sch_abi_rfn,
+            R.string.sch_abi_msd
         )
         private lateinit var talTool: Array<String>
         private val mapcolcid = arrayOf("N", "S", "C", "CH", "E", "T", "V", "R", "M", "A", "B", "RA", "H", "CA", "Q", "L", "ND", "SR", "G")
@@ -619,7 +621,7 @@ class GetStrings(private val c: Context) {
     }
 
     fun getBaseHealth(data: SCDef.Line): String {
-        return if(data.castle_0 == data.castle_1) {
+        return if(data.castle_0 == data.castle_1 || data.castle_1 == 0) {
             "${data.castle_0}%"
         } else
             "${data.castle_0}% / ${data.castle_1}%"
@@ -641,7 +643,7 @@ class GetStrings(private val c: Context) {
     }
 
     fun getStart(data: SCDef.Line, frse: Boolean): String {
-        return if (data.spawn_0 == data.spawn_1) {
+        return if (data.spawn_0 == data.spawn_1 || data.spawn_1 == 0) {
             if (frse) data.spawn_0.toString() + "f"
             else DecimalFormat("#.##").format(data.spawn_0.toFloat() / 30.toDouble()) + "s"
         } else if (frse)

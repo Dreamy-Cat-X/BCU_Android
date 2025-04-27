@@ -95,7 +95,6 @@ class MainActivity : AppCompatActivity() {
             (0.01f + shared.getInt("ui_vol", 99)) * 0.85f
         else
             0.5f
-        StaticStore.upload = shared.getBoolean("upload", false) || shared.getBoolean("ask_upload", true)
         CommonStatic.getConfig().twoRow = shared.getBoolean("rowlayout", true)
         CommonStatic.getConfig().levelLimit = shared.getInt("levelLimit", 0)
         CommonStatic.getConfig().plus = shared.getBoolean("unlockPlus", true)

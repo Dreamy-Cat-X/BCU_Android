@@ -129,12 +129,7 @@ class AnimationManagement : AppCompatActivity() {
             StaticStore.setDisappear(list, swipe, more)
 
             //Load Data
-            withContext(Dispatchers.IO) {
-                Definer.define(
-                    this@AnimationManagement,
-                    { _ -> },
-                    { t -> runOnUiThread { st.text = t } })
-            }
+            withContext(Dispatchers.IO) { Definer.defineAnimations(this@AnimationManagement, { _ -> }, { t -> runOnUiThread { st.text = t } }) }
 
             //Load UI
             more.setOnClickListener(object : SingleClick() {

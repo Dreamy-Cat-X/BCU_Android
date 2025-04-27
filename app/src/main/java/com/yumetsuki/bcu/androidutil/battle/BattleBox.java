@@ -704,7 +704,8 @@ public interface BattleBox {
             else {
                 if(bf.sb.timeFlow != 1 && (bf.sb.ubase.getAbi() & Data.AB_TIMEI) != 0)
                     gra.setComposite(CVGraphics.POSITIVE, 0, 0);
-                ((Entity) bf.sb.ubase).anim.draw(gra,  setP(posx + shake, posy), bf.sb.siz * sprite);
+                posx = (int) getX(bf.sb.ubase.pos);
+                ((Entity) bf.sb.ubase).anim.draw(gra, setP(posx + shake, posy), bf.sb.siz * sprite);
 
                 if(bf.sb.ubase.health > 0) //This causes some rarted bug and idk how to even deal with it
                     ((Entity) bf.sb.ubase).anim.drawEff(gra, p, bf.sb.siz * sprite);

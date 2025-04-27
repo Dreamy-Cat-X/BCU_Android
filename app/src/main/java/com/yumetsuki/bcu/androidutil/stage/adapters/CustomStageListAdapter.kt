@@ -13,13 +13,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.Spinner
 import android.widget.TableLayout
+import android.widget.TableRow
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayout
+import com.yumetsuki.bcu.AnimationViewer
 import com.yumetsuki.bcu.BackgroundList
 import com.yumetsuki.bcu.BattlePrepare
 import com.yumetsuki.bcu.CastleList
@@ -30,6 +36,7 @@ import com.yumetsuki.bcu.MusicPlayer
 import com.yumetsuki.bcu.PackStageEnemyManager
 import com.yumetsuki.bcu.PackStageManager
 import com.yumetsuki.bcu.R
+import com.yumetsuki.bcu.UnitInfo
 import com.yumetsuki.bcu.androidutil.GetStrings
 import com.yumetsuki.bcu.androidutil.StaticStore
 import com.yumetsuki.bcu.androidutil.fakeandroid.CVGraphics
@@ -38,6 +45,7 @@ import com.yumetsuki.bcu.androidutil.supports.WatcherEditText
 import common.CommonStatic
 import common.io.json.JsonEncoder
 import common.pack.Identifier
+import common.pack.IndexContainer.Indexable
 import common.pack.UserProfile
 import common.util.lang.MultiLangCont
 import common.util.pack.Background
@@ -46,7 +54,10 @@ import common.util.stage.Music
 import common.util.stage.SCDef
 import common.util.stage.Stage
 import common.util.stage.StageMap
+import common.util.stage.info.CustomStageInfo
 import common.util.unit.AbEnemy
+import common.util.unit.Level
+import common.util.unit.Unit
 import kotlin.math.ceil
 import kotlin.math.round
 
@@ -82,14 +93,22 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
         val uspawn: WatcherEditText = row.findViewById(R.id.ch_stuspwn)
         val espawn: WatcherEditText = row.findViewById(R.id.ch_stespwn)
 
+        val ubaex: ImageButton = row.findViewById(R.id.ch_stubaseexp)
+        val ubase: ImageButton = row.findViewById(R.id.ch_stubaseicon)
+        val ubain: ImageButton = row.findViewById(R.id.ch_stubaseinfo)
+        val ubarow: TableRow = row.findViewById(R.id.ch_stubaserow)
+        val ubalv: Spinner = row.findViewById(R.id.ch_stubaselv)
+        val ubapt: TextView = row.findViewById(R.id.ch_stubaseplu)
+        val ubapl: Spinner = row.findViewById(R.id.ch_stubaseplv)
+        val ubafr: Button = row.findViewById(R.id.ch_stubasefrm)
+
         var st : Stage? = null
-        var hit = false
         fun setStage(sta : Stage) {
             st = sta
         }
 
         @SuppressLint("SetTextI18n")
-        fun addVal(thing : Any) {
+        fun addVal(thing : Indexable<*, *>, hit : Boolean) {
             if (thing is Background) {
                 if (hit) {
                     st!!.bg1 = thing.id
@@ -108,12 +127,6 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
                     st!!.mus0 = thing.id
                     mus.text = "${ctx.getString(R.string.stg_info_music)}: $thing"
                 }
-            } else if (thing is CastleImg) {
-                st!!.castle = thing.id
-                ect.text = "${ctx.getString(R.string.stg_info_ct)}: $thing"
-                val w = if (thing.img.img.width >= thing.img.img.height) 40f else 40f * (thing.img.img.width.toFloat() / thing.img.img.height)
-                val h = if (thing.img.img.height >= thing.img.img.width) 40f else 40f * (thing.img.img.height.toFloat() / thing.img.img.width)
-                ect.setCompoundDrawablesWithIntrinsicBounds(BitmapDrawable(ctx.resources, StaticStore.getResizeb(thing.img.img.bimg() as Bitmap, ctx, w, h)), null, null, null)
             }
         }
 
@@ -121,22 +134,14 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
             icons.removeAllViews()
             val ids = getid(st?.data ?: return)
             if (ids.isNotEmpty())
-                for (i in ids.indices) {
-                    val icn = getIcon(ids[i])
+                for (id in ids) {
+                    val icn = (id.get()?.preview?.img?.bimg() ?: StaticStore.empty(ctx, 18f, 18f)) as Bitmap
                     val icon = ImageView(ctx)
                     icon.layoutParams = FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     icon.setImageBitmap(icn)
                     icon.setPadding(StaticStore.dptopx(12f, ctx), StaticStore.dptopx(4f, ctx), 0, StaticStore.dptopx(4f, ctx))
                     icons.addView(icon)
                 }
-        }
-
-        private fun getIcon(ene : Identifier<AbEnemy>) : Bitmap {
-            if (ene.pack == Identifier.DEF) {
-                return if (ene.id < (StaticStore.eicons?.size ?: 0)) StaticStore.eicons?.get(ene.id) ?: StaticStore.empty(ctx, 18f, 18f)
-                else StaticStore.empty(ctx, 18f, 18f)
-            }
-            return (ene.get().preview?.img?.bimg() ?: StaticStore.empty(ctx, 18f, 18f)) as Bitmap
         }
 
         private fun getid(stage: SCDef): List<Identifier<AbEnemy>> {
@@ -240,7 +245,7 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
             val wid = CommonStatic.parseIntN(holder.width.text!!.toString())
             if (!holder.width.hasFocus() || wid == st.len)
                 return@setWatcher
-            val basepos = if (st.data.datas[st.data.datas.size - 1].castle_0 == 0)
+            val basepos = if (st.data.datas.isNotEmpty() && st.data.datas[st.data.datas.size - 1].castle_0 == 0)
                 if (st.data.datas[st.data.datas.size - 1].boss >= 1)
                     ceil(Identifier.getOr(st.castle, CastleImg::class.java).boss_spawn).toInt()
                 else 700
@@ -324,8 +329,7 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
         holder.mus.text = "${ctx.getString(R.string.stg_info_music)}: ${st.mus0?.get()}"
         holder.mus.setOnClickListener(object : SingleClick() {
             override fun onSingleClick(v: View?) {
-                holder.hit = false
-                ctx.notif = { holder.addVal(it) }
+                ctx.notif = { holder.addVal(it, false) }
 
                 val intent = Intent(ctx, MusicList::class.java)
                 intent.putExtra("pack", map.cont.sid)
@@ -356,8 +360,7 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
             override fun onSingleClick(v: View?) {
                 if (st.mush == 0)
                     return
-                holder.hit = true
-                ctx.notif = { holder.addVal(it) }
+                ctx.notif = { holder.addVal(it, true) }
 
                 val intent = Intent(ctx, MusicList::class.java)
                 intent.putExtra("pack", map.cont.sid)
@@ -376,8 +379,7 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
         holder.bg.text = "${ctx.getString(R.string.stg_info_bg)}: ${st.bg?.get()}"
         holder.bg.setOnClickListener(object : SingleClick() {
             override fun onSingleClick(v: View?) {
-                holder.hit = false
-                ctx.notif = { holder.addVal(it) }
+                ctx.notif = { holder.addVal(it, false) }
 
                 val intent = Intent(ctx, BackgroundList::class.java)
                 intent.putExtra("pack", map.cont.sid)
@@ -415,8 +417,7 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
             override fun onSingleClick(v: View?) {
                 if (st.bgh == 0)
                     return
-                holder.hit = true
-                ctx.notif = { holder.addVal(it) }
+                ctx.notif = { holder.addVal(it, true) }
 
                 val intent = Intent(ctx, BackgroundList::class.java)
                 intent.putExtra("pack", map.cont.sid)
@@ -442,8 +443,15 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
         holder.ect.text = "${ctx.getString(R.string.stg_info_ct)}: ${st.castle?.get()}"
         holder.ect.setOnClickListener(object : SingleClick() {
             override fun onSingleClick(v: View?) {
-                ctx.notif = { holder.addVal(it) }
-
+                ctx.notif = {
+                    if (it is CastleImg) {
+                        st.castle = it.id
+                        holder.ect.text = "${ctx.getString(R.string.stg_info_ct)}: $it"
+                        val w = if (it.img.img.width >= it.img.img.height) 40f else 40f * (it.img.img.width.toFloat() / it.img.img.height)
+                        val h = if (it.img.img.height >= it.img.img.width) 40f else 40f * (it.img.img.height.toFloat() / it.img.img.width)
+                        holder.ect.setCompoundDrawablesWithIntrinsicBounds(BitmapDrawable(ctx.resources, StaticStore.getResizeb(it.img.img.bimg() as Bitmap, ctx, w, h)), null, null, null)
+                    }
+                }
                 val intent = Intent(ctx, CastleList::class.java)
                 intent.putExtra("pack", map.cont.sid)
                 ctx.resultLauncher.launch(intent)
@@ -484,6 +492,117 @@ class CustomStageListAdapter(private val ctx: PackStageManager, private val map:
             intent.putExtra("stage", JsonEncoder.encode(st.id).toString())
             ctx.startActivity(intent)
         }
+
+        val info = st.info
+        holder.ubase.setOnClickListener {
+            val intent = Intent(ctx, AnimationViewer::class.java)
+            ctx.notif = {
+                if (it is Unit) {
+                    if (st.info == null)
+                        st.info = CustomStageInfo(st)
+                    (st.info as CustomStageInfo).ubase = it.forms[0]
+                    val l = Level(it.preferredLevel)
+                    l.setPlusLevel(it.preferredPlusLevel)
+                    (st.info as CustomStageInfo).lv = l
+                    notifyItemChanged(pos)
+                }
+            }
+            intent.putExtra("pack", JsonEncoder.encode(map.cont.sid).toString())
+            intent.putExtra("sele", true)
+            ctx.resultLauncher.launch(intent)
+        }
+        if (info is CustomStageInfo && info.ubase != null) {
+            holder.ubaex.visibility = View.VISIBLE
+            holder.ubain.visibility = View.VISIBLE
+
+            holder.ubain.setOnClickListener {
+                val intent = Intent(ctx, UnitInfo::class.java)
+
+                intent.putExtra("Data", JsonEncoder.encode(info.ubase.id).toString())
+                ctx.startActivity(intent)
+            }
+            if (info.ubase.icon?.img?.bimg() != null)
+                holder.ubase.setImageBitmap(info.ubase.icon?.img?.bimg() as Bitmap)
+            else
+                holder.ubase.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_castle))
+            holder.ubase.setOnLongClickListener {
+                info.ubase = null
+                info.destroy(true)
+                if (holder.ubarow.visibility == View.VISIBLE) {
+                    holder.ubarow.visibility = View.GONE
+                    val layout = holder.info.layoutParams
+                    layout.height -= holder.ubarow.height
+                    holder.info.layoutParams = layout
+                    holder.ubaex.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_expand_less_black_24dp))
+                }
+                notifyItemChanged(pos)
+                false
+            }
+            holder.ubaex.setOnClickListener {
+                holder.ubarow.visibility = View.GONE - holder.ubarow.visibility
+                val layout = holder.info.layoutParams
+                layout.height += holder.ubarow.height * (if (holder.ubarow.visibility == View.VISIBLE) 1 else -1)
+                holder.info.layoutParams = layout
+                holder.ubaex.setImageDrawable(ContextCompat.getDrawable(ctx, if (holder.ubarow.visibility == View.GONE) R.drawable.ic_expand_less_black_24dp else R.drawable.ic_expand_more_black_24dp))
+            }
+            if (info.ubase.unit.forms.size == 1)
+                holder.ubafr.visibility = View.GONE
+            else {
+                holder.ubafr.visibility = View.VISIBLE
+                holder.ubafr.setOnClickListener {
+                    info.ubase = info.ubase.unit.forms[(info.ubase.fid + 1) % info.ubase.unit.forms.size]
+
+                    if (info.ubase.icon?.img?.bimg() != null)
+                        holder.ubase.setImageBitmap(info.ubase.icon?.img?.bimg() as Bitmap)
+                    else
+                        holder.ubase.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_castle))
+                }
+            }
+            val levels = ArrayList<Int>(info.ubase.unit.maxLv)
+            for (i in 1 .. info.ubase.unit.maxLv)
+                levels.add(i)
+
+            val adapter = ArrayAdapter(ctx, R.layout.spinneradapter, levels)
+            holder.ubalv.adapter = adapter
+            holder.ubalv.setSelection(getIndex(holder.ubalv, info.lv.lv))
+            holder.ubalv.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
+                    val lev = (holder.ubalv.selectedItem ?: 1) as Int
+                    info.lv.setLevel(lev)
+                }
+                override fun onNothingSelected(parent: AdapterView<*>) {}
+            }
+            if (info.ubase.unit.maxPLv == 0) {
+                holder.ubapt.visibility = View.GONE
+                holder.ubapl.visibility = View.GONE
+            } else {
+                val plevels = ArrayList<Int>(info.ubase.unit.maxPLv)
+                for (i in 1 .. info.ubase.unit.maxPLv)
+                    plevels.add(i)
+
+                val adapter2 = ArrayAdapter(ctx, R.layout.spinneradapter, plevels)
+                holder.ubapl.adapter = adapter2
+                holder.ubapl.setSelection(getIndex(holder.ubapl, info.lv.plusLv))
+                holder.ubapl.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
+                        val lev = (holder.ubapl.selectedItem ?: 1) as Int
+                        info.lv.setPlusLevel(lev)
+                    }
+                    override fun onNothingSelected(parent: AdapterView<*>) {}
+                }
+            }
+        } else {
+            holder.ubaex.visibility = View.GONE
+            holder.ubain.visibility = View.GONE
+        }
+    }
+
+    private fun getIndex(spinner: Spinner, lev: Int): Int {
+        var index = 0
+        for (i in 0 until spinner.count)
+            if (lev == spinner.getItemAtPosition(i) as Int)
+                index = i
+        return index
     }
 
     private fun getStageName(num: Int) : String {
