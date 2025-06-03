@@ -757,6 +757,18 @@ class GetStrings(private val c: Context) {
                             str.append(c.getString(rid[i])).append(": ").append(l.stageLimit.deployDuplicationTimes[i]).append(" / ").append(l.stageLimit.deployDuplicationDelay[i]).append("f, ")
                     limits[c.getString(R.string.limit_dpspwn)] = str.substring(0, str.length - 2) + "]"
                 }
+                if (l.stageLimit.cannonMultiplier != 100) {
+                    val str = StringBuilder(c.getString(R.string.limit_cannon)).append(": ").append(l.stageLimit.cannonMultiplier).append("%")
+                    limits[c.getString(R.string.limit_cannon)] = str.toString()
+                }
+                if (l.stageLimit.unitSpeedLimit != 100) {
+                    val str = StringBuilder(c.getString(R.string.limit_uspd)).append(": ").append(l.stageLimit.unitSpeedLimit)
+                    limits[c.getString(R.string.limit_uspd)] = str.toString()
+                }
+                if (l.stageLimit.enemySpeedLimit != 100) {
+                    val str = StringBuilder(c.getString(R.string.limit_espd)).append(": ").append(l.stageLimit.enemySpeedLimit)
+                    limits[c.getString(R.string.limit_espd)] = str.toString()
+                }
             }
         }
         return limits

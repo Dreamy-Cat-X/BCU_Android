@@ -180,7 +180,7 @@ class PackManagement : AppCompatActivity() {
 
             //Load Data
             withContext(Dispatchers.IO) {
-                Definer.define(this@PackManagement, { _ -> }, { t -> runOnUiThread { st.text = t }})
+                Definer.define(this@PackManagement, { p -> runOnUiThread { prog.progress = (p * 10000.0).toInt() } }, { t -> runOnUiThread { st.text = t }})
             }
 
             //Load UI
@@ -260,19 +260,10 @@ class PackManagement : AppCompatActivity() {
                     handlingPacks = false
 
                     withContext(Dispatchers.Main) {
-                        if(PackConflict.conflicts.isNotEmpty()) {
-                            val intent = Intent(this@PackManagement, PackConflictSolve::class.java)
-
-                            startActivity(intent)
-
-                            finish()
-                        } else {
-                            val intent = Intent(this@PackManagement, MainActivity::class.java)
-
-                            startActivity(intent)
-
-                            finish()
-                        }
+                        val intent = Intent(this@PackManagement,
+                            if (PackConflict.conflicts.isNotEmpty()) PackConflictSolve::class.java else MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
                     }
 
                     needReload = false

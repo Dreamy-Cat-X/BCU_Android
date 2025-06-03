@@ -196,6 +196,30 @@ class LimitEditor : AppCompatActivity() {
                     return@doAfterTextChanged
                 lim.stageLimit.maxUnitSpawn = num
             }
+            val lcannonp : EditText = findViewById(R.id.pklimcannon)
+            lcannonp.text = SpannableStringBuilder(lim.stageLimit.cannonMultiplier.toString())
+            lcannonp.doAfterTextChanged {
+                val num = CommonStatic.parseIntN(lcannonp.text.toString())
+                if (!lcannonp.hasFocus() || num == lim.stageLimit.cannonMultiplier)
+                    return@doAfterTextChanged
+                lim.stageLimit.cannonMultiplier = num
+            }
+            val lmaxuspd : EditText = findViewById(R.id.pklimuspd)
+            lmaxuspd.text = SpannableStringBuilder(lim.stageLimit.unitSpeedLimit.toString())
+            lmaxuspd.doAfterTextChanged {
+                val num = CommonStatic.parseIntN(lmaxuspd.text.toString())
+                if (!lmaxuspd.hasFocus() || num == lim.stageLimit.unitSpeedLimit)
+                    return@doAfterTextChanged
+                lim.stageLimit.unitSpeedLimit = num
+            }
+            val lmaxespd : EditText = findViewById(R.id.pklimespd)
+            lmaxespd.text = SpannableStringBuilder(lim.stageLimit.enemySpeedLimit.toString())
+            lmaxespd.doAfterTextChanged {
+                val num = CommonStatic.parseIntN(lmaxespd.text.toString())
+                if (!lmaxespd.hasFocus() || num == lim.stageLimit.enemySpeedLimit)
+                    return@doAfterTextChanged
+                lim.stageLimit.enemySpeedLimit = num
+            }
             val lscd : CheckBox = findViewById(R.id.pklimscd)
             lscd.isChecked = lim.stageLimit.coolStart
             lscd.setOnClickListener { lim.stageLimit.coolStart = lscd.isChecked }
