@@ -626,7 +626,8 @@
         "full_name": "Summon",
         "tooltip": null,
         "format": [
-            "[(prob<100){(prob)% chance to summon}(prob==100){Summons}] (amount) (_summonMagnification(fix_buff,mult,id)) (_entity(id,form)) after (_dispTime(time)), ",
+            "[(prob<100){(prob)% chance to summon}(prob==100){Summons}] (amount) (_summonMagnification(fix_buff,mult,id)) (_entity(id,form))",
+            "[(interval>0){, with a (_dispTime(interval)) between each summoned entity,}] after (_dispTime(time)), ",
             "each summoned (dis)[(max_dis!=dis){ ~ (max_dis)}] range away from ",
             "[(on_kill|on_hit){each target}",
             "(!on_hit&!on_kill){the summoner}] ",
@@ -733,6 +734,10 @@
             "form": {
                 "name": "Form",
                 "tooltip": "Set which form of the unit you want to summon. Only applicable on Cat Units."
+            },
+            "interval": {
+                "name": "Interval",
+                "tooltip": "Interval of time between the first and subsequent summons, similar to respawn"
             }
         }
     },
@@ -743,8 +748,8 @@
         "format": [
             "[(prob<100){(prob)% chance to have}(prob==100){Has}] moving hitbox[(pid){ with (_toString(pid)) IDs}], ",
             "originated at a distance of (dis) from this entity ",
-            "with (width) widths, ",
-            " (speed) speed, and (_dispTime(itv)) interval for (_dispTime(time))"
+            "with (width) widths, (speed) speed, and (_dispTime(itv)) interval for (_dispTime(time))",
+            "[(hit_base){(_left)Can hit the enemy base(_right)}]"
         ],
         "class": {
             "prob": {
@@ -774,6 +779,10 @@
             "pid": {
                 "name": "ID",
                 "tooltip": "Sets the IDs of moving attack, allowing for type-based resistance discrimination"
+            },
+            "hit_base": {
+                "name": "Hit Base",
+                "tooltip": "Hits the enemy base if it's in attack range"
             }
         }
     },
@@ -2092,7 +2101,7 @@
             }
         }
     },
-    "REFUND": {
+    "MONEYBACK": {
         "abbr_name": "Refund",
         "full_name": "Refund",
         "tooltip": null,
@@ -2109,6 +2118,74 @@
             "count": {
                 "name": "Deploy count",
                 "tooltip": "Amount of deploys needed for refund to trigger"
+            }
+        }
+    },
+    "CANONCHARGE": {
+        "abbr_name": "C. Charge",
+        "full_name": "Cannon Charge",
+        "tooltip": null,
+        "format": "[(count>1){Every (count)th deployed[(prob<100){ has}] }] [(prob<100){(prob)% chance to charge}(prob==100){charges}] (mult)% of the cat cannon when killed",
+        "class": {
+            "prob": {
+                "name": "chance",
+                "tooltip": null
+            },
+            "mult": {
+                "name": "multiplier",
+                "tooltip": "% of cannon to be recharged"
+            },
+            "count": {
+                "name": "Deploy count",
+                "tooltip": "Amount of deploys needed for cannon charge to trigger"
+            }
+        }
+    },
+    "HPREGEN": {
+        "abbr_name": "hp regen",
+        "full_name": "Regeneration",
+        "tooltip": "heal or harm the entity every so often. Note that this doesn't trigger hitbacks",
+        "format": "[(amount>0){Heals by (amount) HP}(amount<0){Hurts by (amount*-1) HP}(amount==0){No healing}] at a (prob)% chance every (interval)f[(scaleWithBuff){, affected by buff}][(onlyOnce){, only occurring once}][(resetWhenDamaged){, resetting when damaged}][(freezeEff){, affected by freeze}][(removeProcs){, clearing all procs}][(idleTrigger){, only while standing still}][(noHB){, ignoring hitbacks}]",
+        "class": {
+            "prob": {
+                "name": "chance",
+                "tooltip": null
+            },
+            "interval": {
+                "name": "interval",
+                "tooltip": null
+            },
+            "amount": {
+                "name": "amount",
+                "tooltip": "Can be negative"
+            },
+            "scaleWithBuff": {
+                "name": "scale with buff",
+                "tooltip": "Increases amount as buff/level increases"
+            },
+            "onlyOnce": {
+                "name": "only once",
+                "tooltip": "Regeneration only happens once then never again"
+            },
+            "resetWhenDamaged": {
+                "name": "reset on damage",
+                "tooltip": "Regeneration timer resets when the entity is damaged"
+            },
+            "freezeEff": {
+                "name": "affected by freeze",
+                "tooltip": "Freeze will stop the regeneration timer"
+            },
+            "removeProcs": {
+                "name": "remove procs",
+                "tooltip": "When hp regeneration fires, all procs are removed (even if amount is 0)"
+            },
+            "idleTrigger": {
+                "name": "static only",
+                "tooltip": "HP regeneration will only begin when the entity isn't moving (either idle or attacking)"
+            },
+            "noHB": {
+                "name": "ignore hitback",
+                "tooltip": "Does not play hitback animations (useful if you want a timed entity like Iron Wall Cat or an instant soul spawner)"
             }
         }
     }

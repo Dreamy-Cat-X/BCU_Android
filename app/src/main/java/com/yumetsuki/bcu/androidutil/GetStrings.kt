@@ -761,12 +761,12 @@ class GetStrings(private val c: Context) {
                     val str = StringBuilder(c.getString(R.string.limit_cannon)).append(": ").append(l.stageLimit.cannonMultiplier).append("%")
                     limits[c.getString(R.string.limit_cannon)] = str.toString()
                 }
-                if (l.stageLimit.unitSpeedLimit != 100) {
-                    val str = StringBuilder(c.getString(R.string.limit_uspd)).append(": ").append(l.stageLimit.unitSpeedLimit)
+                if (l.stageLimit.unitSpeedOverride != 100) {
+                    val str = StringBuilder(c.getString(R.string.limit_uspd)).append(": ").append(l.stageLimit.unitSpeedOverride)
                     limits[c.getString(R.string.limit_uspd)] = str.toString()
                 }
-                if (l.stageLimit.enemySpeedLimit != 100) {
-                    val str = StringBuilder(c.getString(R.string.limit_espd)).append(": ").append(l.stageLimit.enemySpeedLimit)
+                if (l.stageLimit.enemySpeedOverride != 100) {
+                    val str = StringBuilder(c.getString(R.string.limit_espd)).append(": ").append(l.stageLimit.enemySpeedOverride)
                     limits[c.getString(R.string.limit_espd)] = str.toString()
                 }
             }

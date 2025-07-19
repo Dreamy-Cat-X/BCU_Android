@@ -199,6 +199,9 @@ class PackManagement : AppCompatActivity() {
             for(pack in UserProfile.getUserPacks())
                 if (!pack.editable)
                     packList.add(pack)
+            for(pack in UserProfile.profile().skipped.values)
+                if (!pack.editable)
+                    packList.add(pack)
 
             list.adapter = PackManagementAdapter(this@PackManagement, packList)
             prog.isIndeterminate = true
@@ -370,6 +373,9 @@ class PackManagement : AppCompatActivity() {
                 for(p in UserProfile.getUserPacks())
                     if (!p.editable)
                         packList.add(p)
+                for(p in UserProfile.profile().skipped.values)
+                    if (!p.editable)
+                        packList.add(p)
                 withContext(Dispatchers.Main) {
                     list.adapter = PackManagementAdapter(this@PackManagement, packList)
                 }
@@ -424,6 +430,9 @@ class PackManagement : AppCompatActivity() {
 
             val packList = ArrayList<PackData.UserPack>()
             for(pack in UserProfile.getUserPacks())
+                if (!pack.editable)
+                    packList.add(pack)
+            for(pack in UserProfile.profile().skipped.values)
                 if (!pack.editable)
                     packList.add(pack)
 

@@ -24,7 +24,7 @@ import com.yumetsuki.bcu.androidutil.lineup.LineUpView
 import com.yumetsuki.bcu.androidutil.supports.SingleClick
 import common.CommonStatic
 import common.battle.BasisSet
-import common.battle.data.Orb
+import common.battle.data.OrbInfo
 import common.util.Data
 import common.util.unit.Form
 import common.util.unit.Level
@@ -684,7 +684,7 @@ class LUOrbSetting : Fragment() {
             typeData.add(Data.ORB_RESISTANT)
         }
         for (i in Data.ORB_MINIDEATHSURGE until Data.ORB_TYPE_TOTAL)
-            if (data.isEmpty() || !Orb.onlyOne(i) || data[Data.ORB_TYPE.toInt()] == i || !lv.equippingOrb(i)) {
+            if (data.isEmpty() || !OrbInfo.onlyOne(i) || data[Data.ORB_TYPE.toInt()] == i || !lv.equippingOrb(i)) {
                 types.add(getType(i))
                 typeData.add(i.toByte())
             }
@@ -950,11 +950,11 @@ class LUOrbSetting : Fragment() {
 
         val p = Paint()
         val ind = if (getTextIndex(data[Data.ORB_TRAIT.toInt()]) != -1) getTextIndex(data[Data.ORB_TRAIT.toInt()]) else CommonStatic.getBCAssets().TRAITS.size - 1
-        cv.drawBitmap(StaticStore.getResizeb(CommonStatic.getBCAssets().TRAITS[ind].bimg() as Bitmap, c, 96f), 0f, 0f, p)
+        cv.drawBitmap(StaticStore.getResizeb(CommonStatic.getBCAssets().TRAITS[0][ind].bimg() as Bitmap, c, 96f), 0f, 0f, p)
 
         p.alpha = (255 * 0.75).toInt()
 
-        cv.drawBitmap(StaticStore.getResizeb(CommonStatic.getBCAssets().TYPES[data[Data.ORB_TYPE.toInt()]].bimg() as Bitmap, c, 96f), 0f, 0f, p)
+        cv.drawBitmap(StaticStore.getResizeb(CommonStatic.getBCAssets().TYPES[0][data[Data.ORB_TYPE.toInt()]].bimg() as Bitmap, c, 96f), 0f, 0f, p)
 
         p.alpha = 255
 
@@ -1058,30 +1058,30 @@ class LUOrbSetting : Fragment() {
         val grade = data[Data.ORB_GRADE.toInt()].toByte()
         val s = when(data[Data.ORB_TYPE.toInt()].toByte()) {
             Data.ORB_ATK -> c.getString(R.string.orb_atk_desc)
-                .replace("_",Orb.get(Data.ORB_ATK,grade)[0].toString())
+                .replace("_",OrbInfo.get(Data.ORB_ATK,grade)[0].toString())
             Data.ORB_RES -> c.getString(R.string.orb_def_desc)
-                .replace("_",Orb.get(Data.ORB_RES,grade)[0].toString())
+                .replace("_",OrbInfo.get(Data.ORB_RES,grade)[0].toString())
             Data.ORB_STRONG -> c.getString(R.string.orb_str_desc)
-                .replace("_", (Orb.get(Data.ORB_STRONG,grade)[0] / 1000f).toString())
-                .replace("-", Orb.get(Data.ORB_STRONG,grade)[1].toString())
+                .replace("_", (OrbInfo.get(Data.ORB_STRONG,grade)[0] / 1000f).toString())
+                .replace("-", OrbInfo.get(Data.ORB_STRONG,grade)[1].toString())
             Data.ORB_MASSIVE -> c.getString(R.string.orb_mas_desc)
-                .replace("_", (Orb.get(Data.ORB_MASSIVE,grade)[0] / 300f).toString())
+                .replace("_", (OrbInfo.get(Data.ORB_MASSIVE,grade)[0] / 300f).toString())
             Data.ORB_RESISTANT -> c.getString(R.string.orb_res_desc)
-                .replace("_", Orb.get(Data.ORB_RESISTANT,grade)[0].toString())
+                .replace("_", OrbInfo.get(Data.ORB_RESISTANT,grade)[0].toString())
             Data.ORB_MINIDEATHSURGE -> c.getString(R.string.orb_mds_desc)
-                .replace("_", Orb.get(Data.ORB_MINIDEATHSURGE,grade)[0].toString())
+                .replace("_", OrbInfo.get(Data.ORB_MINIDEATHSURGE,grade)[0].toString())
             Data.ORB_RESWAVE -> c.getString(R.string.orb_rsw_desc)
-                .replace("_", Orb.get(Data.ORB_RESWAVE,grade)[0].toString())
+                .replace("_", OrbInfo.get(Data.ORB_RESWAVE,grade)[0].toString())
             Data.ORB_REFUND -> c.getString(R.string.orb_refn_desc)
-                .replace("_", Orb.get(Data.ORB_REFUND,grade)[0].toString())
+                .replace("_", OrbInfo.get(Data.ORB_REFUND,grade)[0].toString())
             Data.ORB_RESKB -> c.getString(R.string.orb_rkb_desc)
-                .replace("_", Orb.get(Data.ORB_RESKB,grade)[0].toString())
+                .replace("_", OrbInfo.get(Data.ORB_RESKB,grade)[0].toString())
             Data.ORB_SOLBUFF -> c.getString(R.string.orb_sol_desc)
-                .replace("_", Orb.get(Data.ORB_SOLBUFF,grade)[0].toString())
-                .replace("-", Orb.get(Data.ORB_SOLBUFF,grade)[1].toString())
+                .replace("_", OrbInfo.get(Data.ORB_SOLBUFF,grade)[0].toString())
+                .replace("-", OrbInfo.get(Data.ORB_SOLBUFF,grade)[1].toString())
             Data.ORB_BAKILL -> c.getString(R.string.orb_colo_desc)
-                .replace("_", (Orb.get(Data.ORB_BAKILL,grade)[0]-100).toString())
-                .replace("-", (100-Orb.get(Data.ORB_BAKILL,grade)[1]).toString())
+                .replace("_", (OrbInfo.get(Data.ORB_BAKILL,grade)[0]-100).toString())
+                .replace("-", (100-OrbInfo.get(Data.ORB_BAKILL,grade)[1]).toString())
             else -> "???"
         }
 
@@ -1183,8 +1183,8 @@ class LUOrbSetting : Fragment() {
     }
     
     private fun getTextIndex(id: Int) : Int {
-        for(i in Orb.orbTrait.indices)
-            if(id == (1 shl Orb.orbTrait[i].toInt()))
+        for(i in OrbInfo.orbTrait.indices)
+            if(id == (1 shl OrbInfo.orbTrait[i].toInt()))
                 return i
         
         return -1
