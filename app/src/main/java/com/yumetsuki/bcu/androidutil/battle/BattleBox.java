@@ -537,7 +537,7 @@ public interface BattleBox {
                 if (f == null)
                     continue;
 
-                int pri = bf.sb.rem_spawns == 0 || bf.sb.cantDeploy(f.unit().getRarity(), bf.sb.b.lu.efs[i][i % 5].getWill()) ? -1 : bf.sb.elu.price[index][i % 5];
+                int pri = bf.sb.rem_spawns == 0 || bf.sb.cantDeploy(f.unit().getRarity(), bf.sb.b.lu.efs[index][i % 5].getWill()) ? -1 : bf.sb.elu.price[index][i % 5];
                 if (pri == -1 || pri == -2)
                     g.colRect(x, y, iw, ih, 255 / -pri, 0, 0, 100 / -pri);
 
