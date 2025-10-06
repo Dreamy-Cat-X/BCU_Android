@@ -281,7 +281,7 @@ class LUOrbSetting : Fragment() {
                     } else
                         f.du ?: return
 
-                    for(tr in mu.traits)
+                    for(tr in mu.getTraits(true))
                         if(tr.BCTrait())
                             traitList.add(tr)
                 } else {
@@ -291,7 +291,7 @@ class LUOrbSetting : Fragment() {
                         } else
                             f.du ?: return
 
-                        for(tr in mu.traits)
+                        for(tr in mu.getTraits(true))
                             if(tr.BCTrait() && !traitList.contains(tr))
                                 traitList.add(tr)
                     }
@@ -638,7 +638,7 @@ class LUOrbSetting : Fragment() {
             mas = mu.proc.DMGINC.mult >= 300
             res = mu.proc.DEFINC.mult >= 400
 
-            for(t in mu.traits)
+            for(t in mu.getTraits(true))
                 if(t.BCTrait())
                     traitList.add(t)
         } else {
@@ -652,7 +652,7 @@ class LUOrbSetting : Fragment() {
                 mas = mas or (mu.proc.DMGINC.mult >= 300)
                 res = res or (mu.proc.DEFINC.mult >= 400)
 
-                for(t in mu.traits)
+                for(t in mu.getTraits(true))
                     if(t.BCTrait() && !traitList.contains(t))
                         traitList.add(t)
             }
@@ -973,19 +973,19 @@ class LUOrbSetting : Fragment() {
                 f.du ?: return
             }
 
-            for(t in mu.traits) {
+            for(t in mu.getTraits(true)) {
                 if(t.BCTrait())
                     traitList.add(t)
             }
         } else {
             for(form in f.unit.forms) {
-                val mu = if (f.du.pCoin != null) {
-                    f.du.pCoin.improve(lv.talents) ?: return
+                val mu = if (form.du.pCoin != null) {
+                    form.du.pCoin.improve(lv.talents) ?: return
                 } else {
-                    f.du ?: return
+                    form.du ?: return
                 }
 
-                for(t in mu.traits) {
+                for(t in mu.getTraits(true)) {
                     if(t.BCTrait() && !traitList.contains(t))
                         traitList.add(t)
                 }
@@ -1114,7 +1114,7 @@ class LUOrbSetting : Fragment() {
                 mas = mas or (mu.proc.DMGINC.mult >= 300)
                 res = res or (mu.proc.DEFINC.mult >= 400)
 
-                for(t in mu.traits) {
+                for(t in mu.getTraits(true)) {
                     if(!t.BCTrait())
                         continue
 
@@ -1133,7 +1133,7 @@ class LUOrbSetting : Fragment() {
             mas = mu.proc.DMGINC.mult >= 300
             res = mu.proc.DEFINC.mult >= 400
 
-            for(t in mu.traits) {
+            for(t in mu.getTraits(true)) {
                 if(!t.BCTrait())
                     continue
 

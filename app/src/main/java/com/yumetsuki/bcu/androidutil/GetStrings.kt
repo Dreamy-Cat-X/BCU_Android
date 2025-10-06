@@ -435,10 +435,10 @@ class GetStrings(private val c: Context) {
     fun getTrait(ef: Form?, talent: Boolean, lvs: Level): Array<Bitmap> {
         if (ef == null) return arrayOf()
         val du: MaskUnit = if (ef.du.pCoin != null && talent) ef.du.pCoin.improve(lvs.talents) else ef.du
-        return traitIcons(du.traits)
+        return traitIcons(du.getTraits(false))
     }
     fun getTrait(em: Enemy): Array<Bitmap> {
-        return traitIcons(em.de.traits)
+        return traitIcons(em.de.getTraits(false))
     }
     fun traitIcons(traits : SortedPackSet<Trait>) : Array<Bitmap> {
         return Array(traits.size) { i ->
